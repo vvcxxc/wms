@@ -51,22 +51,7 @@
           </el-option>
         </el-select>
       </div>
-      <div class="map-title-sel">
-        <span class="map_text">深度：</span>
-        <el-select
-          popper-class="select-dropdown-class-li"
-          v-model="depthValue"
-          placeholder="请选择"
-        >
-          <el-option
-            v-for="item in allDepthList"
-            :key="item"
-            :label="item"
-            :value="item"
-          >
-          </el-option>
-        </el-select>
-      </div>
+     
       <div class="map-title-sel">
         <!-- <span class="map_text">托盘号：</span> -->
         <span class="map_text">计划号：</span>
@@ -231,9 +216,6 @@
             <div class="top-text">
               <img :src="suoding" /><span>已锁定</span>
             </div>
-            <div class="top-text">
-              <img :src="jingyong" /><span>不可用</span>
-            </div>
             <div
               class="top-text"
               v-for="item in rightTop"
@@ -357,8 +339,7 @@ export default {
       columnsList: [], //页面列数
       floorValue: "", //层
       allFloorList: [], //总层数
-      depthValue: "", //深度
-      allDepthList: [], //总深度数
+       allDepthList: [], //总深度数
       trayNum: "", //托盘号
       mapData: "", //图库数据
       totalNum: 0,
@@ -500,8 +481,7 @@ export default {
                   //   this.allFloorList[this.allFloorList.length - 1];
                   // this.rowValue = this.allRowList[0];
                   // this.columnsValue = this.allColumnsList[0];
-                  // this.depthValue = this.allDepthList[0];
-                  // this.totalNum = this.allColumnsList.length;
+                   // this.totalNum = this.allColumnsList.length;
 
                   // this.piePage = Math.max(...this.allFloorList);
                   // this.overLooking(this.piePage);
@@ -579,8 +559,7 @@ export default {
                   //   this.allFloorList[this.allFloorList.length - 1];
                   // this.rowValue = this.allRowList[0];
                   // this.columnsValue = this.allColumnsList[0];
-                  // this.depthValue = this.allDepthList[0];
-                  // this.totalNum = this.allColumnsList.length;
+                   // this.totalNum = this.allColumnsList.length;
 
                   // this.piePage = Math.max(...this.allFloorList);
                   // this.overLooking(this.piePage);
@@ -696,8 +675,7 @@ export default {
             this.floorValue = this.allFloorList[0]; // this.allFloorList.length - 1
             this.rowValue = this.allRowList[0];
             this.columnsValue = this.allColumnsList[0];
-            this.depthValue = this.allDepthList[0];
-            this.totalNum = this.allColumnsList.length;
+             this.totalNum = this.allColumnsList.length;
 
             this.piePage = Math.min(...this.allFloorList);
             this.overLooking(this.piePage);
@@ -749,8 +727,7 @@ export default {
             // this.floorValue = this.allFloorList[this.allFloorList.length - 1];
             // this.rowValue = this.allRowList[0];
             // this.columnsValue = this.allColumnsList[0];
-            // this.depthValue = this.allDepthList[0];
-            // this.totalNum = this.allColumnsList.length;
+             // this.totalNum = this.allColumnsList.length;
 
             // this.piePage = Math.max(...this.allFloorList);
             // // this.overLooking(this.piePage);
@@ -793,15 +770,13 @@ export default {
         if (
           this.rowValue &&
           this.columnsValue &&
-          this.floorValue &&
-          this.depthValue
+          this.floorValue  
         ) {
           for (let i = 0; i < list.length; i++) {
             if (
               this.rowValue == list[i].RowNum &&
               this.columnsValue == list[i].Line &&
-              this.floorValue == list[i].Plie &&
-              this.depthValue == list[i].Depth
+              this.floorValue == list[i].Plie  
             ) {
               this.chackData = list[i];
               break;

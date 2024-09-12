@@ -8,102 +8,45 @@
         </div>
         <!-- 按钮 -->
         <div class="list-btn">
-          <all-button
-            :btnData="btnData"
-            :btnPowerData="btnPowerArr"
-          ></all-button>
+          <all-button :btnData="btnData" :btnPowerData="btnPowerArr"></all-button>
         </div>
       </div>
+
       <div class="list-table" v-loading="loading1">
-        <list-table
-          ref="homePage"
-          :data="tableData"
-          :name="name"
-          :title="title"
-          :tableWatchFlag="tableWatchFlag"
-          :current-page="currentPage"
-        ></list-table>
+        <div class="select-count" v-if="haveWeightLabel">{{ `选中重量合计：${selectCountWeight}` }}</div>
+        <list-table ref="homePage" :data="tableData" :name="name" :title="title" :tableWatchFlag="tableWatchFlag"
+          :current-page="currentPage"></list-table>
       </div>
     </div>
     <div class="list-paginate">
-      <paginate
-        :allpage="allpage"
-        ref="page"
-        @get-current-page="getCurrentPage"
-      ></paginate>
+      <paginate :allpage="allpage" ref="page" @get-current-page="getCurrentPage"></paginate>
     </div>
     <!-- 弹窗 -->
-    <add-pop
-      ref="addpop"
-      :popTitle="popTitle"
-      :tableDataArr="tableDataArr"
-      :axioData="item"
-      :data="addData"
-      v-if="addShow"
-      :tableList="tableData"
-      :disLoading="loading2"
-    ></add-pop>
-    <tips-pop
-      ref="tipsPop"
-      :tableDataArr="tableDataArr"
-      :title="TitleText"
-      :data="item"
-      :type="tipsType"
-      :textInfo="textInfo"
-      v-if="tipsShow"
-    >
+    <add-pop ref="addpop" :popTitle="popTitle" :tableDataArr="tableDataArr" :axioData="item" :data="addData"
+      v-if="addShow" :tableList="tableData" :disLoading="loading2"></add-pop>
+    <tips-pop ref="tipsPop" :tableDataArr="tableDataArr" :title="TitleText" :data="item" :type="tipsType"
+      :textInfo="textInfo" v-if="tipsShow">
     </tips-pop>
-    <my-pop
-      v-if="isMyPopShow"
-      :text="myPopText"
-      :deleteShow="false"
-      @deleteBtn="deleteBtn"
-    >
+    <my-pop v-if="isMyPopShow" :text="myPopText" :deleteShow="false" @deleteBtn="deleteBtn">
     </my-pop>
-    <details-pop
-      v-if="isDetailsShow"
-      :name="name"
-      :title="title"
-      :tableDataArr="tableDataArr"
-      @handleDetails="handleDetails"
-    ></details-pop>
-    <detailed-pop
-      v-if="isDetailedShow"
-      :tableDataArr="tableDataArr"
-      :item="item"
-      @handleDetailed="handleDetailed"
-    />
-    <alarm-deatils
-      v-if="isAlarmShow"
-      :tableDataArr="tableDataArr"
-      :item="item"
-      @handleAlarm="handleAlarm"
-    />
-    <add-list-pop
-      ref="addListPop"
-      :popTitle="popTitle"
-      :tableDataArr="tableDataArr"
-      :axioData="item"
-      :data="addData"
-      :tableList="tableData"
-      :disLoading="loading2"
-      v-if="isAddList"
-    ></add-list-pop>
+    <details-pop v-if="isDetailsShow" :name="name" :title="title" :tableDataArr="tableDataArr"
+      @handleDetails="handleDetails"></details-pop>
+    <detailed-pop v-if="isDetailedShow" :tableDataArr="tableDataArr" :item="item" @handleDetailed="handleDetailed" />
+    <alarm-deatils v-if="isAlarmShow" :tableDataArr="tableDataArr" :item="item" @handleAlarm="handleAlarm" />
+    <add-list-pop ref="addListPop" :popTitle="popTitle" :tableDataArr="tableDataArr" :axioData="item" :data="addData"
+      :tableList="tableData" :disLoading="loading2" v-if="isAddList"></add-list-pop>
     <up-img :data="imgdata" :imgType="imgType" v-if="upimgShow"></up-img>
     <!-- 遮罩层 -->
-    <div
-      v-if="
-        addShow ||
-        tipsShow ||
-        upimgShow ||
-        isAddList ||
-        isMyPopShow ||
-        isDetailsShow ||
-        isDetailedShow ||
-        isAlarmShow
-      "
-      class="mask-box-li"
-    ></div>
+    <div v-if="
+  addShow ||
+  tipsShow ||
+  upimgShow ||
+  isAddList ||
+  isMyPopShow ||
+  isDetailsShow ||
+  isDetailedShow ||
+  isAlarmShow
+    " class="mask-box-li"></div>
   </div>
 </template>
 
@@ -194,7 +137,15 @@ export default {
   created() {
     this.init();
   },
-  mounted() {},
+  mounted() { },
+  computed: {
+    haveWeightLabel() {
+      return this.title.find(_ => _.FieldIndex == "Weight" || _.FieldName == "重量")
+    },
+    selectCountWeight() {
+      return this.tableDataArr.reduce((sum, w) => { return Number(w.Weight) + sum }, 0)
+    }
+  },
   methods: {
     //页面初始化
     init() {
@@ -216,7 +167,7 @@ export default {
         .then((res) => {
           this.loading = false;
           let data = JSON.parse(res.data.resultdata);
-          // console.log("ff" + data);
+          console.log("ff", data);
           if (data != null && data != "") {
             this.searchdata = data.filter_list; //查询条件
             this.btnData = data.Btn_list; //按钮列表
@@ -233,6 +184,7 @@ export default {
                 // this.tableTitleList.push(data)
               }
             }
+            console.log('mmm', this.title);
             var JumpType = this.$route.query.type;
             this.queryArr = [];
             if (JumpType == "2") {
@@ -597,7 +549,7 @@ export default {
             }
           }
         })
-        .catch((error) => {});
+        .catch((error) => { });
     },
 
     //筛选表单
@@ -715,18 +667,30 @@ export default {
   .list-header {
     overflow: hidden;
   }
+
   .list-search {
     width: 70%;
     float: left;
   }
+
   .list-btn {
     float: right;
     width: 30%;
     text-align: right;
   }
+
   .list-table {
     margin-top: 10px;
+    position: relative;
+
+    .select-count {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: fit-content;
+    }
   }
+
   .list-paginate {
     padding-bottom: 10px;
   }
