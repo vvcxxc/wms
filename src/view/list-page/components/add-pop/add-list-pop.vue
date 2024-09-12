@@ -342,6 +342,7 @@ export default {
 
     //单个下拉数据
     selectFun(url) {
+      console.log(`========${this.$store.state.dailog.url1}${url}`)
       return new Promise((resolve, reject) => {
         this.$axios({            //1为添加保存  
           method: 'post',

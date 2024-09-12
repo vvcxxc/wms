@@ -323,7 +323,7 @@
 import "./map-view.less";
 import jingyong from "@/assets/img1/jingyong.png";
 import suoding from "@/assets/img1/suoding.png";
-import { getMap, getContainerMapInfo } from "@/api/home.js";
+import { getMap2, getContainerMapInfo } from "@/api/home.js";
 import chaxun from "@/assets/img1/chaxun.png";
 import axios from "@/libs/api.request";
 import VueDragResize from "vue-drag-resize";
@@ -483,7 +483,7 @@ export default {
             this.allFloorList = [];
             this.allDepthList = [];
             this.loading = true;
-            getMap()
+            getMap2()
               .then((res) => {
                 this.loading = false;
                 if (res.data.resultdata) {
@@ -562,7 +562,7 @@ export default {
             this.allFloorList = [];
             this.allDepthList = [];
             this.loading = true;
-            getMap()
+            getMap2()
               .then((res) => {
                 this.loading = false;
                 if (res.data.resultdata) {
@@ -680,7 +680,7 @@ export default {
       this.allFloorList = [];
       this.allDepthList = [];
       this.loading = true;
-      getMap()
+      getMap2()
         .then((res) => {
           this.loading = false;
           if (res.data.resultdata) {
@@ -732,7 +732,7 @@ export default {
       this.allFloorList = [];
       this.allDepthList = [];
       this.loading = true;
-      await getMap()
+      await getMap2()
         .then((res) => {
           this.loading = false;
           if (res.data.resultdata) {
@@ -860,7 +860,6 @@ export default {
     },
     // 右侧显示数据
     showData(item) {
-      console.log(item);
       this.chackData = item;
       var list = this.rowAlldata;
       for (var i = 0; i < list.length; i++) {

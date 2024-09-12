@@ -27,5 +27,6 @@ wns
 3.  提交代码
 4.  新建 Pull Request
 
-
+#### 打包注意：
+1. 把src/config/index.js中baseUrl.dev的值改为/
 

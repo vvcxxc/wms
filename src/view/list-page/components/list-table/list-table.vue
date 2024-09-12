@@ -12,72 +12,16 @@
     {{tableHeight}} -->
     <div class="sort-list">
       排序筛选：
-      <el-tag
-        class="sort-tag"
-        v-for="(item, index) in tit1"
-        :key="index"
-        closable
-        type="info"
-        @close="closeSort(item, index)"
-      >
+      <el-tag class="sort-tag" v-for="(item, index) in tit1" :key="index" closable type="info"
+        @close="closeSort(item, index)">
         {{ item.label }}
       </el-tag>
     </div>
-
-    <div
-      class="current-tab"
-      v-if="
-        routerPathName == 'OutboundTaskList' ||
-        routerPathName == 'InboundTaskList'
-      "
-    >
-      <div class="current-left">
-        <div class="current-leftTop">
-          {{
-            routerPathName == "OutboundTaskList"
-              ? "当前出库任务"
-              : routerPathName == "InboundTaskList"
-              ? "当前入库任务"
-              : ""
-          }}
-        </div>
-        <div class="current-leftBottom">
-          <span>任务号:{{ selectItem.TaskId }}</span>
-          <span>最后修改时间:{{ selectItem.LastModifyOn }}</span>
-          <span>实际数量:{{ selectItem.ActualQty }}</span>
-        </div>
-      </div>
-      <div class="current-right">
-        <div
-          class="current-rightBtn"
-          v-show="item.Btn_Type == '9'"
-          v-for="(item, index) in btnData"
-          :key="index"
-          @click="clickBtn(item)"
-        >
-          {{ item.Btn_Text }}
-        </div>
-      </div>
-    </div>
-
-    <el-table
-      :show-summary="disShowSummary"
-      :summary-method="summaryMethod"
-      :data="tableData"
-      style="margin-bottom: 20px"
-      :height="tableHeight"
-      border
-      default-expand-all
-      highlight-current-row
-      :tree-props="{ children: 'Children', hasChildren: 'hasChildren' }"
-      row-key="vuekey"
-      :row-style="rowClass"
-      :row-class-name="tableRowClassName"
-      ref="handSelectTest_multipleTable"
-      @selection-change="handleSelectionChange"
-      @sort-change="sortChange"
-    >
-      <!-- @row-click="handleRowClick" 单击某行选中多选，，跟单选冲突了-->
+    <el-table :show-summary="disShowSummary" :summary-method="summaryMethod" :data="tableData"
+      style="margin-bottom: 20px" :height="tableHeight" border default-expand-all highlight-current-row
+      :tree-props="{ children: 'Children', hasChildren: 'hasChildren' }" row-key="vuekey" :row-style="rowClass"
+      :row-class-name="tableRowClassName" ref="handSelectTest_multipleTable" @row-click="handleRowClick"
+      @selection-change="handleSelectionChange" @sort-change="sortChange">
       <el-table-column v-if="vuekeyNum" width="50" type="expand">
       </el-table-column>
       <el-table-column type="selection" width="55" align="center">
@@ -85,37 +29,12 @@
       <!-- 动态内容 -->
       <template v-for="(item, index) in name">
         <!-- <el-table-column type="expand" :key="index" v-if="index == 0"> </el-table-column> -->
-        <el-table-column
-          :render-header="labelHead"
-          :key="'table' + index"
-          :prop="name[index]"
-          :label="title[index].FieldName"
-          sortable="custom"
-          :show-overflow-tooltip="true"
-        >
+        <el-table-column :render-header="labelHead" :key="'table' + index" :prop="name[index]"
+          :label="title[index].FieldName" sortable="custom" :sort-method="(a, b) => sortMethod(item.prop, a, b)"
+          :show-overflow-tooltip="true">
         </el-table-column>
       </template>
     </el-table>
-
-    <div class="deletePop" v-if="popShow && selectItem.TaskId">
-      <div class="title">
-        <span class="text">修改数量</span>
-      </div>
-      <div class="delete_text">
-        实际数量<input
-          type="number"
-          :min="0"
-          :max="6"
-          v-model="popValue"
-          @blur="checkValue"
-        />
-      </div>
-      <div class="delete_btn">
-        <div class="no" @click="closePop">取消</div>
-        <div class="yes" @click="sumbitPop">确认</div>
-      </div>
-    </div>
-    <div class="mask_box" v-if="popShow && selectItem.TaskId"></div>
   </div>
 </template>
 <script>
@@ -124,9 +43,6 @@ import "./list-table.less";
 export default {
   data() {
     return {
-      updateNumUrl: "",
-      popShow: false,
-      popValue: 0,
       tableData: null,
       selectData: [],
       selectRow: [],
@@ -137,50 +53,12 @@ export default {
       screenWidth: null,
       screenHeight: null,
       vuekeyNum: 0,
-      selectItem: {},
     };
   },
-  props: [
-    "data",
-    "name",
-    "title",
-    "currentPage",
-    "tableWatchFlag",
-    "btnData",
-    "btnPowerData",
-    "routerPathName",
-  ],
-  directives: {
-    drag: function (el) {
-      let dragBox = el; //获取当前元素
-      dragBox.onmousedown = (e) => {
-        let box = document.querySelector(".deletePop");
-        //算出鼠标相对元素的位置
-        let disX = e.clientX - dragBox.offsetLeft;
-        let disY = e.clientY - dragBox.offsetTop;
-        document.onmousemove = (e) => {
-          //用鼠标的位置减去鼠标相对元素的位置，得到元素的位置
-          let left = e.clientX - Number(disX);
-          let top = e.clientY - Number(disY);
-          //移动当前元素
-          box.style.left = left + "px";
-          box.style.top = top + "px";
-        };
-        document.onmouseup = (e) => {
-          document.onmousemove = null;
-          document.onmouseup = null;
-        };
-      };
-    },
-  },
+  props: ["data", "name", "title", "currentPage", "tableWatchFlag"],
   watch: {
     data(n, o) {
-      // this.tit1 = [];
-      if (this.routerPathName == "OutboundTaskList") {
-        this.selectItem = n.find((item) => item.Status != "shipped") || {};
-      } else if (this.routerPathName == "InboundTaskList") {
-        this.selectItem = n.find((item) => item.Status != "succeeded") || {};
-      }
+      // this.tit1 = []
       this.init();
     },
     tableWatchFlag() {
@@ -218,71 +96,13 @@ export default {
     };
   },
   methods: {
-    closePop() {
-      this.popShow = false;
-      this.popValue = 0;
-    },
-    isPositiveInteger(s) {
-            var re = /^[0-9]+$/;
-            return re.test(s);
-        },
-    sumbitPop() {
-      if (!this.isPositiveInteger(this.popValue)) {
-        this.$message.error({
-          message: "请输入正整数",
-        });     
-        return;
+    sortMethod(key, a, b) {
+      let _a = a[key] ?? 0;
+      let _b = b[key] ?? 0;
+      if (_a.indexOf('-') >= 0 && _b.indexOf('-') >= 0) {
+        return _a.split('-')[0] - _b.split('-')[0];
       }
-      this.$parent.saveData(this.updateNumUrl, {
-        taskId: this.selectItem.TaskId,
-        currentQty: this.selectItem.ActualQty,
-        reQty: Number(this.popValue),
-      });
-      this.closePop();
-    },
-    clickBtn(item) {
-      if (this.btnPowerData.length != 0) {
-        for (let i = 0; i < this.btnPowerData.length; i++) {
-          if (this.btnPowerData[i].Btn_ID == item.Btn_ID) {
-            if (this.btnPowerData[i].IsAuthorized == "N") {
-              this.$message.error({
-                message: "没有【" + item.Btn_Text + "】权限",
-              });
-              return;
-            }
-          }
-        }
-      }
-      if (item.Btn_Text == "修改数量") {
-        this.popShow = true;
-        this.popValue = this.selectItem.ActualQty;
-        this.updateNumUrl = item.SumbitUrl;
-      } else {
-        this.$parent.saveData(item.SumbitUrl, {
-          taskId: this.selectItem.TaskId,
-        });
-      }
-    },
-    checkValue() {
-      if (!this.isPositiveInteger(this.popValue)) {
-        this.$message.error({
-          message: "数量应该为正整数",
-        });
-        this.popValue = this.selectItem.ActualQty;
-        return;
-      }
-      if (Number(this.popValue) < 0 || Number(this.popValue) > 6) {
-        this.$message.error({
-          message: "数量应该在0到6之间",
-        });
-        this.popValue = this.selectItem.ActualQty;
-        return;
-      }
-    },
-    //是否为正整数
-    isPositiveInteger(s) {
-      var re = /^[0-9]+$/;
-      return re.test(s);
+      return _a - _b;
     },
     //列表展开和收起
     forArr(arr, isExpand) {
@@ -296,17 +116,12 @@ export default {
     },
     //获取高度
     getHeight() {
-      let num =
-        this.routerPathName == "InboundTaskList" ||
-        this.routerPathName == "OutboundTaskList"
-          ? 180
-          : 100;
       this.$nextTick(() => {
         // console.log(this.$parent.$refs.listPage.offsetHeight)
         this.tableHeight =
           this.$parent.$refs.listPage.offsetHeight -
           this.$parent.$refs.listHeader.offsetHeight -
-          num;
+          100;
       });
     },
     routerChang() {
@@ -412,6 +227,10 @@ export default {
         if (tit.length > 0) {
           for (var i = 0; i < tit.length; i++) {
             var key = tit[i].prop;
+            if (key == 'contiannum') {
+              key = 'contianIndex'
+            }
+            console.log(a,b);
             if (a[key] == b[key]) {
               continue;
               // return b[key] < a[key]
@@ -542,9 +361,11 @@ export default {
 .row-expand-unhas .el-table__expand-column {
   pointer-events: none;
 }
+
 .row-expand-unhas .el-table__expand-column .el-icon {
   visibility: hidden;
 }
+
 .el-table__expanded-cell[class*="cell"] {
   padding: 0;
 }

@@ -11,11 +11,21 @@
     <div>
       <el-row :gutter="24">
         <el-col :span="8" v-for="(item, index) in topList" :key="index">
-          <!-- @click="jumpPage(index + 1)" -->
-          <div class="top-box">
+          <div class="top-box" @click="jumpPage(index + 1)">
             <div class="box-info">
-              <div class="info-title1">{{ item.title1 }}</div>
-              <div class="info-value1">{{ item.value2 }}</div>
+              <span class="info-title1"> {{ item.title1 }}: </span>
+              <span class="info-value1">
+                {{ item.value1 }}
+              </span>
+              <p class="info-right">
+                <span class="info-right1"> {{ item.title2 }}</span>
+                <span class="info-right1 right1-color">
+                  {{ item.value2 }}
+                </span>
+                <span class="info-right1">
+                  {{ item.defultValue2 != "" ? "/" + item.defultValue2 : "" }}
+                </span>
+              </p>
             </div>
             <div class="box-progress">
               <el-progress
@@ -30,9 +40,13 @@
                   left:
                     item.value2 / item.defultValue2
                       ? (item.value2 / item.defultValue2) * 100 - 2 >= 0
-                        ? (item.value2 / item.defultValue2) * 100 - 2 + '%'
+                        ? (item.value2 / item.defultValue2) * 100 >= 92
+                          ? 'initial'
+                          : (item.value2 / item.defultValue2) * 100 - 2 + '%'
                         : 0
                       : 0,
+                  right:
+                    item.value2 / item.defultValue2 >= 0.92 ? 0 : 'initial',
                 }"
               >
                 {{
@@ -68,43 +82,11 @@
           :key="index"
           class="echart-box-style"
         >
-          <lineEcharts
-            :data="item"
-            v-if="item.Chart_Type == 1"
-            :dateBtnList="dateBtnList"
-          >
-          </lineEcharts>
-          <barEcharts
-            :data="item"
-            v-if="item.Chart_Type == 4"
-            :dateBtnList="dateBtnList"
-          >
-          </barEcharts>
+          <lineEcharts :data="item" v-if="item.Chart_Type == 1"> </lineEcharts>
+          <barEcharts :data="item" v-if="item.Chart_Type == 4"> </barEcharts>
           <pieEcharts :data="item" v-if="item.Chart_Type == 3"> </pieEcharts>
         </el-col>
       </el-row>
-    </div>
-
-    <div class="date-list">
-      <div class="ligth-box">
-        有无可出库物料:
-        <img
-          class="ligth-icon"
-          :src="
-            outboundLight
-              ? require('../../assets/img/green-light.svg')
-              : require('../../assets/img/grey-light.svg')
-          "
-        />
-      </div>
-      <div
-        :class="item.select ? 'date-btn current-btn' : 'date-btn'"
-        v-for="(item, idx) in dateBtnList"
-        :key="idx"
-        @click="changeDateType(item.label)"
-      >
-        {{ item.label }}
-      </div>
     </div>
   </div>
 </template>
@@ -115,11 +97,7 @@ import PieEcharts from "./components/echartspPie.vue";
 import BarEcharts from "./components/echartsBar.vue";
 import { getPageChart } from "@/api/home.js";
 import { addTagNavList } from "@/libs/util.js";
-import {
-  getSystemInfo,
-  getSystemBoxsInfo,
-  getAllowOutboundTask,
-} from "@/api/user.js";
+import { getSystemInfo, getSystemBoxsInfo } from "@/api/user.js";
 
 import "./home.less";
 export default {
@@ -156,34 +134,10 @@ export default {
           defultValue2: "",
         },
       ],
-      dateUrl: "",
-      dateBtnList: [
-        {
-          label: "天",
-          select: false,
-          url: "/Base_Chart/GetDayBarInOutStockAnalyse",
-        },
-        {
-          label: "周",
-          select: true,
-          url: "/Base_Chart/GetWeekBarInOutStockAnalyse",
-        },
-        {
-          label: "月",
-          select: false,
-          url: "/Base_Chart/GetMonthBarInOutStockAnalyse",
-        },
-      ],
-      outboundLight: false,
     };
   },
 
   methods: {
-    changeDateType(label) {
-      this.dateBtnList.forEach((item) => {
-        item.select = item.label == label ? true : false;
-      });
-    },
     //页面初始化
     init() {
       // 1 为折线 2为柱状 3为饼图  4为正负柱状
@@ -195,7 +149,7 @@ export default {
           this.loading = false;
           let data = JSON.parse(res.data.resultdata);
           this.echartArr = data;
-          console.log("data", data);
+          // console.log(data)
         })
         .catch((error) => {
           this.loading = false;
@@ -236,7 +190,6 @@ export default {
           }
         });
       }
-      console.log(this.topList);
     },
     getInfos(info) {
       return new Promise((resolve, reject) => {
@@ -263,19 +216,21 @@ export default {
           name: "399CFCAD-2E8D-42BB-B550-590992E44035",
         };
       } else if (index == 2) {
-        routerPath = "/ListPage1";
-        index1 = "ListPage1/任务列表/2919F971-83F9-4D21-BDE4-68F44B316984";
-        query = {
-          id: "任务列表",
-          name: "2919F971-83F9-4D21-BDE4-68F44B316984",
-        };
+        return;
+        // routerPath = "/ListPage1";
+        // index1 = "ListPage1/任务列表/2919F971-83F9-4D21-BDE4-68F44B316984";
+        // query = {
+        //   id: "任务列表",
+        //   name: "2919F971-83F9-4D21-BDE4-68F44B316984",
+        // };
       } else if (index == 3) {
-        routerPath = "/ListPage1";
-        index1 = "ListPage1/报警列表/4D3F9245-DA20-43F7-8C20-29E473143EDB";
-        query = {
-          id: "报警列表",
-          name: "4D3F9245-DA20-43F7-8C20-29E473143EDB",
-        };
+        return;
+        // routerPath = "/ListPage1";
+        // index1 = "ListPage1/报警列表/4D3F9245-DA20-43F7-8C20-29E473143EDB";
+        // query = {
+        //   id: "报警列表",
+        //   name: "4D3F9245-DA20-43F7-8C20-29E473143EDB",
+        // };
       }
       addTagNavList(index1, query);
       this.$router.push({
@@ -283,16 +238,10 @@ export default {
         query: query,
       });
     },
-    getAllowOutboundTaskFn() {
-      getAllowOutboundTask().then((res) => {
-        this.outboundLight = JSON.parse(res.data.resultdata).Success;
-      });
-    },
   },
   mounted() {
     // console.log(this.$refs.home)
     this.init();
-    this.getAllowOutboundTaskFn();
     // this.echartArr = [
     //   {
     //     title: '库存使用率',

@@ -115,7 +115,7 @@ export default {
             var url = `${this.$store.state.dailog.url1}/COMmon/Base_Page/GetPageInfo?page_ID=${this.id}`
             this.allpage = 0
             this.tableData = []
-              this.$axios({              //初始化数据
+              this.$requset({              //初始化数据
                     method: 'get',
                     url: url,
                 }).then(res => {

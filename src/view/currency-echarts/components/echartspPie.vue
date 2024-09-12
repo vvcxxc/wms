@@ -6,13 +6,9 @@
  * @LastEditTime: 2020-09-21 16:27:44
 -->
 <template>
-
-    <div ref="main3"  class="echart">
-      
-  </div>
+  <div ref="main3" class="echart"></div>
 </template>
 <script>
-import { getEchartInfo } from '@/api/home.js'
 export default {
   data() {
     return {
@@ -20,62 +16,43 @@ export default {
       series: [],
       legendData: [],
       title: "",
-      myChart3: ''
+      myChart3: "",
     };
   },
   props: ["data", "dataIndex"],
   created() {
     this.init();
   },
+  watch: {
+    data() {
+      this.init();
+    },
+  },
   mounted() {
     this.$nextTick(function () {
       if (this.$refs.main3) {
-        window.addEventListener('resize', () => {
+        window.addEventListener("resize", () => {
           this.myChart3.resize();
           // console.log(myChart3)
-        })
+        });
         this.drawLine();
-
       }
     });
-
   },
   methods: {
     init() {
-      // console.log('ddd',this.data)
-      // var data = {
-      //   chartname: "缓存区库位使用情况分析图",
-      //   xdata: null,
-      //   histogramEntities: null,
-      //   pieEntities: [
-      //     { name: "已满", value: 67 },
-      //     { name: "已冻结", value: 3 },
-      //     { name: "已锁定", value: 0 },
-      //     { name: "可用", value: 12 },
-      //   ],
-      // };
-      // for (var item in this.data.pieEntities) {
-      //   this.legendData.push(this.data.pieEntities[item].name);
-      // }
-      // this.title = this.data.title;
-      // this.series = this.data.pieEntities;
-      let url = this.data.data_url
-      getEchartInfo(url).then(res=>{
-       if(!res.data.resultdata) return
-        let data = JSON.parse(res.data.resultdata)
-        this.title = data.chartname 
-        this.series =data.pieEntities;
-        for (var item in data.pieEntities) {
+      let data = this.data;
+      this.series = [];
+      this.legendData = [];
+      this.title = data.chartname;
+      this.series = data.pieEntities;
+      for (var item in data.pieEntities) {
         this.legendData.push(data.pieEntities[item].name);
       }
-         this.drawLine();
-      }).catch(err=>{
-        console.log(err)
-      })
+      this.drawLine();
     },
     //渲染图表
     drawLine() {
-      
       //饼图
       var option = {
         title: {
@@ -93,10 +70,10 @@ export default {
                 height: 16,
                 width: 16,
                 backgroundColor: {
-                  image: require('@/assets/img1/65.png')
-                }
+                  image: require("@/assets/img1/65.png"),
+                },
               },
-            }
+            },
           },
         },
 
@@ -119,7 +96,7 @@ export default {
           data: this.legendData,
           right: null, //右邊距
           top: null,
-          bottom:-23,
+          bottom: -23,
           left: "center",
           padding: [40, 20],
           // width:20
@@ -152,23 +129,25 @@ export default {
             },
             labelLine: {
               length: 50,
-            }
+            },
           },
         ],
       };
       this.myChart3 = this.$echarts.init(this.$refs.main3);
+      this.myChart3.clear();
       this.myChart3.setOption(option);
       this.myChart3.resize();
     },
   },
-  destroyed() {   //关键四   定时清除init带来的定时器
-    window.removeEventListener('resize', this.myChart3)
+  destroyed() {
+    //关键四   定时清除init带来的定时器
+    window.removeEventListener("resize", this.myChart3);
   },
 };
 </script>
 <style lang="less" scoped>
 .echart {
   width: 100%;
-  height: 440px;
+  height: 100%;
 }
 </style>

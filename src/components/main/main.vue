@@ -15,19 +15,15 @@
       </div>
 
       <div class="el-menu-demo" ref="scrollOuter1">
-        <div
-          class="hor-menu"
-          ref="scrollBody1"
-          :style="{ left: tagBodyLeft + 'px' }"
-        >
-          <horizontal-menu
-            :menu-list="menuList"
-            :active-index="activeIndex"
-            @handle-select="handleSelect"
-          ></horizontal-menu>
+        <div class="hor-menu" ref="scrollBody1" :style="{ left: tagBodyLeft + 'px' }">
+          <horizontal-menu :menu-list="menuList" :active-index="activeIndex" @handle-select="handleSelect">
+          </horizontal-menu>
         </div>
       </div>
       <div class="header-right">
+        <el-select class="wms-select" v-model="selectedHouse" @change="changeHouse">
+          <el-option v-for="item in houseList" :key="item.Id" :label="item.Name" :value="item.Id" />
+        </el-select>
         <div class="hor-right-icon">
           <el-button type="text" @click="handleScroll(-240)">
             <!-- <i class="el-icon-arrow-right icon-size"></i> -->
@@ -41,11 +37,7 @@
       </div>
     </el-header>
     <div class="tag-nav-wrapper">
-      <tags-nav
-        :tag-list="tagList"
-        @skip-tag="handleSelect"
-        @close-tag-list="closeTagList"
-      ></tags-nav>
+      <tags-nav :tag-list="tagList" @skip-tag="handleSelect" @close-tag-list="closeTagList"></tags-nav>
     </div>
     <el-main class="main-content">
       <!-- <keep-alive> -->
@@ -90,6 +82,8 @@ export default {
       menuList: [],
       activeIndex: "/home",
       headerTitle: "WMS仓储管理系统",
+      houseList: [],
+      selectedHouse: '',
     };
   },
   computed: {
@@ -104,6 +98,20 @@ export default {
   },
 
   methods: {
+    getHouseData() {
+      this.$request({
+        method: 'GET',
+        url: '/Render/GetWarehouse'
+      }).then(res => {
+        let data = JSON.parse(res.data.resultdata)
+        this.houseList = [...data]
+        this.selectedHouse = data[0].Id
+        sessionStorage.setItem('warehouseId', this.selectedHouse)
+      })
+    },
+    changeHouse(value) {
+      sessionStorage.setItem('warehouseId', value)
+    },
     //获取首页信息
     getSystemInfoFun() {
       getSystemInfo()
@@ -145,6 +153,7 @@ export default {
     },
     //菜单点击跳转
     handleSelect(index, indexPath) {
+      console.log(index);
       if (index != "") {
         let url = index.split("/");
         let query = {
@@ -159,7 +168,9 @@ export default {
         this.getBtnList(this.menuList, url[2]);
         this.activeIndex = index;
         // this.addTagList(index, query);
-        addTagNavList(index, query);
+        if (url[0] != 'weitai1') {
+          addTagNavList(index, query);
+        }
       } else {
         this.closeTagList("all");
       }
@@ -237,11 +248,16 @@ export default {
             this.$router.push({ path: "/4041" });
           }
         })
-        .catch((error) => {});
+        .catch((error) => { });
     },
     //获取导航菜单长度并居中
     getMenuLen(list) {
-      this.$refs.scrollBody1.style.width = 120 * list.length + "px"; //获取导航栏长度
+      let myWidth = 0;
+      list.forEach((val) => {
+        myWidth = myWidth + 14 * val.name.length + 60;
+      });
+      this.$refs.scrollBody1.style.width = myWidth + "px"; //获取导航栏长度
+      // this.$refs.scrollBody1.style.width = "fit-content"; //获取导航栏长度
       // console.log(this.$refs.scrollBody1.offsetWidth)
       // console.log(this.$refs.scrollOuter1.offsetWidth)
       let scrollBodyLen = this.$refs.scrollBody1.offsetWidth;
@@ -273,6 +289,7 @@ export default {
     },
   },
   created() {
+    this.getHouseData()
     localStorage.systemType = "1";
     this.userName = localStorage.getItem("ms_username");
     this.activeIndex = this.$route.path;
@@ -292,15 +309,19 @@ export default {
   padding: 0 8px;
   // color: #606266;
 }
+
 .main /deep/ .el-input__inner:hover {
   border-color: #bfbfbf;
 }
+
 .main /deep/ .el-select .el-input.is-focus .el-input__inner {
   border-color: #3399ff;
 }
+
 .main /deep/ .el-input--small .el-input__inner {
   height: 30px;
 }
+
 .main /deep/ .el-input.is-active .el-input__inner,
 .main /deep/ .el-input__inner:focus,
 .main /deep/ .el-select .el-input__inner:focus {
@@ -309,4 +330,5 @@ export default {
 }
 </style>
 <style lang="less">
+
 </style>

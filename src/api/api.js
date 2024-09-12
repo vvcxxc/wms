@@ -7,31 +7,30 @@
  * 没有用的，api都写在各自页面
  */
 
-
-import axios from 'axios';
+import request from '@/utils/request'
 let baseUrl = '';
 export const getUserList = params=>{
-    return axios.get(`${baseUrl}/user/list`,{params:params})
+    return request.get(`${baseUrl}/user/list`,{params:params})
 }
 export const getSysmenu = ()=>{
-    return axios.get('../../menu.json')
+    return request.get('../../menu.json')
 }
 export const getDeleUser = params=>{
-    return axios.get('user/deletUsers',{params:params});
+    return request.get('user/deletUsers',{params:params});
 }
 export const getEditUser = params=>{
-    return axios.get(`${baseUrl}/user/editUser`,{
+    return request.get(`${baseUrl}/user/editUser`,{
         params:params
     })
 }
 export const getAddUser = params=>{
-    return axios.get(`${baseUrl}/user/addUser`,{
+    return request.get(`${baseUrl}/user/addUser`,{
         params:params
     })
 }
 export const getDeleteOne = params=>{
-    return axios.get(`${baseUrl}/user/DeleteOne`,{params:params})
+    return request.get(`${baseUrl}/user/DeleteOne`,{params:params})
 }
 export const testApi = ()=>{
-    return axios.get("/testApi/getkeywhereisddata?CITY_NAME=全省&S_id=B08I00136&callback=")
+    return request.get("/testApi/getkeywhereisddata?CITY_NAME=全省&S_id=B08I00136&callback=")
 }

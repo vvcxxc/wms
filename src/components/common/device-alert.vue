@@ -79,7 +79,6 @@ export default {
   data() {
     return {
       dialog: {
-        recordId:'',
         show: false,
         title: "",
         text: "",
@@ -102,15 +101,7 @@ export default {
             }, 3000);
             return;
           }
-          if (this.dialog.recordId != res.data.resultdata.recordId) {
-            this.dialog.show = true;
-            this.dialog.recordId = res.data.resultdata.recordId;
-          } else {
-            setTimeout(() => {
-              this.getDeviceInfo();
-            }, 3000);
-            return;
-          }
+          this.dialog.show = true;
           this.dialog.title = res.data.resultdata.windowtitle;
           this.dialog.text = res.data.resultdata.windowText;
           this.dialog.submitUrl = res.data.resultdata.submitUrl;
