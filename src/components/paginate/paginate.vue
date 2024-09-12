@@ -13,7 +13,6 @@
       @current-change="handleCurrentChange"
       :current-page.sync="currentPage4"
       :page-size="pageSize"
-      :page-sizes="[10,20,30,40,50,100,this.totalNum]"
       layout="sizes,total, prev, pager, next, jumper"
       :total="totalNum"
       popper-class="select-dropdown-class-li"

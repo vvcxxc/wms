@@ -51,7 +51,7 @@
       >
       </el-date-picker>
     </div>
-    <div v-show="seleShow" class="box-select">
+    <div v-show="seleShow && !kuweixinxi" class="box-select">
       <el-input
         type="text"
         v-model="text"
@@ -59,6 +59,19 @@
         placeholder="请输入"
       ></el-input>
     </div>
+    <div v-show="seleShow && kuweixinxi" class="box-select">
+      <el-select
+        popper-class="select-dropdown-class-li"
+        v-model="text"
+        placeholder="请选择"
+      >
+        <el-option label="全部" :value="'0'"> </el-option>
+        <el-option label="已满72小时" :value="'1'"> </el-option>
+        <el-option label="未满72小时" :value="'2'"> </el-option>
+        <el-option label="空托" :value="'3'"> </el-option>
+      </el-select>
+    </div>
+
     <div class="box-select">
       <el-button class="btn-style1" @click="queryFun()"
         ><img :src="chaxun" />查询</el-button
@@ -154,6 +167,7 @@ export default {
       titleArr: [], //提示数组是否重复
       seleShow: true,
       type: "",
+      kuweixinxi: false,
     };
   },
   created() {
@@ -161,7 +175,7 @@ export default {
   },
   watch: {
     searchdata(n, o) {
-      //  console.log(this.searchData)
+      console.log("this.searchData", this.searchData);
       this.init();
     },
   },
@@ -171,7 +185,7 @@ export default {
     init() {
       this.value = "";
       this.value2 = "";
-      this.text = "";
+
       this.statetime = "";
       this.endtime = "";
       this.inputArr = [];
@@ -179,6 +193,7 @@ export default {
       this.massageArr = [];
       this.value3 = "";
       this.axiosdata = [];
+      this.kuweixinxi = false;
       if (this.searchdata.length == 0) {
         return;
       }
@@ -188,10 +203,18 @@ export default {
           value: item.FieldIndex,
           label: item.FieldIndex,
           type: item.FieldType,
+          Page_ID: item.Page_ID,
         };
         return value;
       });
       //搜索头对应条件
+      if (this.inputArr[0].Page_ID == "3A876D10-6D91-429C-82B7-E7C44E887894") {
+        this.kuweixinxi = true;
+        this.text = "0";
+      } else {
+        this.kuweixinxi = false;
+        this.text = "";
+      }
       if (this.inputArr[0].type == "string") {
         this.options = this.Symbols.string;
         this.type = "string";
@@ -207,20 +230,21 @@ export default {
         this.type = "datetime";
         this.endtime = moment().format();
         this.oldendtime = moment().format();
-        this.statetime = moment().add(-1, "h").format();
-        this.oldstatetime = moment().add(-1, "h").format();
+        this.statetime = moment().add(-2, "d").format();
+        this.oldstatetime = moment().add(-2, "d").format();
       }
       // 值
       this.value = this.inputArr[0].value;
+      setTimeout(() => {
+        this.queryFun();
+      });
     },
     //删除选择类型
     colseMassage(index) {
-      // console.log(this.massageArr)
       if (this.massageArr.length > 1) {
         if (this.value3 == this.massageArr[index].value) {
           if (index == this.massageArr.length - 1) {
             this.value3 = this.massageArr[index - 1].value;
-            console.log(this.value3);
           } else {
             this.value3 = this.massageArr[index + 1].value;
           }
@@ -231,15 +255,16 @@ export default {
       }
       this.massageArr.splice(index, 1);
       this.axiosdata.splice(index, 1);
-      // if(this.axiosdata.length == 0){
-      //    this.$parent.init()
-      // }else{
-      //   this.$parent.searchDataFun(this.axiosdata);
-      // }
+      if (this.inputArr[0].Page_ID == "3A876D10-6D91-429C-82B7-E7C44E887894") {
+        this.kuweixinxi = true;
+      } else {
+        this.kuweixinxi = false;
+      }
+      console.log("this.axiosdata11", this.axiosdata);
       this.$parent.searchDataFun(this.axiosdata);
     },
     closeQuery() {
-      this.text = "";
+      this.text = this.kuweixinxi ? "0" : "";
       this.statetime = "";
       this.endtime = "";
       this.massageArr = [];
@@ -250,13 +275,12 @@ export default {
     //选择类型
     selectFun() {
       this.value2 = "";
-      this.text = "";
+      this.text = this.kuweixinxi ? "0" : "";
       this.statetime = "";
       this.endtime = "";
       //搜索头条件改变切换类型
       for (let i = 0; i < this.searchdata.length; i++) {
         if (this.value == this.searchdata[i].FieldIndex) {
-          // console.log('rrrff',this.searchdata[i].FieldType)
           if (this.searchdata[i].FieldType == "string") {
             this.options = this.Symbols.string;
             this.type = "string";
@@ -271,7 +295,7 @@ export default {
             this.type = "datetime";
             this.seleShow = false;
             this.endtime = moment().format();
-            this.statetime = moment().add(-1, "h").format();
+            this.statetime = moment().add(-2, "d").format();
           }
         }
       }
@@ -281,7 +305,7 @@ export default {
       this.value3 = "";
       this.value = "";
       this.value2 = "";
-      this.text = "";
+      this.text = this.kuweixinxi ? "0" : "";
       this.statetime = "";
       this.endtime = "";
       this.massageArr = [];
@@ -300,10 +324,25 @@ export default {
       bus.$emit("renovate", "");
       var id = this.$route.query.id;
       let list = this.massageArr;
-      console.log(this.axiosdata, this.type);
 
       if (this.type == "string" || this.type == "number") {
-        let text = this.value + " " + this.value2 + "【" + this.text + "】";
+        let showText = "";
+        if (this.kuweixinxi) {
+          showText =
+            this.text == "0"
+              ? "全部"
+              : this.text == "1"
+              ? "已满72小时"
+              : this.text == "2"
+              ? "未满72小时"
+              : this.text == "3"
+              ? "空托"
+              : "";
+        } else {
+          showText = this.text;
+        }
+        let text = this.value + " " + this.value2 + "【" + showText + "】";
+
         let value = {
           name: this.value,
           value: text,
@@ -329,6 +368,7 @@ export default {
                 : this.value2 == "包含"
                 ? "%"
                 : "";
+            console.log("value222", this.text);
             this.axiosdataAll(logic, this.text);
           }
         }
@@ -363,6 +403,7 @@ export default {
       } else {
         this.value3 = "";
       }
+      console.log("this.axiosdata00", this.axiosdata);
 
       this.$parent.searchDataFun(this.axiosdata);
     },
@@ -404,7 +445,7 @@ export default {
       if (this.type == "number") {
         this.text = parseInt(this.text);
         if (String(this.text) == "NaN") {
-          this.text = "";
+          this.text = this.kuweixinxi ? "0" : "";
         }
       }
     },

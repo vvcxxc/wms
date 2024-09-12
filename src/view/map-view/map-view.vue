@@ -51,7 +51,7 @@
           </el-option>
         </el-select>
       </div>
-      <!-- <div class="map-title-sel">
+      <div class="map-title-sel">
         <span class="map_text">深度：</span>
         <el-select
           popper-class="select-dropdown-class-li"
@@ -66,7 +66,7 @@
           >
           </el-option>
         </el-select>
-      </div> -->
+      </div>
       <div class="map-title-sel">
         <!-- <span class="map_text">托盘号：</span> -->
         <span class="map_text">托盘号：</span>
@@ -111,8 +111,8 @@
             class="map-table"
             :style="
               'height:80%;transform: scale(' +
-                zoom +
-                ');transform-origin: top;transform-origin-x: left;'
+              zoom +
+              ');transform-origin: top;transform-origin-x: left;'
             "
             @mousewheel="tableMapFun"
           >
@@ -144,7 +144,7 @@
                 width: trendsStyle.lWidth,
               }"
             >
-              <div v-for="(item, index) in rowAlldata" :key="index">
+              <div v-for="(item, index) in comRowAlldata" :key="index">
                 <div class="columus-text">
                   <div class="title">
                     {{ item.rowNum }}
@@ -155,10 +155,16 @@
                     v-for="(i, index1) in item.data"
                     :key="index1"
                     @click="showData(i)"
+                    :class="{
+                      color1: i.CanOutBound && countDay(i.CreateOn),
+                      color4: i.CanOutBound && !countDay(i.CreateOn),
+                      color3: !i.CanOutBound,
+                    }"
                     @contextmenu.prevent.stop="rightClick(i, $event)"
                     :style="{
                       width: trendsStyle.eleWidth,
                       background: i.Color,
+                      visibility: i.isFlag ? 'visible' : 'hidden',
                     }"
                   >
                     <el-tooltip
@@ -173,12 +179,18 @@
                         <div class="border-size"></div>
                         <div class="border-box" v-show="i.isShow"></div>
 
-                        {{ i.ContainerID.split("-")[1] }}
+                        <!-- {{ i.ContainerID.split("-")[0] }} -->
 
-                        <p>
-                          {{ i.TrayNum }}
-                        </p>
-
+                        <!-- <div class="container-box" v-if="countDay(i.CreateOn)">
+                          {{
+                            i.ContainerID.slice(
+                              i.ContainerID.split("-")[0].length + 1
+                            )
+                          }}
+                        </div> -->
+                        <div class="container-box">
+                          <TimeUp v-if="i.CreateOn" :itemtime="i.CreateOn" />
+                        </div>
                         <div class="pic">
                           <!-- <span v-show="i.isShow">
                       2021043001
@@ -226,9 +238,17 @@
             <div class="top-text">
               <img :src="suoding" /><span>已锁定</span>
             </div>
-            <!-- <div class="top-text">
+            <div class="top-text">
               <img :src="jingyong" /><span>不可用</span>
-            </div> -->
+            </div>
+            <div class="top-text">
+              <div class="top-text-color color4"></div>
+              <span>已满72小时</span>
+            </div>
+            <div class="top-text">
+              <div class="top-text-color color1"></div>
+              <span>未满72小时</span>
+            </div>
             <div
               class="top-text"
               v-for="item in rightTop"
@@ -294,12 +314,7 @@
       v-if="showmenucover"
     >
       <ul>
-        <li
-          v-for="item in rightmenus"
-          @click="changetype(item)"
-          v-if="item.isShow"
-          :key="item.id"
-        >
+        <li v-for="item in rightmenus" @click="changetype(item)" :key="item.id">
           {{ item.ButtonText }}
         </li>
       </ul>
@@ -317,13 +332,6 @@
       v-if="tipsPopShow"
     ></tipsPop>
     <div v-if="tipsPopShow" class="mask_box"></div>
-    <inventoryPop
-      :visible="inventoryShow"
-      :formData="formData"
-      @close="close"
-      @confirm="confirm"
-      ref="inverTory"
-    />
   </div>
 </template>
 <script>
@@ -335,12 +343,12 @@ import chaxun from "@/assets/img1/chaxun.png";
 import axios from "@/libs/api.request";
 import VueDragResize from "vue-drag-resize";
 import tipsPop from "./tipsPop";
-import inventoryPop from "./inventoryPop.vue";
+import TimeUp from "./TimeUp";
 export default {
   components: {
     VueDragResize,
     tipsPop,
-    inventoryPop,
+    TimeUp,
   },
   data() {
     return {
@@ -357,7 +365,8 @@ export default {
       clientY: 0,
       suoding: suoding,
       jingyong: jingyong,
-      isActive: true,
+      // isActive: true,
+      isActive: false,
       rowValue: "", //排
       allRowList: [], //总排数
       columnsValue: "", //列
@@ -386,17 +395,10 @@ export default {
         eleWidth: "",
         eleHeight: "",
       },
-      // 调整库存弹窗
-      inventoryShow: false,
-      formData: {
-        ContainerNum: "",
-        TrayType: "",
-        ContainerTypeID: "",
-      },
     };
   },
   directive: {
-    drag2: function(el) {
+    drag2: function (el) {
       // let dragBox = el; //获取当前元素
       el.onmousedown = (e) => {
         console.log(1);
@@ -423,7 +425,23 @@ export default {
     //   };
     // }
   },
+  computed: {
+    comRowAlldata() {
+      let list = this.rowAlldata;
+      return this.isActive ? list.reverse() : list;
+    },
+  },
   methods: {
+    countDay(time) {
+      if (time) {
+        var nowTime = +new Date();
+        var inTime = +new Date(time); //返回的是用户输入时间总的毫秒数
+        var secondTime = (nowTime - inTime) / 1000; //时间总的秒数
+        var d = parseInt(secondTime / 60 / 60 / 24); //计算天数
+        return d < 3 ? true : false;
+      }
+      return true;
+    },
     initStyle() {
       if (this.columnsList.length <= 24) {
         this.trendsStyle.lWidth = this.columnsList.length * 75 + 30 + "px";
@@ -436,97 +454,12 @@ export default {
       }
     },
     changetype(data) {
-      let $this = this;
-      if (data.id === "3") {
-        // 调整库存
-        axios
-          .request({
-            url: `/WMSBusinessManage/WH_ContainerInfo/GetTrayInfoByContainerID?ContainerTypeID=${this.formData.ContainerTypeID}`,
-            method: "post",
-          })
-          .then((res) => {
-            $this.formData.ContainerNum = res.data.ContainerNum;
-            $this.formData.TrayType = res.data.TrayType;
-            $this.formData.ContainerTypeID = res.data.ContainerTypeID;
-            res.data.details.forEach((item) => {
-              // $this.$refs.inverTory.tableData[item.TagID] = {
-              //     Oid: item.Oid,
-              //     WorkOrderNumber: item.WorkOrderNumber,
-              //     Sign: item.Sign,
-              //     RollNum: item.RollNum,
-              //     SalesOrderNumber: item.SalesOrderNumber,
-              //     SalesOrderLine: item.SalesOrderLine,
-              //     CreateTime: item.CreateTime,
-              //     Weight: item.Weight,
-              //     Length: item.Length,
-              //     Quantity: item.Quantity,
-              //     CostCenter: item.CostCenter,
-              //     kutai: item.kutai,
-              //     disabled: false,
-              // }
-              $this.$set($this.$refs.inverTory.tableData, item.TagID, {
-                Oid: item.Oid,
-                WorkOrderNumber: item.WorkOrderNumber,
-                Sign: item.Sign,
-                RollNum: item.RollNum,
-                SalesOrderNumber: item.SalesOrderNumber,
-                SalesOrderLine: item.SalesOrderLine,
-                CreateTime: item.CreateTime,
-                Weight: item.Weight,
-                Length: item.Length,
-                Quantity: item.Quantity,
-                CostCenter: item.CostCenter,
-                kutai: item.kutai,
-                disabled: false,
-              });
-            });
-            $this.inventoryShow = true;
-            $this.showmenucover = false;
-            $this.$nextTick(() => {
-              // 调整库存弹窗
-              $this.$refs.inverTory.$refs.popTable.doLayout();
-            });
-          });
-      } else {
-        this.tipsPopShow = true;
-        this.SubmitUrl = data.SubmitUrl;
-        this.showmenucover = false;
-        this.deleteShow = true;
-        this.ButtonText = data.ButtonText;
-        this.tipsText = `是否确定将【${this.itemdata.ContainerID}】进行【${data.ButtonText}】`;
-      }
-    },
-    close() {
-      this.inventoryShow = false;
-      this.formData = {
-        ContainerNum: "",
-        TrayType: "",
-        ContainerTypeID: "",
-      };
-    },
-    confirm(formData, tableData) {
-      let $this = this;
-      let postData = {
-        ContainerNum: formData.ContainerNum,
-        TrayType: formData.TrayType,
-        ContainerTypeID: formData.ContainerTypeID,
-        details: tableData,
-      };
-      axios
-        .request({
-          url: "/WMSBusinessManage/WH_ContainerInfo/SaveTrayInfo",
-          method: "post",
-          data: postData,
-        })
-        .then((res) => {
-          if (res.data.isLogin) {
-            $this.inventoryShow = false;
-            $this.init();
-            $this.$message.success("调整成功！");
-          } else {
-            $this.$message.error(res.data.message);
-          }
-        });
+      this.tipsPopShow = true;
+      this.SubmitUrl = data.SubmitUrl;
+      this.showmenucover = false;
+      this.deleteShow = true;
+      this.ButtonText = data.ButtonText;
+      this.tipsText = `是否确定将【${this.itemdata.ContainerID}】进行【${data.ButtonText}】`;
     },
     deleteBtn(num) {
       this.tipsPopShow = false;
@@ -565,10 +498,12 @@ export default {
             // this.getContainerMapInfoFun();
             getMap()
               .then((res) => {
+                console.log("getMap", res.data);
                 this.loading = false;
                 if (res.data.resultdata) {
-                  // console.log()
+                  console.log();
                   this.mapData = JSON.parse(res.data.resultdata);
+                  console.log("mapData", this.mapData);
                   for (let i = 0; i < this.mapData.length; i++) {
                     this.allFloorList.push(this.mapData[i].Plie);
                     this.allRowList.push(this.mapData[i].RowNum);
@@ -671,16 +606,10 @@ export default {
       // } else {
       //   this.rightmenus = ["锁定", "手动出库"];
       // }
-      this.formData.ContainerTypeID = item.ContainerTypeID;
-      if (item.IsNotEL === 1) {
-        this.rightmenus[2].isShow = true;
-      } else {
-        // this.rightmenus[2].isShow = false;
-        this.rightmenus[2].isShow = true;
-      }
       const scrollY =
         document.documentElement.clientHeight || document.body.clientHeight;
       const y = scrollY - e.clientY;
+
       this.showmenucover = true;
       let height = 0;
       await this.$nextTick(() => {
@@ -702,9 +631,11 @@ export default {
       getMap()
         .then((res) => {
           this.loading = false;
+          console.log("this.mapData", res.data.resultdata);
           if (res.data.resultdata) {
-            // console.log()
             this.mapData = JSON.parse(res.data.resultdata);
+            // this.mapData = res.data.resultdata;
+            console.log(this.mapData);
             for (let i = 0; i < this.mapData.length; i++) {
               this.allFloorList.push(this.mapData[i].Plie);
               this.allRowList.push(this.mapData[i].RowNum);
@@ -722,7 +653,8 @@ export default {
             this.totalNum = this.allColumnsList.length;
 
             this.piePage = Math.max(...this.allFloorList);
-            this.overLooking(this.piePage);
+            // this.overLooking(this.piePage);
+            this.sideLooking(1);
             this.handleCurrentChange(1);
           }
         })
@@ -858,7 +790,7 @@ export default {
     getMapTitle(list) {
       list = new Set(list);
       list = [...list];
-      list = list.sort(function(a, b) {
+      list = list.sort(function (a, b) {
         return a - b;
       });
       return list;
@@ -877,7 +809,7 @@ export default {
     },
     // 右侧显示数据
     showData(item) {
-      console.log(item);
+      console.log("showData", item);
       this.chackData = item;
       var list = this.rowAlldata;
       for (var i = 0; i < list.length; i++) {
@@ -965,18 +897,22 @@ export default {
         }
       }
       if (this.rowAlldata.length > 0) {
-        // this.columnsList.reverse();
-        this.rowAlldata = this.rowAlldata.reverse().map((item) => ({
-          ...item,
-          // data: item.data.reverse(),
-        }));
+        this.rowAlldFata = this.rowAlldata.reverse();
+        this.rowAlldata.forEach((item) => {
+          for (let i = 0; i < item.data.length; i++) {
+            if (i + 1 != item.data[i].Line) {
+              item.data.splice(i, 0, { isFlag: false, ContainerID: "" });
+            } else {
+              item.data[i].isFlag = true;
+            }
+          }
+        });
       }
       this.initStyle();
-      console.log(this.rowAlldata);
     },
     //升序
     compare(property) {
-      return function(a, b) {
+      return function (a, b) {
         var value1 = a[property];
         var value2 = b[property];
         return value1 - value2;
@@ -999,16 +935,7 @@ export default {
             let AttrText = data.AttrText;
             // delete(AttrText.ISLocked)
             let TrayInfo = data.TrayInfo;
-            // let rightmenus = data.MapButtons;
-            let rightmenus = data.MapButtons.map((item) => ({
-              ...item,
-              isShow: true,
-            }));
-            // rightmenus.push({
-            //   id: '3',
-            //   ButtonText: '调整库存',
-            //   isShow: true,
-            // })
+            let rightmenus = data.MapButtons;
             this.rightTop = AttrText;
             this.TrayInfo = TrayInfo;
             this.rightmenus = rightmenus;

@@ -23,6 +23,43 @@
         {{ item.label }}
       </el-tag>
     </div>
+
+    <div
+      class="current-tab"
+      v-if="
+        routerPathName == 'OutboundTaskList' ||
+        routerPathName == 'InboundTaskList'
+      "
+    >
+      <div class="current-left">
+        <div class="current-leftTop">
+          {{
+            routerPathName == "OutboundTaskList"
+              ? "当前出库任务"
+              : routerPathName == "InboundTaskList"
+              ? "当前入库任务"
+              : ""
+          }}
+        </div>
+        <div class="current-leftBottom">
+          <span>任务号:{{ selectItem.TaskId }}</span>
+          <span>最后修改时间:{{ selectItem.LastModifyOn }}</span>
+          <span>实际数量:{{ selectItem.ActualQty }}</span>
+        </div>
+      </div>
+      <div class="current-right">
+        <div
+          class="current-rightBtn"
+          v-show="item.Btn_Type == '9'"
+          v-for="(item, index) in btnData"
+          :key="index"
+          @click="clickBtn(item)"
+        >
+          {{ item.Btn_Text }}
+        </div>
+      </div>
+    </div>
+
     <el-table
       :show-summary="disShowSummary"
       :summary-method="summaryMethod"
@@ -37,10 +74,10 @@
       :row-style="rowClass"
       :row-class-name="tableRowClassName"
       ref="handSelectTest_multipleTable"
-      @row-click="handleRowClick"
       @selection-change="handleSelectionChange"
       @sort-change="sortChange"
     >
+      <!-- @row-click="handleRowClick" 单击某行选中多选，，跟单选冲突了-->
       <el-table-column v-if="vuekeyNum" width="50" type="expand">
       </el-table-column>
       <el-table-column type="selection" width="55" align="center">
@@ -59,6 +96,26 @@
         </el-table-column>
       </template>
     </el-table>
+
+    <div class="deletePop" v-if="popShow && selectItem.TaskId">
+      <div class="title">
+        <span class="text">修改数量</span>
+      </div>
+      <div class="delete_text">
+        实际数量<input
+          type="number"
+          :min="0"
+          :max="6"
+          v-model="popValue"
+          @blur="checkValue"
+        />
+      </div>
+      <div class="delete_btn">
+        <div class="no" @click="closePop">取消</div>
+        <div class="yes" @click="sumbitPop">确认</div>
+      </div>
+    </div>
+    <div class="mask_box" v-if="popShow && selectItem.TaskId"></div>
   </div>
 </template>
 <script>
@@ -67,6 +124,9 @@ import "./list-table.less";
 export default {
   data() {
     return {
+      updateNumUrl: "",
+      popShow: false,
+      popValue: 0,
       tableData: null,
       selectData: [],
       selectRow: [],
@@ -77,12 +137,50 @@ export default {
       screenWidth: null,
       screenHeight: null,
       vuekeyNum: 0,
+      selectItem: {},
     };
   },
-  props: ["data", "name", "title", "currentPage", "tableWatchFlag"],
+  props: [
+    "data",
+    "name",
+    "title",
+    "currentPage",
+    "tableWatchFlag",
+    "btnData",
+    "btnPowerData",
+    "routerPathName",
+  ],
+  directives: {
+    drag: function (el) {
+      let dragBox = el; //获取当前元素
+      dragBox.onmousedown = (e) => {
+        let box = document.querySelector(".deletePop");
+        //算出鼠标相对元素的位置
+        let disX = e.clientX - dragBox.offsetLeft;
+        let disY = e.clientY - dragBox.offsetTop;
+        document.onmousemove = (e) => {
+          //用鼠标的位置减去鼠标相对元素的位置，得到元素的位置
+          let left = e.clientX - Number(disX);
+          let top = e.clientY - Number(disY);
+          //移动当前元素
+          box.style.left = left + "px";
+          box.style.top = top + "px";
+        };
+        document.onmouseup = (e) => {
+          document.onmousemove = null;
+          document.onmouseup = null;
+        };
+      };
+    },
+  },
   watch: {
     data(n, o) {
       // this.tit1 = [];
+      if (this.routerPathName == "OutboundTaskList") {
+        this.selectItem = n.find((item) => item.Status != "shipped") || {};
+      } else if (this.routerPathName == "InboundTaskList") {
+        this.selectItem = n.find((item) => item.Status != "succeeded") || {};
+      }
       this.init();
     },
     tableWatchFlag() {
@@ -120,6 +218,72 @@ export default {
     };
   },
   methods: {
+    closePop() {
+      this.popShow = false;
+      this.popValue = 0;
+    },
+    isPositiveInteger(s) {
+            var re = /^[0-9]+$/;
+            return re.test(s);
+        },
+    sumbitPop() {
+      if (!this.isPositiveInteger(this.popValue)) {
+        this.$message.error({
+          message: "请输入正整数",
+        });     
+        return;
+      }
+      this.$parent.saveData(this.updateNumUrl, {
+        taskId: this.selectItem.TaskId,
+        currentQty: this.selectItem.ActualQty,
+        reQty: Number(this.popValue),
+      });
+      this.closePop();
+    },
+    clickBtn(item) {
+      if (this.btnPowerData.length != 0) {
+        for (let i = 0; i < this.btnPowerData.length; i++) {
+          if (this.btnPowerData[i].Btn_ID == item.Btn_ID) {
+            if (this.btnPowerData[i].IsAuthorized == "N") {
+              this.$message.error({
+                message: "没有【" + item.Btn_Text + "】权限",
+              });
+              return;
+            }
+          }
+        }
+      }
+      if (item.Btn_Text == "修改数量") {
+        this.popShow = true;
+        this.popValue = this.selectItem.ActualQty;
+        this.updateNumUrl = item.SumbitUrl;
+      } else {
+        this.$parent.saveData(item.SumbitUrl, {
+          taskId: this.selectItem.TaskId,
+        });
+      }
+    },
+    checkValue() {
+      if (!this.isPositiveInteger(this.popValue)) {
+        this.$message.error({
+          message: "数量应该为正整数",
+        });
+        this.popValue = this.selectItem.ActualQty;
+        return;
+      }
+      if (Number(this.popValue) < 0 || Number(this.popValue) > 6) {
+        this.$message.error({
+          message: "数量应该在0到6之间",
+        });
+        this.popValue = this.selectItem.ActualQty;
+        return;
+      }
+    },
+    //是否为正整数
+    isPositiveInteger(s) {
+      var re = /^[0-9]+$/;
+      return re.test(s);
+    },
     //列表展开和收起
     forArr(arr, isExpand) {
       // console.log(this.$refs.handSelectTest_multipleTable)
@@ -132,12 +296,17 @@ export default {
     },
     //获取高度
     getHeight() {
+      let num =
+        this.routerPathName == "InboundTaskList" ||
+        this.routerPathName == "OutboundTaskList"
+          ? 180
+          : 100;
       this.$nextTick(() => {
         // console.log(this.$parent.$refs.listPage.offsetHeight)
         this.tableHeight =
           this.$parent.$refs.listPage.offsetHeight -
           this.$parent.$refs.listHeader.offsetHeight -
-          100;
+          num;
       });
     },
     routerChang() {
@@ -201,9 +370,9 @@ export default {
             sums[index] = values.reduce((prev, curr) => {
               const value = Number(curr);
               if (!isNaN(value)) {
-                return( Number(prev) + Number(curr)).toFixed(2);
+                return prev + curr;
               } else {
-                return prev.toFixed(2);
+                return prev;
               }
             }, 0);
           }

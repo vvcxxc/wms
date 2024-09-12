@@ -71,9 +71,9 @@
               >
                 <el-option
                   v-for="i in item.data"
-                  :key="i.id"
+                  :key="i.text"
                   :label="i.text"
-                  :value="i.id"
+                  :value="i.text"
                 >
                 </el-option>
               </el-select>
@@ -250,7 +250,7 @@ export default {
     },
     //下拉联动
     selectChange(item) {
-      if (item.childrenName && item.childrenName.length) {
+      if (item.childrenName.length) {
         for (let i = 0; i < this.GroupSelectAll.length; i++) {
           if (item.fieldID == this.GroupSelectAll[i].id) {
             let value = {
@@ -416,7 +416,6 @@ export default {
 
     //添加渲染下拉框
     addSelecFun(data) {
-        console.log("==============",data)
       //渲染
       for (let i = 0; i < this.dataArr.length; i++) {
         if (this.dataArr[i].fieldtype == "selection") {
@@ -425,7 +424,7 @@ export default {
               //联动
               this.GroupSelectFun(this.dataArr[i].fieldID).then((val) => {
                 this.dataArr[i].data = val.data;
-                this.dataArr[i].value = this.dataArr[i].data[0].Value;
+                this.dataArr[i].value = this.dataArr[i].data[0].text;
                 this.dataArr[i].childrenName = val.id;
                 this.dataArr = this.dataArr;
                 if (val.id.length == 0) {

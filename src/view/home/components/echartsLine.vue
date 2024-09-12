@@ -25,7 +25,7 @@ export default {
       myChart: ''
     }
   },
-  props: ['data'],
+  props: ['data', "dateBtnList"],
   created() {
     // console.log(333)
     this.init()
@@ -40,8 +40,20 @@ export default {
       }
     })
   },
+  watch: {
+    dateBtnList: {
+      deep: true,
+      handler(val) {
+        let item = val.find((_ => _.select));
+        if (item) {
+          let url = item.url;
+          this.init(url);
+        }
+      },
+    },
+  },
   methods: {
-    init() {
+    init(_url) {
       // 1 为折线 2为柱状
       if (this.data.chart_type == '1') {
         this.type = 'line'
@@ -49,7 +61,7 @@ export default {
         this.type = 'bar'
       }
       // this.title="库位情况分析"
-      let url = this.data.data_url
+       let url = _url ? _url : this.data.data_url;
       this.series = []
       this.legendData = []
       getEchartInfo(url).then(res => {

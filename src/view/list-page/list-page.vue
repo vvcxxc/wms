@@ -9,21 +9,44 @@
         <!-- 按钮 -->
         <div class="list-btn">
           <all-button
-            :btnData="btnData"
+            :btnData="btnData.filter((_) => _.Btn_Type != 9)"
             :btnPowerData="btnPowerArr"
           ></all-button>
         </div>
       </div>
       <div class="list-table" v-loading="loading1">
-        <div class="select-count" v-if="haveWeightLabel">{{ `选中重量合计：${selectCountWeight}` }}</div>
         <list-table
           ref="homePage"
+          :btnData="btnData.filter((_) => _.Btn_Type == 9)"
+          :btnPowerData="btnPowerArr"
           :data="tableData"
           :name="name"
           :title="title"
           :tableWatchFlag="tableWatchFlag"
           :current-page="currentPage"
+          :routerPathName="a"
         ></list-table>
+
+        <!-- :data="[
+            {
+              TaskId: '1111',
+              Row: 1,
+              Line: 1,
+              Depth: 1,
+              Qty: 1,
+              CreateOn: '2022-5-30 09:00:00',
+              LastModifyOn: '2022-5-30 09:00:00',
+            },
+            {
+              TaskId: '22222',
+              Row: 2,
+              Line: 2,
+              Depth: 2,
+              Qty: 2,
+              CreateOn: '2022-5-27 09:00:00',
+              LastModifyOn: '2022-5-27 09:00:00',
+            },
+          ]" -->
       </div>
     </div>
     <div class="list-paginate">
@@ -89,6 +112,7 @@ import {
   tableSettingContent,
   popupEditorData,
   importExcel,
+  saveCommonData,
 } from "@/api/home.js";
 import AddListPop from "./components/add-pop/add-list-pop.vue";
 // import collapseTransition from '../../../../iview/ViewUI-master/src/components/base/collapse-transition';
@@ -136,24 +160,21 @@ export default {
       currentPage: 1, //页数
       isAddList: false,
       tableWatchFlag: false,
+      a: "",
     };
   },
+
   watch: {
     $route(n, o) {
+      this.a = this.$route.query.name;
       this.init();
     },
   },
   created() {
     this.init();
   },
-  mounted() {},
-  computed: {
-    haveWeightLabel() {
-      return this.title.find(_ => _.FieldIndex == "Weight" || _.FieldName == "重量")
-    },
-    selectCountWeight() {
-      return this.tableDataArr.reduce((sum, w) => { return Number(w.Weight) + sum }, 0)
-    }
+  mounted() {
+    this.a = this.$route.query.name;
   },
   methods: {
     //页面初始化
@@ -176,11 +197,11 @@ export default {
         .then((res) => {
           this.loading = false;
           let data = JSON.parse(res.data.resultdata);
-          // console.log("ff" + data);
+          console.log("ff", data);
           if (data != null && data != "") {
             this.searchdata = data.filter_list; //查询条件
             this.btnData = data.Btn_list; //按钮列表
-
+            console.log("this.searchdata", this.searchdata);
             this.name = [];
             this.title = [];
             for (let i = 0; i < data.Field_list.length; i++) {
@@ -210,7 +231,7 @@ export default {
             }
             // console.log(data.Field_list)
             this.tableUrl = data.URL;
-            this.tableFun(this.tableUrl, this.queryArr);
+            // this.tableFun(this.tableUrl, this.queryArr);//由搜索组件发起
           }
         })
         .catch((error) => {
@@ -312,6 +333,30 @@ export default {
         .catch((error) => {
           this.loading1 = false;
           // alert(error);
+        });
+    },
+    //保存提交
+    saveData(SumbitUrl, data) {
+      saveCommonData(SumbitUrl, data)
+        .then((res) => {
+          if (res.data.isLogin) {
+            this.$message({
+              message: res.data.message,
+              type: "success",
+            });
+            this.UptableFun(); //表单刷新
+          } else {
+            this.$message({
+              message: res.data.message,
+              type: "error",
+            });
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error,
+            type: "error",
+          });
         });
     },
     //开启添加编辑
@@ -502,7 +547,7 @@ export default {
     },
 
     //筛选表单
-    searchDataFun(data) {
+    searchDataFun(data, kuweixinxiType) {
       this.SearchData = JSON.parse(JSON.stringify(data));
       if (this.$route.query.type == "2") {
         this.SearchData.push(this.queryArr[0]);
@@ -532,6 +577,9 @@ export default {
         }
       }
       this.SearchData = this.SearchData.filter((val) => val.logic != "date");
+      if (kuweixinxiType) {
+        this.SearchData.push(kuweixinxiType);
+      }
       this.tableFun(this.tableUrl, this.SearchData);
     },
     //批量添加
@@ -613,14 +661,6 @@ export default {
   }
   .list-table {
     margin-top: 10px;
-    position: relative;
-
-    .select-count {
-      position: absolute;
-      right: 0;
-      top: 0;
-      width: fit-content;
-    }
   }
   .list-paginate {
     padding-bottom: 10px;
