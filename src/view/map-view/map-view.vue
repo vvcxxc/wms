@@ -3,98 +3,46 @@
     <div class="map-title">
       <div class="map-title-sel">
         <span class="map_text">排：</span>
-        <el-select
-          popper-class="select-dropdown-class-li"
-          v-model="rowValue"
-          placeholder="请选择"
-          @change="rowValueChange"
-        >
-          <el-option
-            v-for="item in allRowList"
-            :key="item"
-            :label="item"
-            :value="item"
-          >
+        <el-select popper-class="select-dropdown-class-li" v-model="rowValue" placeholder="请选择"
+          @change="rowValueChange">
+          <el-option v-for="item in allRowList" :key="item" :label="item" :value="item">
           </el-option>
         </el-select>
       </div>
       <div class="map-title-sel">
         <span class="map_text">列：</span>
-        <el-select
-          popper-class="select-dropdown-class-li"
-          v-model="columnsValue"
-          placeholder="请选择"
-        >
-          <el-option
-            v-for="item in allColumnsList"
-            :key="item"
-            :label="item"
-            :value="item"
-          >
+        <el-select popper-class="select-dropdown-class-li" v-model="columnsValue" placeholder="请选择">
+          <el-option v-for="item in allColumnsList" :key="item" :label="item" :value="item">
           </el-option>
         </el-select>
       </div>
       <div class="map-title-sel">
         <span class="map_text">层：</span>
-        <el-select
-          popper-class="select-dropdown-class-li"
-          v-model="floorValue"
-          placeholder="请选择"
-          @change="floorValueChange"
-        >
-          <el-option
-            v-for="item in allFloorList"
-            :key="item"
-            :label="item"
-            :value="item"
-          >
+        <el-select popper-class="select-dropdown-class-li" v-model="floorValue" placeholder="请选择"
+          @change="floorValueChange">
+          <el-option v-for="item in allFloorList" :key="item" :label="item" :value="item">
           </el-option>
         </el-select>
       </div>
       <div class="map-title-sel">
         <span class="map_text">深度：</span>
-        <el-select
-          popper-class="select-dropdown-class-li"
-          v-model="depthValue"
-          placeholder="请选择"
-        >
-          <el-option
-            v-for="item in allDepthList"
-            :key="item"
-            :label="item"
-            :value="item"
-          >
+        <el-select popper-class="select-dropdown-class-li" v-model="depthValue" placeholder="请选择">
+          <el-option v-for="item in allDepthList" :key="item" :label="item" :value="item">
           </el-option>
         </el-select>
       </div>
       <div class="map-title-sel">
         <!-- <span class="map_text">托盘号：</span> -->
-        <span class="map_text">计划号：</span>
-        <el-input
-          class="title-input"
-          v-model="trayNum"
-          placeholder="请输入内容"
-        ></el-input>
+        <span class="map_text">夹具编号：</span>
+        <el-input class="title-input" v-model="trayNum" placeholder="请输入内容"></el-input>
       </div>
-      <el-button @mousedown.native="down" @click="chaXunFun" class="btn-style1"
-        ><img :src="chaxun" />查看</el-button
-      >
+      <el-button @mousedown.native="down" @click="chaXunFun" class="btn-style1"><img :src="chaxun" />查看</el-button>
     </div>
     <div class="map-content">
       <div class="map-left" v-loading="loading">
         <div class="left-title">
-          <el-button
-            @click="showView(true)"
-            class="btn-style11"
-            :class="{ active1: isActive }"
-            >俯视</el-button
-          >
-          <el-button
-            @click="showView(false)"
-            class="btn-style11"
-            :class="{ active1: !isActive }"
-            >侧视</el-button
-          >
+          <el-button @click="showView(true)" class="btn-style11" :class="{ active1: isActive }">俯视</el-button>
+          <el-button @click="showView(false)" class="btn-style11" :class="{ active1: !isActive }">侧视</el-button>
           <div class="left-title-zoom">
             <i class="el-icon-zoom-in" @click="zoomIn"></i>
             <div class="left-title-text">{{ (zoom * 100).toFixed(0) }}%</div>
@@ -103,19 +51,13 @@
         </div>
 
         <!-- <vue-drag-resize> -->
-        <div
-          style="position: relative; height: 80%; overflow: auto; width: 100%"
-        >
+        <div style="position: relative; height: 80%; overflow: auto; width: 100%">
           <!-- <vue-drag-resize :parentLimitation="true"> -->
-          <div
-            class="map-table"
-            :style="
-              'height:80%;transform: scale(' +
-              zoom +
-              ');transform-origin: top;transform-origin-x: left;'
-            "
-            @mousewheel="tableMapFun"
-          >
+          <div class="map-table" :style="
+            'height:80%;transform: scale(' +
+            zoom +
+            ');transform-origin: top;transform-origin-x: left;'
+          " @mousewheel="tableMapFun">
             <!-- 列数 -->
             <div class="columns-title" :style="{ width: trendsStyle.lWidth }">
               <div class="title">
@@ -125,87 +67,55 @@
                   {{ isActive ? "排" : "层" }}
                 </div>
               </div>
-              <div
-                class="title1"
-                v-for="i in columnsList"
-                :key="i"
-                :style="{
-                  width: trendsStyle.eleWidth,
-                }"
-              >
+              <div class="title1" v-for="i in columnsList" :key="i" :style="{
+                width: trendsStyle.eleWidth,
+              }">
                 {{ i }}
               </div>
             </div>
-            <div
-              class="columus-data"
-              ref="columusData"
-              @mousewheel="scrool"
-              :style="{
-                width: trendsStyle.lWidth,
-              }"
-            >
-              <div v-for="(item, index) in rowAlldata" :key="index">
+            <div class="columus-data" ref="columusData" @mousewheel="scrool" :style="{
+              width: trendsStyle.lWidth,
+            }">
+              <div v-for="(item, index) in computedRowAlldata" :key="index">
                 <div class="columus-text">
                   <div class="title">
                     {{ item.rowNum }}
                   </div>
 
-                  <div
-                    class="title1"
-                    v-for="(i, index1) in item.data"
-                    :key="index1"
-                    @click="showData(i)"
-                    :class="{ color3: !i.TrayNum, color1: i.TrayNum }"
-                    @contextmenu.prevent.stop="rightClick(i, $event)"
+                  <div class="title1" v-for="(i, index1) in item.data" :key="index1" @click="showData(i)"
+                    :class="{ color3: !i.IsFull, color1: i.IsFull }" @contextmenu.prevent.stop="rightClick(i, $event)"
                     :style="{
                       width: trendsStyle.eleWidth,
-                      visibility: i.isFlag ? 'visible' : 'hidden',
-                    }"
-                  >
-                    <el-tooltip
-                      class="item"
-                      effect="dark"
-                      :open-delay="400"
-                      :content="i.ContainerID"
-                      placement="top-start"
-                      popper-class="tooltip-popper"
-                    >
+                      // visibility: i.EquipmentNo ? 'visible' : 'hidden',
+                    }">
+                    <el-tooltip class="item" effect="dark" :open-delay="400"
+                      :content="i.EquipmentNo ? i.ContainerID : '--'" placement="top-start"
+                      popper-class="tooltip-popper">
                       <div class="toopltip-style">
                         <div class="border-size"></div>
                         <div class="border-box" v-show="i.isShow"></div>
 
                         <!-- {{ i.ContainerID.split("-")[0] }} -->
 
-                        <p>
-                          {{
-                            i.ContainerID.slice(
-                              i.ContainerID.split("-")[0].length + 1
-                            )
-                          }}
-                        </p>
+                        <div class="border-div">
+                          <!-- <div class="border-text" v-show="i.EquipmentNo">{{
+                              i.ContainerID.slice(
+                                i.ContainerID.split("-")[0].length + 1
+                              )
+                          }}</div> -->
+                          <div class="border-text">{{ i.EquipmentNo }}</div>
+                        </div>
 
                         <div class="pic">
-                          <!-- <span v-show="i.isShow">
-                      2021043001
-                      
-                    </span> -->
-                          <img
-                            v-show="i.IsLock == '1'"
-                            style="margin-right: 5px"
-                            :src="suoding"
-                          />
+                          <img v-show="i.IsLocked == '1'" style="margin-right: 5px" :src="suoding" />
                           <img v-show="i.ISHold == '1'" :src="jingyong" />
-                          <!-- <img style="margin-right: 5px" :src="suoding" />
-                      <img :src="jingyong" /> -->
+
                         </div>
                       </div>
                     </el-tooltip>
                   </div>
                 </div>
-                <div
-                  v-show="(index + 1) % 2 == 0 && isActive && item.depth == 1"
-                  class="text-line"
-                >
+                <div v-show="(index + 1) % 2 == 0 && isActive && item.depth == 1" class="text-line">
                   <div class="text-line1"></div>
                 </div>
               </div>
@@ -234,19 +144,12 @@
             <div class="top-text">
               <img :src="jingyong" /><span>不可用</span>
             </div>
-            <div
-              class="top-text"
-              v-for="item in rightTop"
-              :key="item.fieldvalue"
-            >
+            <div class="top-text" v-for="item in rightTop" :key="item.fieldvalue">
               <div class="text-type" :style="{ background: item.color }"></div>
               <!-- <span>大托盘</span> -->
               <span>{{ item.fieldtext }}</span>
             </div>
-            <div class="top-text">
-              <div class="text-type color1"></div>
-              <span>有货</span>
-            </div>
+
             <div class="top-text">
               <div class="text-type color31"></div>
               <span>空货位</span>
@@ -259,19 +162,13 @@
               <div class="badge"></div>
               <span class="text-title">{{ chackData.ContainerID }}</span>
             </div>
-            <div
-              v-for="(item, index) in TrayInfo"
-              :key="'dd' + index"
-              class="bottom-text"
-            >
+            <div v-for="(item, index) in TrayInfo" :key="'dd' + index" class="bottom-text">
               <!-- <span class="text-title1">托盘号：{{ chackData.TrayNum?chackData.TrayNum:'' }}</span> -->
               <!-- {{index}} -->
               <!-- {{chackData}} -->
-              <span class="text-title1"
-                >{{ item }}：{{
+              <span class="text-title1">{{ item }}：{{
                   chackData[index] ? chackData[index] : ""
-                }}</span
-              >
+              }}</span>
             </div>
             <!-- <div class="bottom-text">
               
@@ -287,35 +184,17 @@
         </div>
       </div>
     </div>
-    <div
-      class="rightmenu"
-      ref="rightmenu"
-      :style="{ top: clientY, left: clientX }"
-      v-if="showmenucover"
-    >
+    <div class="rightmenu" ref="rightmenu" :style="{ top: clientY, left: clientX }" v-if="showmenucover">
       <ul>
         <li v-for="item in rightmenus" @click="changetype(item)" :key="item.id">
           {{ item.ButtonText }}
         </li>
       </ul>
     </div>
-    <div
-      class="rightmenucover"
-      v-if="showmenucover"
-      @click="rightmenucover"
-    ></div>
+    <div class="rightmenucover" v-if="showmenucover" @click="rightmenucover"></div>
 
-    <tipsPop
-      :text="tipsText"
-      @deleteBtn="deleteBtn"
-      :deleteShow="deleteShow"
-      v-if="tipsPopShow"
-    ></tipsPop>
-    <details-pop
-      :data="itemdata"
-      @handleDetails="handleDetails"
-      v-if="detailsPopShow"
-    />
+    <tipsPop :text="tipsText" @deleteBtn="deleteBtn" :deleteShow="deleteShow" v-if="tipsPopShow"></tipsPop>
+    <details-pop :data="itemdata" @handleDetails="handleDetails" v-if="detailsPopShow" />
     <div v-if="tipsPopShow || detailsPopShow" class="mask_box"></div>
   </div>
 </template>
@@ -410,6 +289,11 @@ export default {
     //   };
     // }
   },
+  computed: {
+    computedRowAlldata() {
+      return this.isActive ? this.rowAlldata : this.rowAlldata.reverse();
+    }
+  },
   methods: {
     initStyle() {
       if (window.screen.width == 1024) {
@@ -444,9 +328,16 @@ export default {
       if (data.ButtonText == "出库" && !data.Type) {
         this.detailsPopShow = true;
       } else {
+        if (!this.itemdata.EquipmentNo && data.ButtonText.indexOf('出库') >= 0) {
+          this.tipsPopShow = true;
+          this.deleteShow = false;
+          this.tipsText = `该库位没有物料，不能进行出库！`;
+          return;
+        }
         this.tipsPopShow = true;
         this.deleteShow = true;
-        this.tipsText = `是否确定将【${this.itemdata.ContainerCode}】进行【${data.ButtonText}】`;
+        console.log(this.itemdata)
+        this.tipsText = `是否确定将【${this.itemdata.ContainerID}】进行【${data.ButtonText}】`;
       }
     },
     deleteBtn(num) {
@@ -470,7 +361,7 @@ export default {
           .then((res) => {
             this.tipsPopShow = true;
             this.deleteShow = false;
-            if (res.data.isLogin) {
+            if (res.data.type == 1) {
               this.tipsText = `【${this.ButtonText}】成功！`;
             } else {
               this.tipsText = `${res.data.message}`;
@@ -549,7 +440,7 @@ export default {
           .then((res) => {
             this.tipsPopShow = true;
             this.deleteShow = false;
-            if (res.data.isLogin) {
+            if (res.data.type == 3) {
               this.tipsText = `【${this.ButtonText}】成功！`;
             } else {
               this.tipsText = `${res.data.message}`;
@@ -653,7 +544,7 @@ export default {
       }
     },
     async rightClick(item, e) {
-      // if (item.ISLocked === 1) {
+      // if (item.IsLocked === 1) {
       //   this.rightmenus = ["解锁", "手动出库"];
       // } else {
       //   this.rightmenus = ["锁定", "手动出库"];
@@ -713,7 +604,7 @@ export default {
         });
       // this.getMapData()
     },
-    tableMapFun() {},
+    tableMapFun() { },
     rowValueChange(val) {
       if (!this.isActive) {
         this.sideLooking(val);
@@ -776,7 +667,8 @@ export default {
       let list = this.mapData;
       if (this.trayNum != "") {
         for (let i = 0; i < list.length; i++) {
-          if (this.trayNum == list[i].TrayNum) {
+          console.log('list[i]',list[i]);
+          if (this.trayNum == list[i].EquipmentNo) {
             this.chackData = list[i];
             this.showData(list[i]);
             break;
@@ -784,7 +676,7 @@ export default {
         }
         if (this.chackData == "") {
           this.$message({
-            message: "查找不到该托盘号",
+            message: "查找不到该夹具号",
             type: "warning",
           });
         } else {
@@ -948,17 +840,18 @@ export default {
         }
       }
       if (this.rowAlldata.length > 0) {
-        this.rowAlldata = this.rowAlldata.reverse();
-        this.rowAlldata.forEach((item) => {
-          for (let i = 0; i < item.data.length; i++) {
-            if (i + 1 != item.data[i].ContainerID.split("-")[2]) {
-              item.data.splice(i, 0, { isFlag: false, ContainerID: "" });
-              i += 1
-            } else {
-              item.data[i].isFlag = true;
-            }
-          }
-        });
+        // this.rowAlldata = this.rowAlldata.reverse();
+        // console.log('this.rowAlldata', this.rowAlldata);
+        // this.rowAlldata.forEach((item) => {
+        //   for (let i = 0; i < item.data.length; i++) {
+        //     if (i + 1 != item.data[i].ContainerID.split("-")[1]) {
+        //       item.data.splice(i, 0, { isFlag: false, ContainerID: "" });
+        //       i += 1;
+        //     } else {
+        //       item.data[i].isFlag = true;
+        //     }
+        //   }
+        // });
       }
       this.initStyle();
     },
@@ -976,7 +869,7 @@ export default {
       // let scrolled = this.$refs.columusData.scrollTop;
       // console.log(scrolled);
     },
-    down(event) {},
+    down(event) { },
     //获取地图配置信息
     getContainerMapInfoFun() {
       getContainerMapInfo()
@@ -985,7 +878,7 @@ export default {
           const data = res.data;
           if (data) {
             let AttrText = data.AttrText;
-            // delete(AttrText.ISLocked)
+            // delete(AttrText.IsLocked)
             let TrayInfo = data.TrayInfo;
             let rightmenus = data.MapButtons;
             this.rightTop = AttrText;
@@ -1020,20 +913,24 @@ export default {
   left: 0;
   padding: 8px;
   z-index: 1000;
+
   ul {
     list-style: none;
   }
+
   li {
     height: 30px;
     line-height: 30px;
     cursor: pointer;
     text-indent: 1em;
   }
+
   li:hover {
     background: #d1e8fd;
     color: #23527c;
   }
 }
+
 .rightmenucover {
   width: 100%;
   height: 100%;

@@ -175,7 +175,7 @@ export default {
                     url: url,
                     data:data
                 }).then(res => {
-                   if(res.data.isLogin){
+                   if(res.data.type==1){
                       this.$parent.closeFun()
                       this.$parent.allAxiosFun()
                    }else{

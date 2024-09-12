@@ -14,9 +14,19 @@ var login = function login(userName, password) {
   //   userName,
   //   password
   // }
+  
+  const data = {
+    userNameOrEmailAddress: userName,
+    password,
+    rememberMe:true
+  }
   return _api["default"].request({
-    url: 'Login/CheckLog2?usercode=' + userName + '&&password=' + password,
-    method: 'post'
+    url: 'api/account/login',
+    data,
+    method: 'post',
+    headers: {
+      'Accept-Language': 'zh-Hans'
+    }
   });
 };
 

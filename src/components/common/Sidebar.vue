@@ -106,12 +106,14 @@ export default {
     init(){
       //菜单信息
       var $this = this
-        var url1 = `${this.$store.state.dailog.url1}/AuthorizeManage/Base_Authorize/GetPageData`
+        // var url1 = `${this.$store.state.dailog.url1}/AuthorizeManage/Base_Authorize/GetPageData`
+        var url1 = `${this.$store.state.dailog.url1}/api/wms/page/menu`
             $this.$axios({
                 method: 'get',
                 url: url1,
             }).then(res => {
               var data1 = res.data.resultdata
+              console.log("data1",data1);
               var data = data1
               $this.ChildrenPage(data)
               $this.powerFun(data)

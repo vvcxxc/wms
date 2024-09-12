@@ -8,7 +8,7 @@
 <template>
   <div ref="scPopBox1" class="scPopBox1">
     <div v-drag1 class="scPopBox_c" ref="scPopBoxC">
-      <div class="head">{{popTitle}}
+      <div class="head">{{ popTitle }}
         <!-- <div @click="cancelFun()" class="headImg"></div> -->
         <div class="headImg" @click="cancelFun()">
           <i class="el-icon-close"></i>
@@ -16,21 +16,31 @@
       </div>
       <div class="popCenten_box" v-loading="disLoading" v-stopdrag ref="popCentenBox">
         <div class="pop-centent">
-          <div v-for="(item,index) in dataArr" :key="index" class="row_box" :class="item.fieldtype=='textarea'?'textA':''">
-            <span class="pop-text" style="float:left">{{item.fieldname}}:</span>
-            <div class="elemen_box" :class="item.fieldtype=='textarea'?'textB':''">
-              <el-input :disabled="item.isupdateavailable != '1'" @input="inputFun(item)" v-if="item.fieldtype=='num'" v-model="item.value" placeholder="请输入内容"></el-input>
-              <el-autocomplete :disabled="item.isupdateavailable != '1'" @input="inputFun(item)" :trigger-on-focus="false" v-if="item.fieldtype=='nvarchar'" v-model="item.value" placeholder="请输入内容"
+          <div v-for="(item, index) in dataArr" :key="index" class="row_box"
+            :class="item.fieldtype == 'textarea' ? 'textA' : ''">
+            <span class="pop-text" style="float:left">{{ item.fieldname }}:</span>
+            <div class="elemen_box" :class="item.fieldtype == 'textarea' ? 'textB' : ''">
+              <el-input :disabled="item.isupdateavailable != '1'" @input="inputFun(item)" v-if="item.fieldtype == 'num'"
+                v-model="item.value" placeholder="请输入内容"></el-input>
+              <el-input :disabled="item.isupdateavailable != '1'" @input="inputFun(item)" v-if="item.fieldtype == 'nvarchar'"
+                v-model="item.value" placeholder="请输入内容"></el-input>
+              <el-autocomplete :disabled="item.isupdateavailable != '1'" @input="inputFun(item)"
+                :trigger-on-focus="false" v-if="item.fieldtype == 'autocomplete'" v-model="item.value" placeholder="请输入内容"
                 :fetch-suggestions="querySearchAsync">
               </el-autocomplete>
-              <el-date-picker popper-class="data-picker-class-li" :disabled="item.isupdateavailable != '1'" v-if="item.fieldtype=='datetime'" v-model="item.value" type="datetime" placeholder="选择日期时间">
+              <el-date-picker popper-class="data-picker-class-li" :disabled="item.isupdateavailable != '1'"
+                v-if="item.fieldtype == 'datetime'" v-model="item.value" type="datetime" placeholder="选择日期时间">
               </el-date-picker>
-              <el-select popper-class="select-dropdown-class-li" @change="selectChange(item)" :disabled="item.isupdateavailable != '1'" v-if="item.fieldtype=='selection'" v-model="item.value" placeholder="请选择">
-                <el-option v-for="i in item.data" :key="i.text" :label="i.text" :value="i.text">
+              <el-select popper-class="select-dropdown-class-li" @change="selectChange(item)"
+                :disabled="item.isupdateavailable != '1'" v-if="item.fieldtype == 'selection'" v-model="item.value"
+                placeholder="请选择">
+                <el-option v-for="i in item.data" :key="i.text" :label="i.text" :value="i.id">
                 </el-option>
               </el-select>
-              <textarea :disabled="item.isupdateavailable != '1'" class="textarea" v-model="item.value" v-if="item.fieldtype=='textarea'"></textarea>
+              <textarea :disabled="item.isupdateavailable != '1'" class="textarea" v-model="item.value"
+                v-if="item.fieldtype == 'textarea'"></textarea>
             </div>
+
           </div>
         </div>
 
@@ -38,7 +48,7 @@
       <div class="fool_btn">
         <el-button @click="conserve()" class="btn-style21" :loading="saveFromBtn">保存</el-button>
         <el-button @click="cancelFun()" class="btn-style22 btn-close">取消</el-button>
-        <el-button @click="clearFun() " class="btn-style7 right">清空</el-button>
+        <el-button @click="clearFun()" class="btn-style7 right">清空</el-button>
       </div>
     </div>
 
@@ -168,7 +178,7 @@ export default {
     },
     //下拉联动
     selectChange(item) {
-      if (item.childrenName.length) {
+      if (item.childrenName&&item.childrenName.length) {
         for (let i = 0; i < this.GroupSelectAll.length; i++) {
           if (item.fieldID == this.GroupSelectAll[i].id) {
 
@@ -378,7 +388,7 @@ export default {
                 console.log('this.dataArr[i].IsGroup', this.dataArr[i].IsGroup)
                 if (this.dataArr[i].IsGroup != 'undefined') {
                   if (this.dataArr[i].IsGroup == 1) {
-                  await  this.GroupSelectFun(this.dataArr[i].fieldID).then(val => {
+                    await this.GroupSelectFun(this.dataArr[i].fieldID).then(val => {
                       this.dataArr[i].data = val.data
                       this.dataArr[i].value = this.dataArr[i].data[0].text
                       this.dataArr[i].childrenName = val.id
@@ -410,7 +420,7 @@ export default {
                   }
 
                 } else {
-               await   this.selectFun(this.dataArr[i].Selection_Url).then(val => {
+                  await this.selectFun(this.dataArr[i].Selection_Url).then(val => {
                     this.dataArr[i].data = val
                     for (let j = 0; j < this.dataArr[i].data.length; j++) {
                       if (data[itemName] == this.dataArr[i].data[j].id) {
@@ -430,19 +440,19 @@ export default {
 
                 if (this.dataArr[i].IsGroup != 'undefined') {
                   if (this.dataArr[i].IsGroup == 1) {
-                 await  this.GroupSelectFun(this.dataArr[i].fieldID).then(val => {
+                    await this.GroupSelectFun(this.dataArr[i].fieldID).then(val => {
                       this.dataArr[i].data = val.data
                       this.dataArr[i].value = this.dataArr[i].data[0].text
                       this.dataArr[i].childrenName = val.id
                       //  this.dataArr = this.dataArr
                       if (val.id.length == 0) {
                         for (let i = 0; i < this.GroupSelect.length; i++) {
-                         this.selectDataFun(this.GroupSelect)
+                          this.selectDataFun(this.GroupSelect)
                         }
                       }
                     })
                   } else {
-                  await  this.selectFun(this.dataArr[i].Selection_Url).then(val => {
+                    await this.selectFun(this.dataArr[i].Selection_Url).then(val => {
                       this.dataArr[i].data = val
                       this.dataArr[i].value = this.dataArr[i].data[0].text
                       // this.dataArr = this.dataArr
@@ -450,7 +460,7 @@ export default {
                   }
 
                 } else {
-                await  this.selectFun(this.dataArr[i].Selection_Url).then(val => {
+                  await this.selectFun(this.dataArr[i].Selection_Url).then(val => {
                     this.dataArr[i].data = val
                     this.dataArr[i].value = this.dataArr[i].data[0].text
                     // this.dataArr = this.dataArr
@@ -461,9 +471,9 @@ export default {
           }
         }
       }
-     
-      this.$nextTick(()=>{
-         this.dataArr = this.dataArr
+
+      this.$nextTick(() => {
+        this.dataArr = this.dataArr
       })
       // console.log(this.dataArr)
     },
@@ -561,23 +571,60 @@ export default {
       // debugger
       //WindowType 1为添加 2为编辑 3为批量编辑
       if (this.axioData.WindowType == '1') { //1为添加保存
-        this.saveFun(value2)
+         this.saveFun(value2)
       } else {
         if (this.axioData.WindowType == '3') {
           value2 = btnParams
         } else {
           value2 = btnParams[0]
-        }
+        } 
         this.saveFun(value2)
 
       }
     },
     saveFun(value2) {
+      if (this.axioData.SumbitUrl == '/api/wms/product' || this.axioData.SumbitUrl == '/api/wms/product/update') {
+        if (!value2.area) {
+          this.$message({
+            message: `请填写区域`,
+            type: 'error'
+          });
+          return
+        }
+        if (!value2.stationNo) {
+          this.$message({
+            message: `请填写工位号`,
+            type: 'error'
+          });
+          return
+        }
+        if (!value2.description) {
+          this.$message({
+            message: `请填写夹具描述`,
+            type: 'error'
+          });
+          return
+        }
+        if (!value2.equipmentNo) {
+          this.$message({
+            message: `请填写设备编号`,
+            type: 'error'
+          });
+          return
+        }
+        if (this.axioData.SumbitUrl == '/api/wms/product' && !value2.digitalNo) {
+          this.$message({
+            message: `请填写唯一数字编号`,
+            type: 'error'
+          });
+          return
+        }
+      }
       this.saveFromBtn = true
       console.log(this.axioData.SumbitUrl)
       saveCommonData(this.axioData.SumbitUrl, value2).then(res => {
         this.saveFromBtn = false
-        if (res.data.isLogin) {
+        if (res.data.type == 1) {
           this.$message({
             message: res.data.message,
             type: 'success'
@@ -613,4 +660,5 @@ export default {
 </style>
 
 <style lang="less" scoped>
+
 </style>

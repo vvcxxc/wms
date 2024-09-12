@@ -1,38 +1,45 @@
 import axios from '@/libs/api.request'
-import request from '@/utils/request'
 
-//登录接口s
+//登录接口
 export const login = (userName, password) => {
-  // const data = {
-  //   userName,
-  //   password
-  // }
-  return request({
-    url: 'Login/CheckLog2?usercode=' + userName + '&&password=' + password,
+  const data = {
+    userNameOrEmailAddress: userName,
+    password,
+    rememberMe:true
+  }
+  
+  return axios.request({
+    // url: 'Login/CheckLog2?usercode=' + userName + '&&password=' + password,
+    url: 'api/account/login',
+    data,
     emulateJSON: true,
-    method: 'post'
+    method: 'post',
+    headers: {
+      'Accept-Language': 'zh-Hans'
+    }
   })
 }
 
 //获取菜单接口
 export const getMenuList = () => {
-  return request({
-    url: '/AuthorizeManage/Base_Authorize/GetPageData',
+  return axios.request({
+    // url: 'AuthorizeManage/Base_Authorize/GetPageData',
+    url: `api/wms/page/menu`,
     method: 'get'
   })
 }
 
 //退出登录
 export const logout = () => {
-  return request({
-    url: '/Login/OutLogin',
-    method: 'post'
+  return axios.request({
+    url: 'api/account/logout',
+    method: 'get'
   })
 }
 
 //获取用户初始化信息
 export const getBaseDeparment = () => {
-  return request({
+  return axios.request({
     url: '/BaseManage/Base_Department/GetList',
     method: 'get'
   })
@@ -40,7 +47,7 @@ export const getBaseDeparment = () => {
 
 //获取用户岗位信息
 export const getBasePost = () => {
-  return request({
+  return axios.request({
     url: '/BaseManage/Base_Post/GetList',
     method: 'post'
   })
@@ -48,7 +55,7 @@ export const getBasePost = () => {
 
 //获取所有用户信息
 export const getBaseUser = () => {
-  return request({
+  return axios.request({
     url: '/BaseManage/Base_User/GetAllList',
     method: 'post'
   })
@@ -56,7 +63,7 @@ export const getBaseUser = () => {
 
 //查询条件用户信息
 export const getBaseConditionUser = (deId, postId, na) => {
-  return request({
+  return axios.request({
     url: '/BaseManage/Base_User/GetList?DepartmentId=' + deId + '&PostId=' + postId + '&encodeOruserName=' + na,
     method: 'post'
   })
@@ -64,7 +71,7 @@ export const getBaseConditionUser = (deId, postId, na) => {
 
 //重置密码
 export const resetPassword = (data) => {
-  return request({
+  return axios.request({
     url: '/BaseManage/Base_User/ResetPassword',
     data: data,
     method: 'post',
@@ -73,7 +80,7 @@ export const resetPassword = (data) => {
 
 //删除用户
 export const removeFormUser = (data) => {
-  return request({
+  return axios.request({
     url: '/BaseManage/Base_User/RemoveForm',
     data: data,
     method: 'post',
@@ -82,7 +89,7 @@ export const removeFormUser = (data) => {
 
 //保存用户
 export const saveFormUser = (data) => {
-  return request({
+  return axios.request({
     url: '/BaseManage/Base_User/SaveForm',
     data: data,
     method: 'post',
@@ -91,32 +98,32 @@ export const saveFormUser = (data) => {
 
 //删除部门
 export const delDepartment = (data) => {
-  return request({
-    url: '/BaseManage/Base_Department/RemoveForm',
+  return axios.request({
+    url: 'BaseManage/Base_Department/RemoveForm',
     data: data,
     method: 'post',
   })
 }
 //删除岗位
 export const delPost = (data) => {
-  return request({
-    url: '/BaseManage/Base_Post/RemoveForm',
+  return axios.request({
+    url: 'BaseManage/Base_Post/RemoveForm',
     data: data,
     method: 'post',
   })
 }
 //获取首页内容
 export const getSystemInfo = () => {
-  return request({
-    url: `/Common/Common/GetSystemInfo`,
+  return axios.request({
+    // url: `/Common/Common/GetSystemInfo`,
+    url: `/api/wms/page/configuration`,
     method: 'post',
   })
 }
 
 //获取boxs内容
 export const getSystemBoxsInfo = (url) => {
-  console.log("++++++++", url)
-  return request({
+  return axios.request({
     url: url,
     method: 'post',
   })
@@ -124,7 +131,7 @@ export const getSystemBoxsInfo = (url) => {
 
 // 全局弹窗接口
 export const GetiOpenWindowsInfo = () => {
-  return request({
+  return axios.request({
     url: `/Common/Common/GetiOpenWindowsInfo`,
     method: 'post',
   })

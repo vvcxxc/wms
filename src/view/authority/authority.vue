@@ -7,6 +7,8 @@
 -->
 <template>
   <div class="authority-box" v-loading="loading">
+
+
     <div class="power_conter">
       <div class="power_left">
         <div class="left_top">
@@ -14,8 +16,9 @@
             <el-button class="btn-style1" @click="shuaxinFun"><img :src="shuaxin" />刷新</el-button>
           </div>
           <div class="left_top_1">
-            <el-table :data="departmentArr" highlight-current-row @row-click="departmentClick" ref="multipleTable2" height="100%" style="width: 100%">
-              <el-table-column prop="DepartmentFullName" label="角色组名称">
+            <el-table :data="departmentArr" highlight-current-row ref="multipleTable2" height="100%"
+              style="width: 100%">
+              <el-table-column prop="displayName" label="角色组名称">
                 <template slot="header">
                   <span>部门名称</span>
                   <div @click="addFun('部门')" class="header_icon">
@@ -25,7 +28,7 @@
                   </div>
                 </template>
                 <template slot-scope="scope">
-                  <span>{{ scope.row.DepartmentFullName }}</span>
+                  <span>{{ scope.row.displayName }}</span>
                   <div @click="editFun(scope.row, '部门')" class="edit_icon">
                     <i class="el-icon-edit-outline"></i>
                   </div>
@@ -37,22 +40,23 @@
             </el-table>
           </div>
           <div class="left_top_2">
-            <el-table :data="postArr" height="100%" highlight-current-row @row-click="handleCurrentClick" ref="multipleTable" style="width: 100%">
-              <el-table-column prop="date" label="角色名称">
+            <el-table :data="postArr" height="100%" highlight-current-row @row-click="handleCurrentClick"
+              ref="multipleTable" style="width: 100%">
+              <el-table-column prop="name" label="角色名称">
                 <template slot="header">
-                  <span>岗位名称</span>
-                  <div @click="addFun('岗位')" class="header_icon">
+                  <span>角色名称</span>
+                  <div @click="addFun('角色')" class="header_icon">
                     <!-- <img src="../../assets/img/Add.png" class="addimg" /> -->
                     <i class="el-icon-circle-plus-outline"></i>
                     添加
                   </div>
                 </template>
                 <template slot-scope="scope">
-                  <span>{{ scope.row.PostName }}</span>
-                  <div @click="editFun(scope.row, '岗位')" class="edit_icon">
+                  <span>{{ scope.row.name }}</span>
+                  <div @click="editFun(scope.row, '角色')" class="edit_icon">
                     <i class="el-icon-edit-outline"></i>
                   </div>
-                  <div @click="deleteFun(scope.row, '岗位')" class="delete_icon">
+                  <div @click="deleteFun(scope.row, '角色')" class="delete_icon">
                     <i class="el-icon-delete"></i>
                   </div>
                 </template>
@@ -60,27 +64,12 @@
             </el-table>
           </div>
         </div>
-        <div class="left_bottom">
-          <el-table :data="userArr" highlight-current-row @row-click="userClickFun" height="100%" border style="width: 100%">
-            <el-table-column prop="EnCode" width="280px" label="用户工号">
-            </el-table-column>
-            <el-table-column prop="RealName" label="用户名称">
-              <template slot="header">
-                用户名称
-                <div @click="addUserFun" class="header_icon">
-                  <i class="el-icon-circle-plus-outline"></i>
-                  <!-- <img src="../../assets/img/Add.png" class="addimg" /> -->
-                  添加
-                </div>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
       </div>
+
+
       <div class="power_right">
         <div class="right_top">
           <div class="right_top_title">
-            <!-- <div class="top_title_line"></div> -->
 
             <div class="top_title_text">
               <img src="../../assets/img1/65.png" />{{ powerName }}-权限管理
@@ -89,19 +78,16 @@
           <div class="right_top_conter">
             <div class="powerTitle">
               <span class="powerTitle_1">目录</span>
-              <span class="powerTitle_2">查看权限</span>
-              <span class="powerTitle_3">按钮授权</span>
+              <!-- <span class="powerTitle_2">查看权限</span>
+              <span class="powerTitle_3">按钮授权</span> -->
             </div>
             <div class="powerHtml">
-              <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick">
+              <el-tree :data="powerTreeData" :props="defaultProps" node-key="name" show-checkbox default-expand-all
+                @check="handleNodeClic2"
+                :default-checked-keys="argRightIDList.filter(_ => _.isGranted).map(_ => _.name)">
                 <span class="custom-tree-node" slot-scope="{ node, data }">
                   <span>{{ node.label }}</span>
-                  <div @click="treeNode1(node, data, $event)" class="treeDiv">
-                    <img :src="data.IsBrowse == 'Y' ? img2 : img1" />
-                  </div>
-                  <div @click="treeNode2(data, $event)" class="treeDiv2" :class="data.IsAuthorized == 'Y' ? 'active' : 'default'">
-                    {{ data.IsAuthorized == "Y" ? "已授权" : "未授权" }}
-                  </div>
+
                 </span>
               </el-tree>
             </div>
@@ -110,33 +96,62 @@
             </div>
           </div>
         </div>
-        <div class="right_bottom">
-          <div class="right_bottom_title">
-            <!-- <div class="bottom_title_line"></div> -->
-            <div class="bottom_title_text">
-              <img src="../../assets/img1/65.png" />{{ powerName }}-权限管理
-            </div>
-            <div class="title_all">
-              <el-checkbox label="全选" @change="allCheckFun()" v-model="allshow" name="type"></el-checkbox>
-            </div>
-          </div>
-          <div class="right_bottom_conter">
-            <div v-for="(item, index) in btnarr" :key="index" class="powerBtn">
-              <el-checkbox :label="item.Btn_Text" v-model="item.isauthorized" name="type"></el-checkbox>
-            </div>
-            <div @click="BtnSaveFun()" class="save">
-              <el-button class="btn-style1"><img :src="baocun" />保存</el-button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
-    <tit-pop :data="userdata" :text="deleteText" :type="tiseType" v-if="isTisPop" :text1="delText"></tit-pop>
-    <add-pop :text="deleteText" :data="popData" :id="departmentId" :type="tiseType" v-if="isAddPop"></add-pop>
-    <user-poptip :DepartmentArr="departmentArr1" :PostAllArr="postArr1" :type="popType" v-if="isUserPop" :authorityType="0"></user-poptip>
+    <div class="left_bottom">
+      <el-table :data="userArr" highlight-current-row height="100%" border style="width: 100%">
+        <el-table-column prop="userName" label="用户账号">
+        </el-table-column>
+        <el-table-column prop="name" label="用户名称">
+        </el-table-column>
+        <el-table-column prop="jobNumber" label="用户工号">
+        </el-table-column>
+        <el-table-column prop="organizationUnits" label="部门">
+          <template slot-scope="scope">
+            {{ scope.row.organizationUnitsDisplayName.join(',') }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="roleNames" label="角色">
+          <template slot-scope="scope">
+            {{ scope.row.roleNames.join(',') }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="phoneNumber" label="电话">
+        </el-table-column>
 
-    <div class="mask_box" v-if="isTisPop || isAddPop"></div>
+        <el-table-column prop="email" label="邮箱">
+          <template slot="header">
+            <span>邮箱</span>
+            <div @click="addUserFun" class="header_icon">
+              <i class="el-icon-circle-plus-outline"></i>
+              添加
+            </div>
+          </template>
+          <template slot-scope="scope">
+            <span>{{ scope.row.email }}</span>
+            <div @click="editUserFun(scope.row)" class="edit_icon">
+              <i class="el-icon-edit-outline"></i>
+            </div>
+            <div @click="deleteFun(scope.row, '用户')" class="delete_icon">
+              <i class="el-icon-delete"></i>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+
+
+    <div class="mask_box" v-if="isAddPop"></div>
+    <add-pop ref="userAddPop" :text="deleteText" :data="popData" :id="departmentId" :type="tiseType" v-if="isAddPop">
+    </add-pop>
+    <div class="mask_box" v-if="isTisPop"></div>
+    <!-- 不要合并两个mask_box，只用一个遮罩的话，第二个遮罩出现（层级提高）并关闭后（实际并没关），先出来的弹窗会按不了（被挡住了） -->
+    <tit-pop :data="userdata" :text="deleteText" :type="tiseType" v-if="isTisPop" :text1="delText"></tit-pop>
+    <user-poptip :DepartmentArr="departmentArr1" :data="userData" :PostAllArr="postArr1" :type="popType" ref="userPop"
+      v-if="isUserPop" :authorityType="0"></user-poptip>
+
+
   </div>
 </template>
 <script>
@@ -148,7 +163,7 @@ import baocun from "@/assets/img1/baocun.png";
 import shuaxin from "@/assets/img1/shuaxin.png";
 import UserPoptip from "@/view/user-managent/user-pop/user-poptip.vue";
 import {
-  getDeptAndPostData, getButtonData, getUserList, getPageData, savePageAuthorize, saveButtonAuthorize
+  organizationUnitAll, identityRolesAll, wmsUserList, searchPermissions, editPermissions
 } from "@/api/home.js";
 export default {
   components: {
@@ -162,13 +177,13 @@ export default {
       baocun: baocun,
       loading: false,
       delText: "",
-      powerName: "岗位",
+      powerName: "角色",
       data: [], //树形页面数据
       AllData: [], //树形总数据
       saveDataArr: [], //修改的树形页面数据
       defaultProps: {
-        children: "ChildrenPage",
-        label: "PageText",
+        children: "items",
+        label: "displayName",
       },
       img1: require("../../assets/img1/lockon.png"),
       img2: require("../../assets/img1/unLock.png"),
@@ -177,13 +192,13 @@ export default {
       isAddPop: false,
       deleteText: "",
       tiseType: "",
-      userdata: [], //删除单个岗位部门数据
+      userdata: [], //删除单个角色部门数据
       btnarr: [], //按钮数据
       btnarrAll: [], //按钮总数据
       saveBtnDataArr: [], //修改的按钮数据
       departmentArr: [], //初始页面数据
-      popData: [], //编辑单个岗位部门数据
-      postArr: [], //岗位数据
+      popData: [], //编辑单个角色部门数据
+      postArr: [], //角色数据
       userArr: [], //用户数据
       handleNode: [], //单个树形页面数据
       departmentId: "",
@@ -192,15 +207,20 @@ export default {
       popType: "1",
       isUserPop: false,
       departmentArr1: [],
-      postArr1: []
+      postArr1: [],
+      userData: {},
+      powerTreeData: [],
+      argRightIDList: [],//初始选中
+      checkedNodesList: [],//当前选中
+      haveSelect: false,
+      curProviderName: '',
     };
   },
   created() {
     this.init();
   },
   mounted() {
-
-    //默认激活岗位
+    //默认激活角色
     setTimeout(() => {
       this.$refs.multipleTable.setCurrentRow(this.$refs.multipleTable.data[0]);
       this.$refs.multipleTable2.setCurrentRow(
@@ -210,75 +230,69 @@ export default {
     this.stopF5Refresh();
   },
   methods: {
+    usersave() {
+      console.log('ggggggg');
+      this.$refs.userPop.addAxios();
+    },
+    sureAddFn(text) {
+      this.tiseType = "14";
+      this.deleteText = text;
+      this.isTisPop = true;
+    },
+    handleNodeClic2(item, listObj) {
+      if (!this.haveSelect) {
+        this.haveSelect = true;
+      }
+      this.checkedNodesList = listObj.checkedNodes;
+    },
     //初始化权限页面数据
     init() {
-      this.id = this.$route.query.name;
-      // var url = `${this.$store.state.dailog.url1}AuthorizeManage/Base_Authorize/GetDeptAndPostData`;
-      this.loading = true;
-      // this.$axios({
-      //   //初始化部门岗位信息
-      //   method: "post",
-      //   url: url,
-      // }).then((res) => {
-      getDeptAndPostData().then(res => {
-        this.loading = false;
-        this.departmentArr = res.data.resultdata;
-        // console.log(this.departmentArr)
-        this.postArr = this.departmentArr[0].PostList;
-        // console.log( this.postArr)
-        this.departmentId = this.departmentArr[0].DepartmentId;
-        this.postId = this.departmentArr[0].PostList[0].PostId;
-        this.departmentArr1 = []
-        this.postArr1 = []
-        let list = this.departmentArr
-        for (let i = 0; i < list.length; i++) {
-          var value = {
-            value: list[i].DepartmentFullName,
-            label: list[i].DepartmentFullName,
-            id: list[i].DepartmentId,
-          };
-          this.departmentArr1.push(value)
-          let list1 = list[i].PostList
-          for (let j = 0; j < list1.length; j++) {
-            var value1 = {
-              value: list1[j].PostName,
-              label: list1[j].PostName,
-              id: list1[j].PostId,
-              ParentId: list[i].DepartmentId,
-            };
-            this.postArr1.push(value1)
-          }
+      organizationUnitAll().then(res => {
+        this.departmentArr = JSON.parse(res.data.resultdata).items.map(_ => ({
+          ..._,
+          DepartmentFullName: _.displayName,
+          departmentId: _.id
+        }));
+        this.departmentId = this.departmentArr[0].id;
+        this.departmentArr1 = this.departmentArr.map(item => ({
+          value: item.id,//部门是传id
+          label: item.displayName,
+          id: item.id,
+        }))
 
-
-        }
-
-        var v = {
-          PostId: this.postId,
-        };
-        this.handleCurrentClick(v);
-        this.useObj = this.departmentArr[0].PostList[0].PostId;
-        this.userAxios(this.departmentId, this.postId).then((val) => {
-          this.PageDataAxios("1", this.postId);
-        });
-        setTimeout(() => {
-          this.$refs.multipleTable.setCurrentRow(
-            this.$refs.multipleTable.data[0]
-          );
-          this.$refs.multipleTable2.setCurrentRow(
-            this.$refs.multipleTable2.data[0]
-          );
-        }, 100);
-      }).catch(err => {
-        this.loading = false;
-        // console.log(error);
-      });
+      })
+      identityRolesAll().then(res2 => {
+        this.postArr = JSON.parse(res2.data.resultdata).items.map(_ => ({
+          ..._,
+          PostName: _.name,
+          PostId: _.id
+        }));
+        this.postId = this.postArr[0].id;
+        this.postArr1 = this.postArr.map(item => ({
+          value: item.name,//角色是传name
+          label: item.name,
+          id: item.id,
+        }))
+        this.searchPermissionsFn(this.postArr[0].name)
+      })
+      wmsUserList().then(res2 => {
+        this.userArr = JSON.parse(res2.data.resultdata).items;
+      })
     },
     shuaxinFun() {
       this.init();
     },
     //提示
     tipsFun(text) {
-      this.tiseType = "7";
+      setTimeout(() => {
+        this.tiseType = "4";
+        this.deleteText = text;
+        this.isTisPop = true;
+        console.log('121213');
+      })
+    },
+    beforeEditFun(type, text) {
+      this.tiseType = type;
       this.deleteText = text;
       this.isTisPop = true;
     },
@@ -298,189 +312,17 @@ export default {
         }
       };
     },
-    //按钮权限数据
-    btnAxios(id1, id2) {
-      var pageid = id1;
-      var userobj = id2;
-      // var url = `${this.$store.state.dailog.url1}AuthorizeManage/Base_Authorize/GetButtonData?Page_ID=${pageid}&&useObj=${userobj}`;
-      // this.$axios({
-      //   method: "post",
-      //   url: url,
-      // })
-      getButtonData(pageid, userobj).then((res) => {
-        for (let i = 0; i < res.data.resultdata.length; i++) {
-          res.data.resultdata[i].isauthorized =
-            res.data.resultdata[i].IsAuthorized == "N" ? false : true;
-        }
-        this.btnarr = res.data.resultdata;
-        this.btnarrAll = JSON.parse(JSON.stringify(res.data.resultdata));
-      }).catch(err => {
-        console.log(err);
-      });
-    },
+
     //新增用户
     addUserFun() {
       this.popType = "1";
       this.isUserPop = true;
     },
-    //用户数据
-    userAxios(id1, id2) {
-      return new Promise((resolve, reject) => {
-        var DeptmentId = id1;
-        var PostId = id2;
-        // var url = `${this.$store.state.dailog.url1}AuthorizeManage/Base_Authorize/GetUserList?DeptmentId=${DeptmentId}&&PostId=${PostId}`;
-        // this.$axios({
-        //   //初始化用户数据
-        //   method: "post",
-        //   url: url,
-        // }).then((res) => {
-        getUserList(DeptmentId, PostId).then(res => {
-          this.userArr = res.data.resultdata;
-          resolve("成功了");
-        });
-      });
-    },
-    //GetPageData权限树形数据
-    PageDataAxios(text, id1) {
-      // var htt = this.$store.state.dailog.url1;
-      var PostId = id1;
-      // var url = `${htt}AuthorizeManage/Base_Authorize/GetPageData?useObj=${PostId}`;
-      // console.log("useObj", PostId);
-      // this.$axios({
-      //   method: "post", //触发树形数据
-      //   url: url,
-      // }).then((res) => {
-      getPageData(PostId).then(res => {
-        this.data = JSON.parse(JSON.stringify(res.data.resultdata));
-        this.AllData = res.data.resultdata;
-      });
-    },
-    //全选
-    allCheckFun() {
-      if (this.allshow == true) {
-        for (let i = 0; i < this.btnarr.length; i++) {
-          this.btnarr[i].isauthorized = true;
-        }
-      } else if (this.allshow == false) {
-        for (let i = 0; i < this.btnarr.length; i++) {
-          this.btnarr[i].isauthorized = false;
-        }
-      }
-    },
-    //全选页面
-    nodeAllImg(data, text) {
-      if (data.ChildrenPage.length != 0) {
-        for (let i = 0; i < this.data.length; i++) {
-          if (this.data[i].Page_ID == data.Page_ID) {
-            var dataNode = this.data[i].ChildrenPage;
-            for (let j = 0; j < dataNode.length; j++) {
-              if (text == "0") {
-                if (data.IsBrowse == "Y") {
-                  dataNode[j].IsBrowse = "N";
-                } else {
-                  dataNode[j].IsBrowse = "Y";
-                }
-              } else {
-                if (data.IsAuthorized == "Y") {
-                  dataNode[j].IsAuthorized = "N";
-                } else {
-                  dataNode[j].IsAuthorized = "Y";
-                }
-              }
-              this.nodeAllImg(dataNode[j]);
-            }
-          }
-        }
-      }
-    },
-    //单选页面
-    nodeNoeImg(data, alldata, text) {
-      for (let i = 0; i < alldata.length; i++) {
-        if (alldata[i].Page_ID == data.parentID) {
-          var dataNode = alldata[i].ChildrenPage;
-          for (let j = 0; j < dataNode.length; j++) {
-            if (text == "0") {
-              if (dataNode[j].IsBrowse == "Y") {
-                alldata[i].IsBrowse = "Y";
-                break;
-              } else {
-                alldata[i].IsBrowse = "N";
-              }
-            } else {
-              if (dataNode[j].IsAuthorized == "Y") {
-                alldata[i].IsAuthorized = "Y";
-                break;
-              } else {
-                alldata[i].IsAuthorized = "N";
-              }
-            }
-          }
-        } else {
-          if (alldata[i].ChildrenPage.length != 0) {
-            this.nodeNoeImg(data, alldata[i].ChildrenPage);
-          }
-        }
-      }
-    },
-    //查看
-    treeNode1(node, data, e) {
-      if (e.stopPropagation) {
-        e.stopPropagation();
-      } else if (window.event) {
-        //IE
-        window.event.cancelBubble = true; //IE
-      }
-      if (data.IsBrowse == "Y") {
-        if (data.type == 0) {
-          this.nodeAllImg(data, "0");
-        } else {
-          data.IsBrowse = "N";
-          this.nodeNoeImg(data, this.data, "0");
-        }
-        e.target.src = this.img1;
-        data.IsBrowse = "N";
-      } else {
-        e.target.src = this.img2;
-        if (data.type == 0) {
-          this.nodeAllImg(data, "0");
-        } else {
-          data.IsBrowse = "Y";
-          this.nodeNoeImg(data, this.data, "0");
-        }
-        data.IsBrowse = "Y";
-      }
-    },
-    //授权
-    treeNode2(data, e) {
-      this.$nextTick(function () {
-        if (data && e) {
-          if (e.stopPropagation) {
-            e.stopPropagation();
-          } else if (window.event) {
-            //IE
-            window.event.cancelBubble = true; //IE
-          }
-          if (data.IsAuthorized == "Y") {
-            e.target.className = "treeDiv2 default";
-            if (data.type == 0) {
-              this.nodeAllImg(data, "1");
-            } else {
-              data.IsAuthorized = "N";
-              this.nodeNoeImg(data, this.data, "1");
-            }
-            data.IsAuthorized = "N";
-          } else {
-            e.target.className = "treeDiv2 active";
-            if (data.type == 0) {
-              this.nodeAllImg(data, "1");
-            } else {
-              data.IsAuthorized = "Y";
-              this.nodeNoeImg(data, this.data, "1");
-            }
-            data.IsAuthorized = "Y";
-          }
-        }
-      });
+    //编辑用户
+    editUserFun(row) {
+      this.popType = "2";
+      this.userData = { ...row };
+      this.isUserPop = true;
     },
     //更改的页面权限内容
     saveData(data, alldata) {
@@ -497,8 +339,8 @@ export default {
             IsBorwse: data[i].IsBrowse == "N" ? 0 : 1,
             UserType: "",
           };
-          if (this.powerName == "岗位") {
-            //岗位/角色
+          if (this.powerName == "角色") {
+            //角色/角色
             value.UseObj = this.postId;
             value.UserType = "1";
           } else {
@@ -516,78 +358,47 @@ export default {
         }
       }
     },
-    //更改的按钮权限内容
-    btnsaveData(data, alldata) {
-      for (let i = 0; i < data.length; i++) {
-        if (data[i].isauthorized != alldata[i].isauthorized) {
-          var value = {
-            PageId: this.handleNode.Page_ID,
-            ItemType: this.handleNode.type,
-            UseObj: "",
-            UserType: "",
-            State: data[i].isauthorized == true ? 1 : 0,
-            ButtonId: data[i].btn_id,
-          };
-          if (this.powerName == "岗位") {
-            //岗位/角色
-            value.UseObj = this.postId;
-            value.UserType = "1";
-          } else {
-            value.UseObj = this.useObj;
-            value.UserType = "2";
-          }
-          this.saveBtnDataArr.push(value);
-        }
-      }
-    },
-    //按钮权限保存
-    BtnSaveFun() {
-      this.saveBtnDataArr = [];
-      this.btnsaveData(this.btnarr, this.btnarrAll);
-      var value = JSON.stringify(this.saveBtnDataArr);
-      // var url = `${this.$store.state.dailog.url1}AuthorizeManage/Base_Authorize/SaveButtonAuthorize`;
-      // console.log("saveBtnDataArr", this.saveBtnDataArr);
-      // this.$axios({
-      //   method: "post",
-      //   url: url,
-      //   data: this.saveBtnDataArr,
-      // }).then((res) => {
-      saveButtonAuthorize(this.saveBtnDataArr).then(res => {
-        // this.deleteText = "修改成功";
-        // this.tiseType = "7";
-        // this.isTisPop = true;
-        this.$message({
-          message: '修改成功',
-          type: 'success'
-        })
-      }).catch(err => {
-        this.$message({
-          message: '修改失败',
-          type: 'error'
-        })
-      });
-    },
     //页面权限保存
     pageSaveFun(e) {
-      this.saveDataArr = [];
-      this.saveData(this.data, this.AllData);
-      var value = JSON.stringify(this.saveDataArr);
-      // var url = `${this.$store.state.dailog.url1}AuthorizeManage/Base_Authorize/SavePageAuthorize`;
-      // console.log("页面内容", this.saveDataArr);
-      // this.$axios({
-      //   method: "post",
-      //   url: url,
-      //   data: this.saveDataArr,
-      // })
-      //   .then((res) => {
-      savePageAuthorize(this.saveDataArr).then(res => {
-        // this.deleteText = "修改成功";
-        // this.tiseType = "7";
-        // this.isTisPop = true;
+      if (!this.haveSelect) {
+        //未有任何改动，checkedNodesList为空，未获取到正确的checkedNodesList
         this.$message({
           message: '修改成功',
           type: 'success'
         })
+        return
+      }
+      let initSelect = this.argRightIDList.filter(_ => !_.isFirst).map(_ => ({ name: _.name, isGranted: false }));//不晓得选没选中的项
+      let nowSelect = this.checkedNodesList.filter(_ => !_.isFirst).map(_ => ({ name: _.name, isGranted: true }));//选中项
+      console.log('nowSelect', nowSelect);
+      let list = [];
+      initSelect.map(_ => {
+        let b = false;
+        nowSelect.map(_2 => {
+          if (_.name == _2.name) {//选中了
+            b = true;
+            list.push(_2);//isGranted为true代表添加权限
+          }
+        })
+        if (!b) {
+          list.push(_);//isGranted为false代表删除权限
+        }
+      })
+      editPermissions(
+        'R', this.curProviderName, { permissions: list }
+      ).then(res => {
+        if (res.data.type == 1) {
+          this.$message({
+            message: '修改成功',
+            type: 'success'
+          })
+        } else {
+          this.$message({
+            message: res.data.message,
+            type: 'error'
+          })
+        }
+
       }).catch(err => {
         this.$message({
           message: '修改失败',
@@ -595,95 +406,51 @@ export default {
         })
       });
     },
-
-    //树形结构点击
-    handleNodeClick(data) {
-      this.handleNode = data;
-      if (data.type == 1) {
-        this.btnAxios(data.Page_ID, this.useObj);
-      }
-    },
-    //部门组点击
-    departmentClick(val) {
-      this.btnarr = [];
-      this.btnarrAll = [];
-      this.AllData = [];
-      this.data = [];
-      this.powerName = "岗位";
-      if (val != null) {
-        this.departmentId = val.DepartmentId;
-      }
-      if (val != null && val.PostList.length != 0) {
-        this.postArr = val.PostList;
-        this.postId = val.PostList[0].PostId;
-        var v = {
-          PostId: this.postId,
-        };
-        this.handleCurrentClick(v);
-        this.useObj = this.postId;
-        //激活岗位
-        setTimeout(() => {
-          this.$refs.multipleTable.setCurrentRow(
-            this.$refs.multipleTable.data[0]
-          );
-        }, 100);
-      } else {
-        this.userArr = [];
-        this.postArr = [];
-        this.data = [];
-        this.AllData = [];
-      }
-    },
-
-    //岗位组点击
+    //角色组点击
     handleCurrentClick(val, column, e) {
-      this.AllData = [];
-      this.data = [];
-      this.btnarr = [];
-      this.btnarrAll = [];
-      this.powerName = "岗位";
       if (val != null) {
-        this.postId = val.PostId;
-        this.PageDataAxios("1", this.postId);
-        this.useObj = this.postId;
-        this.userAxios(this.departmentId, this.postId);
+        this.searchPermissionsFn(val.name)
       }
     },
-
-    //用户姓名点击
-    userClickFun(val) {
-      this.btnarr = [];
-      this.btnarrAll = [];
-      this.AllData = [];
-      this.data = [];
-      console.log("用户", val);
-      if (val != null) {
-        this.powerName = "用户";
-        this.useObj = val.UserId;
-        var id = val.UserId;
-        this.PageDataAxios("2", id);
+    searchPermissionsFn(name) {
+      searchPermissions('R', name).then(res => {
+        this.curProviderName = name;
+        this.powerTreeData = JSON.parse(res.data.resultdata).map(_ => ({ ..._, isFirst: true }));//后端收到第一层的东西会报错
+        this.argRightIDList = [];
+        this.initCheck(this.powerTreeData);
+      })
+    },
+    initCheck(list) {
+      if (list && list.length) {
+        list.map(obj => {
+          this.argRightIDList.push(obj);
+          if (obj.items && obj.items.length) {
+            this.initCheck(obj.items)
+          }
+        })
       }
     },
-
     //删除
     deleteFun(data, name) {
       this.deleteText = `您确定要删除该${name}信息吗?`;
       this.delText = `【该${name}所有信息将被清空】`;
       this.userdata = data;
-      if (name == "岗位") {
+      if (name == "角色") {
         this.tiseType = "5";
-      } else {
+      } else if (name == "部门") {
         this.tiseType = "6";
+      } else if (name == "用户") {
+        this.tiseType = "11";
       }
       this.isTisPop = true;
     },
     //编辑
     editFun(data, name) {
       this.deleteText = `编辑${name}`;
-      if (name == "岗位") {
+      if (name == "角色") {
         this.tiseType = "7";
         this.popData = data;
-      } else {
+      } else if (name == "部门") {
         this.popData = data;
         this.tiseType = "8";
       }
@@ -692,9 +459,9 @@ export default {
     //添加
     addFun(name) {
       this.deleteText = `添加${name}`;
-      if (name == "岗位") {
+      if (name == "角色") {
         this.tiseType = "5";
-      } else {
+      } else if (name == "部门") {
         this.tiseType = "6";
       }
       this.isAddPop = true;
@@ -704,6 +471,9 @@ export default {
       this.isTisPop = false;
       this.isAddPop = false;
       this.isUserPop = false
+    },
+    closeTips() {
+      this.isTisPop = false;
     },
   },
 };

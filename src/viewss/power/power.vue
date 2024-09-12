@@ -269,6 +269,7 @@ export default {
             var htt = this.$store.state.dailog.url1
             var PostId = id1
             var url = `${htt}AuthorizeManage/Base_Authorize/GetPageData?useObj=${PostId}`
+            // var url = `${htt}api/wms/page/menu?useObj=${PostId}`
             console.log('useObj',PostId)
              this.$axios({
                         method:"post",            //触发树形数据

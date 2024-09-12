@@ -15,8 +15,12 @@
           <i class="el-icon-close"></i>
         </div>
       </div>
-      <div v-if="type == '1' || type == '4' || islast || type == '5' || type == '6' || type == '7'" class="tisText_box">
-        <div class="tisText">{{ titleText }}<br /><span class="tisText1" v-if="type == '5' || type == '6'">{{text1}}</span></div>
+      <div
+        v-if="type == '1' || type == '4' || islast || type == '5' || type == '6' || type == '7' || type == '8' || type == '11' || type == '14'"
+        class="tisText_box">
+        <div class="tisText">{{ titleText }}<br /><span class="tisText1"
+            v-if="type == '5' || type == '6' || type == '11'">{{ text1
+            }}</span></div>
       </div>
 
       <div v-if="(type == '2' && !islast) || (type == '3' && !islast)" class="tisText_box">
@@ -35,16 +39,16 @@
       </div>
 
       <div class="user_conter_box3">
-        <span v-if="type != '4' && !islast && type != '7'" @click="saveFun()">
+        <span v-if="type != '4' && !islast" @click="saveFun()">
           <el-button class="btn-style2">确认</el-button>
           <!-- 确认 -->
         </span>
-        <span v-if="type != '4' && !islast && type != '7'" @click="closeFun('1')">
+        <span v-if="type != '4' && !islast" @click="closeFun('1')">
           <el-button class="btn-style22 no">取消</el-button>
           <!-- 取消 -->
         </span>
 
-        <div v-if="islast || type == '4' || type == '7'" @click="closeFun()">
+        <div v-if="islast || type == '4'" @click="cancelFun()">
           <el-button class="btn-style2 btn-width-style">{{ btntext }}</el-button>
 
         </div>
@@ -54,7 +58,11 @@
 </template>
 <script>
 import { mapActions } from 'vuex'
-import { delDepartment,delPost } from '@/api/user.js'
+import {
+  organizationUnitDel,
+  identityRolesDelete,
+  delWmsUser,
+} from '@/api/home.js'
 export default {
   data() {
     return {
@@ -71,15 +79,20 @@ export default {
 
   props: ["type", "text", "data", "text1"],
   created() {
-    //1为用户删除 2为个人重置密码 3为账号重置密码 4为用户提示信息 5为权限岗位删除 6为权限部门删除 7为提示信息
-
+    //1为用户删除 2为个人重置密码 3为账号重置密码 4为用户提示信息 5为权限角色删除 6为权限部门删除 7为提示信息 11用户
     this.init();
+  },
+  watch: {
+    text() {
+      this.titleText = this.text;
+    }
   },
   methods: {
     ...mapActions([
       'handleLogOut'
     ]),
     init() {
+      console.log(' this.type', this.type);
       if (this.type == "1") {
         this.title = "删除";
         this.titleText = this.text;
@@ -89,18 +102,28 @@ export default {
         this.type == "4" ||
         this.type == "5" ||
         this.type == "6" ||
-        this.type == "7"
+        this.type == "7" ||
+        this.type == "8" ||
+        this.type == "11" ||
+        this.type == "12" ||
+        this.type == '14'
       ) {
+        console.log('lllll');
         this.title = "提示";
         this.titleText = this.text;
       }
     },
     //关闭弹窗
     cancelFun() {
-      this.$parent.closeFun();
+      this.$parent.closeTips();
     },
     //确认
     saveFun() {
+      if (this.type == "14") {
+        this.cancelFun()
+        this.$parent.usersave()
+        return;
+      }
       //2为重置个 //3为账号
       if (this.type == "2" || this.type == "3") {
         if (this.newPassword == "" || this.passoword == "") {
@@ -145,12 +168,22 @@ export default {
             this.$parent.setPassWordFun(pass);
           }
         }
-      } else if (this.type == "5") {
-        this.DepartmentDelete("岗位");
-      } else if (this.type == "6") {
-        this.DepartmentDelete("部门");
-      } else if (this.type == "1") {
-        this.$parent.deletAxiosFun(this.data.UserId);
+      } else if (this.type == '5' || this.type == '6' || this.type == '7' || this.type == '8' || this.type == '11') {
+        if (this.titleText.indexOf('确定要删除') == -1) {
+          this.$parent.$refs.userAddPop.saveFun();
+          this.cancelFun();
+          return
+        }
+        console.log(this.type);
+        if (this.type == "5") {
+          this.DepartmentDelete("角色");
+        } else if (this.type == "6") {
+          this.DepartmentDelete("部门");
+        } else if (this.type == "11") {
+          this.DepartmentDelete("用户");
+        } else if (this.type == "1") {
+          this.$parent.deletAxiosFun(this.data.UserId);
+        }
       }
     },
     //提示成功
@@ -159,66 +192,62 @@ export default {
       this.titleText = "修改成功！";
       this.title = "提示";
     },
+    //提示成功
+    tispsrcc2(msg) {
+      this.islast = true;
+      this.titleText = msg;
+      this.title = "提示";
+    },
     //删除
     DepartmentDelete(text) {
-      var value;
-      // var url;
       if (text == "部门") {
-        value = {
-          DepartmentId: this.data.DepartmentId,
-        };
-        delDepartment(value).then(res => {
-           this.$message({
-            message:res.data.message,
-            type:'success'
-          })
-          this.$parent.closeFun();
-          this.$parent.init();
-
-        }).catch(err=>{
-          this.$message({
-            message:err,
-            type:'error'
-          })
-
+        organizationUnitDel(this.data.departmentId).then(res => {
+          if (res.data.type == 1) {
+            this.$parent.tipsFun('删除成功')
+            this.$parent.closeFun();
+            this.$parent.init();
+          } else {
+            this.$parent.tipsFun(res.data.message)
+          }
+        }).catch(err => {
+          this.$parent.tipsFun(err)
         })
 
-        // url = `${this.$store.state.dailog.url1}BaseManage/Base_Department/RemoveForm`;
-      } else {
-        value = {
-          PostId: this.data.PostId,
-        };
-        // url = `${this.$store.state.dailog.url1}BaseManage/Base_Post/RemoveForm`;
-        delPost(value).then(res=>{
-           this.$message({
-            message:res.data.message,
-            type:'success'
-          })
-          this.$parent.closeFun();
-          this.$parent.init();
-
-        }).catch(err=>{
-          this.$message({
-            message:err,
-            type:'error'
-          })
+      } else if (text == "角色") {
+        identityRolesDelete(this.data.PostId).then(res => {
+          if (res.data.type == 1) {
+            this.$parent.tipsFun('删除成功')
+            this.$parent.closeFun();
+            this.$parent.init();
+          } else {
+            this.$parent.tipsFun(res.data.message)
+          }
+        }).catch(err => {
+          this.$parent.tipsFun(err)
+        })
+      } else if (text == "用户") {
+        delWmsUser(this.data.id).then(res => {
+          console.log("res.data.message", res.data.message);
+          if (res.data.type == 1) {
+            this.$parent.tipsFun('删除成功')
+            this.$parent.closeFun();
+            this.$parent.init();
+          } else {
+            this.$parent.tipsFun(res.data.message)
+          }
+        }).catch(err => {
+          this.$parent.tipsFun(err)
         })
       }
-      // this.$axios({
-      //   method: "post",
-      //   url: url,
-      //   data: value,
-      // }).then((res) => {
-
-      // });
     },
 
     //取消
     closeFun(text) {
+      console.log(this.type );
       if (this.type == "7") {
         this.$parent.closeFun("1");
       } else {
-        this.$parent.closeFun();
+        this.$parent.closeTips();
         if (this.type == "2") {
           if (text != "1") {
             localStorage.removeItem("ms_username");
@@ -231,6 +260,7 @@ export default {
 };
 </script>
 <style>
+
 </style>
 <style lang="less" scoped>
 .tit-pop-li {
@@ -244,6 +274,7 @@ export default {
   height: 250px;
 
   z-index: 12;
+
   .tit-pop-style {
     position: relative;
     height: 100%;
@@ -251,6 +282,7 @@ export default {
     background: #fff;
     box-shadow: 0px 1px 42px 9px rgba(7, 8, 26, 0.23);
   }
+
   .title {
     width: 100%;
     height: 50px;
@@ -261,10 +293,12 @@ export default {
     background: #fd9a4c;
     text-align: center;
     line-height: 50px;
+
     .title_i {
       color: #fff;
       margin-right: 5px;
     }
+
     .headImg {
       position: absolute;
       right: 12px;
@@ -272,12 +306,14 @@ export default {
       height: 100%;
       background-size: cover;
       cursor: pointer;
+
       i {
         font-size: 28px;
         vertical-align: middle;
       }
     }
   }
+
   .tisText_box {
     width: 100%;
     height: 150px;
@@ -288,14 +324,17 @@ export default {
     text-align: center;
     display: table;
     overflow: hidden;
+
     .tisText_row {
       width: 100%;
       height: 36px;
       margin-top: 10px;
     }
+
     .tisText_row:first-child {
       margin-top: 35px;
     }
+
     .tisText {
       font-size: 14px;
       font-family: "Microsoft YaHei";
@@ -305,12 +344,14 @@ export default {
       vertical-align: middle;
       display: table-cell;
     }
+
     .tisText1 {
       color: #f13d3d;
       font-size: 16px;
       font-family: "Microsoft YaHei";
       font-weight: 400;
     }
+
     .row_name {
       width: 120px;
       height: 34px;
@@ -322,12 +363,14 @@ export default {
       float: left;
       margin-left: 45px;
     }
+
     .row_input {
       width: 250px;
       height: 34px;
       float: left;
     }
   }
+
   .user_conter_box3 {
     overflow: hidden;
     width: 100%;
@@ -335,11 +378,13 @@ export default {
     // position: absolute;
     bottom: 25px;
     text-align: center;
+
     .no {
       height: 33px;
       margin-left: 14px;
     }
   }
+
   .btn-width-style {
     width: auto;
     min-width: 100px;

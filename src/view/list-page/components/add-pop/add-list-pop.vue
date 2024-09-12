@@ -342,7 +342,6 @@ export default {
 
     //单个下拉数据
     selectFun(url) {
-      console.log(`========${this.$store.state.dailog.url1}${url}`)
       return new Promise((resolve, reject) => {
         this.$axios({            //1为添加保存  
           method: 'post',
@@ -406,7 +405,7 @@ export default {
     },
     saveFun(value2) {
       saveCommonData(this.axioData.SumbitUrl, value2).then(res => {
-        if (res.data.isLogin) {
+        if (res.data.type==1) {
           this.$parent.UptableFun() //表单刷新
         } else {
           this.$message({

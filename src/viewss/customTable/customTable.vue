@@ -298,7 +298,7 @@ export default {
                 return
             }
             var url = `${this.$store.state.dailog.url1}/WMSBusinessManage/Base_Page/GetPageInfo?page_ID=${this.id}`
-              this.$requset({              //初始化数据
+              this.$axios({              //初始化数据
                     method: 'get',
                     url: url,
                 }).then(res => {

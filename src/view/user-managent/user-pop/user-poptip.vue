@@ -15,59 +15,75 @@
         </div>
       </div>
       <div class="user_conter1" v-stopdrag>
-        
+
         <div class="user_conter_box">
-          <div class="conter_box_name left">姓名：</div>
+          <div class="conter_box_name left"><span>*</span>账号：</div>
           <div class="conter_box_input ml left">
-            <el-input v-model="name" autocomplete="off" placeholder="请输入内容"></el-input>
+            <el-input v-model="number" placeholder="请输入内容" :disabled="type == '2'"></el-input>
           </div>
           <div class="conter_box_input right">
-            <el-input v-model="number" autocomplete="off" placeholder="请输入内容"></el-input>
+            <el-input v-model="name" placeholder="请输入内容"></el-input>
           </div>
-          <div class="conter_box_name right">账号：</div>
+          <div class="conter_box_name right"><span>*</span>姓名：</div>
         </div>
+
         <div class="user_conter_box">
-          <div class="conter_box_name left">部门：</div>
+          <div class="conter_box_name left"><span>*</span>工号：</div>
           <div class="conter_box_input ml left">
-            <el-select popper-class="select-dropdown-class-li" @change="departFun()" v-model="department" placeholder="请选择">
+            <el-input v-model="workNum" placeholder="请输入内容">
+            </el-input>
+          </div>
+          <div class="conter_box_input right">
+            <el-input type="password" v-model="password" placeholder="请输入内容" show-password>
+            </el-input>
+          </div>
+          <div class="conter_box_name right"><span v-if="type == 1">*</span>密码：</div>
+        </div>
+
+        <div class="user_conter_box">
+          <div class="conter_box_name left"><span v-if="type == 1">*</span>确认密码：</div>
+          <div class="conter_box_input ml left">
+            <el-input type="password" v-model="password2" placeholder="请输入内容" show-password>
+            </el-input>
+          </div>
+          <div class="conter_box_input right">
+            <el-select popper-class="select-dropdown-class-li" v-model="department" placeholder="请选择">
               <el-option v-for="item in DepartmentArr" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </div>
-
-          <div class="conter_box_input right">
-            <el-select popper-class="select-dropdown-class-li" v-model="post" placeholder="请选择">
-              <el-option v-for="item in PostArr" :key="item.value" :label="item.label" :value="item.value">
-              </el-option>
-            </el-select>
-          </div>
-          <div class="conter_box_name right">岗位：</div>
-        </div>
-        <div class="user_conter_box" v-if="type == '1'">
-          <div class="conter_box_name left">登录密码：</div>
-          <div class="conter_box_input ml left">
-            <el-input autocomplete="off" type="password" v-model="password" placeholder="请输入内容" show-password></el-input>
-          </div>
-
-          <div class="conter_box_input right">
-            <el-input autocomplete="off" type="password" v-model="password2" placeholder="请输入内容" show-password></el-input>
-          </div>
-          <div class="conter_box_name right">确认密码：</div>
+          <div class="conter_box_name right"><span>*</span>部门：</div>
         </div>
 
         <div class="user_conter_box">
-          <div class="conter_box_name left">联系方式：</div>
-          <div class="conter_box_input2 left">
-            <el-input v-model="phone" @input="phoneVeriFun()" autocomplete="off" placeholder="请输入内容"></el-input>
+          <div class="conter_box_name left"><span>*</span>角色：</div>
+          <div class="conter_box_input ml left">
+            <el-select popper-class="select-dropdown-class-li" v-model="post" placeholder="请选择">
+              <el-option v-for="item in PostAllArr" :key="item.value" :label="item.label" :value="item.value">
+              </el-option>
+            </el-select>
           </div>
-          <div ref="tips" class="tips">请输入正确的手机或座机格式</div>
-        </div> 
+
+          <div class="conter_box_input right">
+            <el-input v-model="phone" @input="phoneVeriFun()" placeholder="请输入内容">
+            </el-input>
+          </div>
+          <div class="conter_box_name right">电话：</div>
+        </div>
+        <div class="user_conter_box">
+          <div class="conter_box_name left">邮箱：</div>
+          <div class="conter_box_input2 left">
+            <el-input v-model="email" placeholder="请输入内容"></el-input>
+          </div>
+        </div>
 
         <div class="user_conter_box2">
-          <div class="conter_box_name left">备注:</div>
+          <div class="conter_box_name left">是否禁用:</div>
           <div class="conter_box_input3 left">
-            <el-input type="textarea" :rows="5" placeholder="请输入内容" v-model="remarksV">
-            </el-input>
+            <el-radio-group v-model="isDisable">
+              <el-radio :label="1" size="large">禁用</el-radio>
+              <el-radio :label="2" size="large">不禁用</el-radio>
+            </el-radio-group>
           </div>
         </div>
 
@@ -82,24 +98,11 @@
 </template>
 <script>
 import "./user-poptip.less";
-import { saveFormUser } from '@/api/user.js'
+import { wmsUserItem, addWmsUser, editWmsUser } from '@/api/home.js'
 export default {
   data() {
     return {
-      rules:{},
-      ruleForm: {
-        name: "",
-        number: "",
-        password2: "",
-        password: "",
-        post: "",
-        department: "",
-        phone: "",
-        phonegs: false,
-        remarksV: "",
-        popTitle: "",
-        PostArr: "",
-      },
+      id: "",
       name: "",
       number: "",
       password2: "",
@@ -107,11 +110,13 @@ export default {
       post: "",
       department: "",
       phone: "",
-      phonegs: false,
-      remarksV: "",
+      phonegs: true,
       popTitle: "",
-      PostArr: "",
-      saveUser:false
+      workNum: "",
+      email: "",
+      isDisable: 1,
+      saveUser: false,
+      concurrencyStamp: ''
     };
   },
   props: ["type", "PostAllArr", "DepartmentArr", "data", "authorityType"],
@@ -124,154 +129,153 @@ export default {
 
     //1 添加用户  2为编辑
     init() {
-      // console.log(this.authorityType);
       if (this.type == "1") {
         this.popTitle = "添加用户";
       } else if (this.type == "2") {
-        this.popTitle = "编辑用户";
-        this.name = this.data.RealName;
-        this.number = this.data.EnCode;
-        this.post = this.data.PostName;
-        this.department = this.data.DepartmentFullName;
-        this.phone = this.data.Telephone;
-        this.remarksV = this.data.Remark;
-      }
-    },
-    //部门岗位数据
-    dataFun(data, text) {
-      for (let i = 0; i < data.length; i++) {
-        if (text == data[i].value) {
-          return data[i].id;
-        }
-      }
-    },
-    //筛选部门-岗位（DepartmentId可能有变）
-    departFun() {
-      this.PostArr = [];
-      for (let i = 0; i < this.DepartmentArr.length; i++) {
-        if (this.DepartmentArr[i].value == this.department) {
-          for (let j = 0; j < this.PostAllArr.length; j++) {
-            if (this.PostAllArr[j].ParentId == this.DepartmentArr[i].id) {
-              this.PostArr.push(this.PostAllArr[j]);
-            }
-          }
-        }
-      }
-      if (this.PostArr.length != 0) {
-        this.post = this.PostArr[0].value;
-      } else {
-        this.post = "";
-      }
-    },
-    //保存接口
-    addAxios(data) {
-      // var url = `${this.$store.state.dailog.url1}/BaseManage/Base_User/SaveForm`;
-      // this.$axios({
-      //   //查询信息
-      //   method: "post",
-      //   url: url,
-      //   data: data,
-      // }).then((res) => {
-        this.saveUser = true
-        saveFormUser(data).then(res=>{
-           this.saveUser = false
-          if (res.data.isLogin) {
-            this.$message({
-              message:'保存成功',
-              type:'success'
-            })
-            this.$parent.closeFun();
-            if (this.authorityType == 0) {
-              this.$parent.init()
-            } else {
-              this.$parent.allAxiosFun();
-
-            }
-
+        wmsUserItem(this.data.id).then(res => {
+          if (res.data.type == 1) {
+            const data = JSON.parse(res.data.resultdata)
+            this.popTitle = "编辑用户";
+            this.id = data.id;
+            this.name = data.name;
+            this.number = data.userName;
+            this.post = data.roleNames[0];
+            this.department = data.organizationUnits[0];
+            this.phone = data.phoneNumber;
+            this.workNum = data.jobNumber;
+            this.email = data.email;
+            this.isDisable = data.isActive ? 2 : 1;
+            this.concurrencyStamp = data.concurrencyStamp;
           } else {
             this.$parent.tipsFun(res.data.message);
           }
-        }) .catch((err) => {
+        })
+
+      }
+    },
+
+
+    //保存接口
+    addAxios() {
+      let data;
+      if (this.type == '1') {
+        data = {
+          userName: this.number,
+          name: this.name,
+          jobNumber: this.workNum,
+          phoneNumber: this.phone,
+          email: this.email,
+          isActive: this.isDisable == 2,
+          roleNames: [this.post],
+          organizationUnits: [this.department],
+          password: this.password,
+        }
+      } else {
+        data = {
+          id: this.id,
+          userName: this.number,
+          name: this.name,
+          jobNumber: this.workNum,
+          phoneNumber: this.phone,
+          email: this.email,
+          isActive: this.isDisable == 2,
+          roleNames: [this.post],
+          organizationUnits: [this.department],
+          password: this.password,
+          concurrencyStamp: this.concurrencyStamp
+        }
+      }
+      this.saveUser = true
+      if (this.type == "1") {
+        addWmsUser(data).then(res => {
           this.saveUser = false
-          // console.log("err", err);
-           this.$message({
-              message:'保存失败',
-              type:'error'
-            })
+          if (res.data.type == 1) {
+            this.$parent.tipsFun(`添加${this.number}成功`);
+            this.$parent.closeFun();
+            this.$parent.init()
+          } else {
+            this.$parent.tipsFun(res.data.message);
+          }
+        }).catch((err) => {
+          this.saveUser = false
+          this.$message({
+            message: '保存失败',
+            type: 'error'
+          })
         });
+      } else if (this.type == "2") {
+        editWmsUser(data).then(res => {
+          this.saveUser = false
+          if (res.data.type == 1) {
+            this.$parent.tipsFun(`保存${this.number}成功`);
+            this.$parent.closeFun();
+            this.$parent.init()
+          } else {
+            this.$parent.tipsFun(res.data.message);
+          }
+        }).catch((err) => {
+          this.saveUser = false
+          this.$message({
+            message: '保存失败',
+            type: 'error'
+          })
+        });
+      }
+
     },
     saveFun() {
-      var value;
-      var DepartmentId = this.dataFun(this.DepartmentArr, this.department);
-      var PostId = this.dataFun(this.PostArr, this.post);
-
-      if (this.type == 1) {
-        value = {
-          RealName: this.name,
-          EnCode: this.number,
-          Telephone: this.phone,
-          Password: this.password,
-          Account: this.number,
-          PostId: PostId,
-          DepartmentId: DepartmentId,
-          Remark: this.remarksV,
-        };
-      } else {
-        value = {
-          UserId: this.data.UserId,
-          RealName: this.name,
-          EnCode: this.number,
-          Account: this.number,
-          Telephone: this.phone,
-          PostId: PostId,
-          DepartmentId: DepartmentId,
-          Remark: this.remarksV,
-        };
-      }
       if (this.name == "") {
-        this.$parent.tipsFun("请填写姓名");
+        this.$message.error("请填写姓名");
         return;
       } else if (this.number == "") {
-        this.$parent.tipsFun("请填写账号");
+        this.$message.error("请填写账号");
         return;
       } else if (this.department == "") {
-        this.$parent.tipsFun("请选择部门");
+        this.$message.error("请选择部门");
+        return;
+      } else if (this.workNum == "") {
+        this.$message.error("请输入工号");
         return;
       } else if (this.post == "") {
-        // this.$parent.tipsFun("请选择岗位");
-        // return;
+        this.$message.error("请选择角色");
+        return;
       } else if (this.password == "") {
         if (this.type == "1") {
-          this.$parent.tipsFun("请输入密码");
+          this.$message.error("请输入密码");
           return;
         }
       } else if (this.password2 == "") {
         if (this.type == "1") {
-          this.$parent.tipsFun("请再次确认密码");
+          this.$message.error("请再次确认密码");
           return;
         }
       } else if (this.password != this.password2) {
         if (this.type == "1") {
-          this.$parent.tipsFun("两次密码不一致");
+          this.$message.error("两次密码不一致");
           return;
         }
-      } else if (this.phone == "") {
-        this.$parent.tipsFun("联系方式不能为空");
+      } else if (this.number.length > 19) {
+        this.$message.error("用户账号长度不能超过19");
         return;
-      } else if (this.phonegs == false) {
-        this.$parent.tipsFun("请输入正确的手机或座机格式");
+      } else if (this.workNum.length > 19) {
+        this.$message.error("工号长度不能超过19");
+        return;
+      } else if (this.password.length > 19) {
+        this.$message.error("密码长度不能超过19");
+        return;
+      } else if (this.phone && this.phonegs == false) {
+        this.$message.error("请输入正确的手机或座机格式");
         return;
       }
-      this.addAxios(value);
+      // this.addAxios(value);
+      this.$parent.sureAddFn(this.type == "1" ? `是否确认添加${this.number}?` : `是否确认修改${this.number}?`);
     },
     phoneVeriFun() {
-      var RegExpa = /^((0\d{2,3}-\d{7,8})|(1[3584]\d{9}))$/;
+      var RegExpa = /^1[3-9]\d{9}$/;
       var aa = RegExpa.test(this.phone);
       if (aa == false) {
-        this.$refs.tips.style.display = "block";
         this.phonegs = false;
       } else {
-        this.$refs.tips.style.display = "none";
         this.phonegs = true;
       }
     },
@@ -283,6 +287,8 @@ export default {
 };
 </script>
 <style>
+
 </style>
 <style lang="less" scoped>
+
 </style>

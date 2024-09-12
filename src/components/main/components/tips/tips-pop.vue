@@ -69,7 +69,7 @@ export default {
         } else {
           // IsMultipleChoice==0 不可以多选
           if (this.data.IsMultipleChoice == 0) {
-            console.log("tableDataArr", this.tableDataArr.length);
+            console.log("tableDataArr2", this.tableDataArr.length);
             if (this.tableDataArr.length > 1) {
               this.text = "不可多选内容";
               this.deleteShow = false;
@@ -150,19 +150,19 @@ export default {
         var url = this.data.SumbitUrl;
         delListData(url, this.value)
           .then((res) => {
-            if (res.data.isLogin) {
+            if (res.data.type==1) {
               this.$message({
                 message: res.data.message,
                 type: "success",
               });
               this.$parent.cancelFun();
-              this.$parent.UptableFun(); //刷新表单数据
+              this.$parent.reSearch(); //刷新表单数据
             } else {
               console.log("弹窗文本", res);
               this.text = res.data.message;
 
               this.deleteShow = false;
-              this.$parent.UptableFun(); //刷新表单数据
+              this.$parent.reSearch(); //刷新表单数据
             }
           })
           .catch(function (error) {

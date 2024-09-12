@@ -8,117 +8,50 @@
         </div>
         <!-- 按钮 -->
         <div class="list-btn">
-          <all-button
-            :btnData="btnData"
-            :btnPowerData="btnPowerArr"
-          ></all-button>
+          <all-button :btnData="btnData" :btnPowerData="btnPowerArr" :$route="$route"></all-button>
         </div>
       </div>
       <div class="list-table" v-loading="loading1">
-        <div class="select-count" v-if="haveWeightLabel">{{ `选中数量合计：${selectCountWeight}` }}</div>
-        <list-table
-          ref="homePage"
-          :data="tableData"
-          :name="name"
-          :title="title"
-          :tableWatchFlag="tableWatchFlag"
-          :current-page="currentPage"
-        ></list-table>
+        <list-table ref="homePage" :data="tableData" :name="name" :title="title" :tableWatchFlag="tableWatchFlag"
+          :current-page="currentPage" :severCountPage="severCountPage"></list-table>
       </div>
     </div>
     <div class="list-paginate">
-      <paginate
-        :allpage="allpage"
-        ref="page"
-        @get-current-page="getCurrentPage"
-      ></paginate>
+      <paginate :allpage="allpage" ref="page" @get-current-page="getCurrentPage" @changePageSize="changePageSize">
+      </paginate>
     </div>
     <!-- 弹窗 -->
-    <add-pop
-      ref="addpop"
-      :popTitle="popTitle"
-      :tableDataArr="tableDataArr"
-      :axioData="item"
-      :data="addData"
-      v-if="addShow"
-      :tableList="tableData"
-      :disLoading="loading2"
-    ></add-pop>
-    <tips-pop
-      ref="tipsPop"
-      :tableDataArr="tableDataArr"
-      :title="TitleText"
-      :data="item"
-      :type="tipsType"
-      :textInfo="textInfo"
-      v-if="tipsShow"
-    >
+    <add-pop ref="addpop" :popTitle="popTitle" :tableDataArr="tableDataArr" :axioData="item" :data="addData"
+      v-if="addShow" :tableList="tableData" :disLoading="loading2"></add-pop>
+    <tips-pop ref="tipsPop" :tableDataArr="tableDataArr" :title="TitleText" :data="item" :type="tipsType"
+      :textInfo="textInfo" v-if="tipsShow">
     </tips-pop>
-    <my-pop
-      v-if="isMyPopShow"
-      :text="myPopText"
-      :deleteShow="false"
-      @deleteBtn="deleteBtn"
-    >
+    <my-pop v-if="isMyPopShow" :text="myPopText" :deleteShow="false" @deleteBtn="deleteBtn">
     </my-pop>
-    <details-pop
-      v-if="isDetailsShow"
-      :name="name"
-      :title="title"
-      :tableDataArr="tableDataArr"
-      @handleDetails="handleDetails"
-    ></details-pop>
-    <detailed-pop
-      v-if="isDetailedShow"
-      :tableDataArr="tableDataArr"
-      :item="item"
-      @handleDetailed="handleDetailed"
-    />
-    <alarm-deatils
-      v-if="isAlarmShow"
-      :tableDataArr="tableDataArr"
-      :item="item"
-      @handleAlarm="handleAlarm"
-    />
-    <add-list-pop
-      ref="addListPop"
-      :popTitle="popTitle"
-      :tableDataArr="tableDataArr"
-      :axioData="item"
-      :data="addData"
-      :tableList="tableData"
-      :disLoading="loading2"
-      v-if="isAddList"
-    ></add-list-pop>
+    <details-pop v-if="isDetailsShow" :name="name" :title="title" :tableDataArr="tableDataArr"
+      @handleDetails="handleDetails"></details-pop>
+    <detailed-pop v-if="isDetailedShow" :tableDataArr="tableDataArr" :item="item" @handleDetailed="handleDetailed" />
+    <alarm-deatils v-if="isAlarmShow" :tableDataArr="tableDataArr" :item="item" @handleAlarm="handleAlarm" />
+    <add-list-pop ref="addListPop" :popTitle="popTitle" :tableDataArr="tableDataArr" :axioData="item" :data="addData"
+      :tableList="tableData" :disLoading="loading2" v-if="isAddList"></add-list-pop>
+    <reservoir-area ref="reservoirArea" :addTableData="tableDataArr" :reservoirTypeInit="reservoirType"
+      v-if="reservoirShow"></reservoir-area>
+    <TaskListPop ref="taskListPop" :tableDataArr="tableDataArr" v-if="taskListPopShow"
+      :taskListPopType="taskListPopType"></TaskListPop>
     <up-img :data="imgdata" :imgType="imgType" v-if="upimgShow"></up-img>
-
-    <add-table
-      v-if="addtableShow"
-      ref="addtable"
-      :addTableData="addTableData"
-    ></add-table>
-
-    <add-form-table
-      v-if="addformtableShow"
-      ref="addformtable"
-      :propsData="formTableData"
-    />
-
     <!-- 遮罩层 -->
-    <div
-      v-if="
-        addShow ||
-        tipsShow ||
-        upimgShow ||
-        isAddList ||
-        isMyPopShow ||
-        isDetailsShow ||
-        isDetailedShow ||
-        isAlarmShow ||
-        addtableShow
-      "
-      class="mask-box-li"
-    ></div>
+    <div v-if="
+  addShow ||
+  tipsShow ||
+  upimgShow ||
+  isAddList ||
+  isMyPopShow ||
+  isDetailsShow ||
+  isDetailedShow ||
+  isAlarmShow ||
+  reservoirShow ||
+  taskListPopShow
+    " class="mask-box-li mask-low"></div>
   </div>
 </template>
 
@@ -135,11 +68,11 @@ import MyPop from "./components/add-pop/my-pop.vue";
 import DetailsPop from "./components/add-pop/details-pop.vue";
 import DetailedPop from "./components/add-pop/detailed-pop.vue";
 import AlarmDeatils from "./components/add-pop/alarm-details.vue";
+import ReservoirArea from "./components/reservoir-area/reservoir-area.vue";
+import TaskListPop from "./components/task-pop/task-pop.vue";
 import axios from "@/libs/api.request";
-import AddTable from "./components/add-table/add-table.vue";
-import AddFormTable from "./components/add-form-table/add-form-table.vue";
-
 import {
+
   getPageInfo,
   getPageTableData,
   getTableCondition,
@@ -157,7 +90,6 @@ export default {
     Paginate,
     TipsPop,
     AddPop,
-    AddTable,
     UpImg,
     AddListPop,
     // TipsPop,
@@ -165,7 +97,8 @@ export default {
     DetailsPop,
     DetailedPop,
     AlarmDeatils,
-    AddFormTable,
+    ReservoirArea,
+    TaskListPop
   },
   data() {
     return {
@@ -204,26 +137,13 @@ export default {
       isDetailedShow: false,
       tableWatchFlag: false,
       isAlarmShow: false,
-      addtableShow: false,
-      addTableData: {
-        headerId: "",
-        popTitle: "",
-        Title: "",
-        DetailTitle: "",
-        DataUrl: "",
-        Details: [],
-        SaveUrl: "",
-        SaveUrlType: "",
-      },
-      addformtableShow: false,
-      formTableData: {
-        popTitle: "",
-        Buttons: [],
-        tableHeader: [],
-        Ids: [],
-        DataUrlType: "",
-        DataUrl: "",
-      },
+      reservoirShow: false,
+      reservoirType: 0,
+      taskListPopShow: false,
+      taskListPopType: 0,
+      severCountPage: true,
+      servePageSize: 50,
+
     };
   },
   watch: {
@@ -234,18 +154,17 @@ export default {
   created() {
     this.init();
   },
-  mounted() {},
-  computed: {
-    haveWeightLabel() {
-      return this.title.find(_ => _.FieldIndex == "MaterialAmount" || _.FieldName == "数量")
-    },
-    selectCountWeight() {
-      return this.tableDataArr.reduce((sum, w) => { return Number(w.MaterialAmount) + sum }, 0)
-    }
-  },
+  mounted() { },
   methods: {
-    OpenTableShow(item) {
-      this.addtableShow = true;
+    reSearch() {
+      this.tableFun(this.tableUrl, this.queryArr, this.currentPage);
+    },
+    changePageSize(size) {
+      console.log("size", size, this.servePageSize);
+      if (size != this.servePageSize) {
+        this.servePageSize = size;
+        this.tableFun(this.tableUrl, this.queryArr, this.currentPage);
+      }
     },
     //页面初始化
     init() {
@@ -267,7 +186,7 @@ export default {
         .then((res) => {
           this.loading = false;
           let data = JSON.parse(res.data.resultdata);
-          // console.log("ff" + data);
+          // console.log("ff" , data);
           if (data != null && data != "") {
             this.searchdata = data.filter_list; //查询条件
             this.btnData = data.Btn_list; //按钮列表
@@ -300,8 +219,14 @@ export default {
               this.queryArr = [];
             }
             // console.log(data.Field_list)
+            console.log('datadatadata', data);
             this.tableUrl = data.URL;
-            this.tableFun(this.tableUrl, this.queryArr);
+            this.severCountPage = data.ServerSidePaging;
+            if (this.severCountPage) {
+              this.tableFun(this.tableUrl, this.queryArr, 1);
+            } else {
+              this.tableFun(this.tableUrl, this.queryArr);
+            }
           }
         })
         .catch((error) => {
@@ -370,8 +295,6 @@ export default {
       this.tipsShow = false;
       this.upimgShow = false;
       this.isAddList = false;
-      this.addtableShow = false;
-      this.addformtableShow = false;
     },
     //开启提示
     activeTips(text, item) {
@@ -411,19 +334,39 @@ export default {
       // console.log(this.tableData)
     },
     //表格数据
-    tableFun(url, queryArr) {
+    tableFun(url, queryArr, page) {
       this.loading1 = true;
+      if (this.severCountPage) {
+        queryArr = {
+          pageIndex: page || this.currentPage,
+          pageSize: this.servePageSize,
+          condition: queryArr
+        }
+      }
       getPageTableData(url, queryArr)
         .then((res) => {
           this.loading1 = false;
           if (this.title != 0) {
-            //  console.log('获取表格数据=》'+res.data.resultdata)
-            let data = JSON.parse(res.data.resultdata);
-
-            // let data = JSON.parse(JSON.stringify(res.data.resultdata));
+            let data
+            if (this.severCountPage) {
+              console.log(JSON.parse(res.data.resultdata));
+              data = JSON.parse(res.data.resultdata).items;
+              // console.log(data);
+            } else {
+              data = JSON.parse(res.data.resultdata);
+            }
+            data.map(_ => {
+              if (_.tunnel) {
+                _.tunnelID = _.tunnel;
+              }
+            })
             this.tableData = data;
             this.stateFun();
-            this.allpage = this.tableData.length;
+            if (this.severCountPage) {
+              this.allpage = JSON.parse(res.data.resultdata).totalCount;
+            } else {
+              this.allpage = this.tableData.length;
+            }
           }
         })
         .catch((error) => {
@@ -431,9 +374,65 @@ export default {
           // alert(error);
         });
     },
+    closeReservoirArea() {
+      this.reservoirShow = false;
+      this.init();
+    },
+    closeTaskListPop() {
+      this.taskListPopShow = false;
+      this.init();
+    },
+
     //开启添加编辑
     activePop(text, item) {
       console.log(item);
+      if (item.WindowType == "1001" || item.WindowType == "1002" || item.WindowType == "1003" || item.WindowType == "1004"
+      ) {
+        if (item.WindowType == "1002" || item.WindowType == "1004") {
+          if (this.tableDataArr.length) {
+            if (this.tableDataArr.length > 1) {
+              this.myPopText = "请勾选一条内容";
+              this.isMyPopShow = true;
+              return;
+            } else if (this.tableDataArr[0].taskStatus != 0) {
+              this.myPopText = "仅未开始任务可编辑";
+              this.isMyPopShow = true;
+              return;
+            }
+            this.item = item;
+          } else {
+            this.myPopText = "请勾选内容";
+            this.isMyPopShow = true;
+            return;
+          }
+        }
+        this.taskListPopType = item.WindowType;
+        this.taskListPopShow = true;
+        return
+      }
+      if (item.WindowType == '1000' || item.WindowType == '1001' || item.WindowType == '1002' || item.WindowType == '1003') {
+        if (item.WindowType == '1001' || item.WindowType == '1003') {
+          if (this.tableDataArr.length) {
+            if (this.tableDataArr.length > 1) {
+              this.myPopText = "请勾选一条内容";
+              this.isMyPopShow = true;
+              return;
+            } else if (this.tableDataArr[0].taskStatus != 0) {
+              this.myPopText = "仅未开始任务可编辑";
+              this.isMyPopShow = true;
+              return;
+            }
+            this.item = item;
+          } else {
+            this.myPopText = "请勾选内容";
+            this.isMyPopShow = true;
+            return;
+          }
+        }
+        this.reservoirType = item.WindowType;
+        this.reservoirShow = true
+        return
+      }
       //编辑类
       if (item.WindowType == "2" || item.WindowType == "3") {
         if (this.tableDataArr.length == 0) {
@@ -459,7 +458,7 @@ export default {
             // console.log("vvvvv", v);
             // var url = `${this.$store.state.dailog.url1}${item.PopupUrl}`;
             // //请求编辑内容
-            // this.$request({
+            // this.$axios({
             //   method: "post",
             //   url: url,
             //   data: v,
@@ -534,118 +533,13 @@ export default {
           this.myPopText = "请勾选内容";
           this.isMyPopShow = true;
         }
-      } else if (item.WindowType == "6") {
-        // 新增
-        this.$request({
-          method: "get",
-          url: item.PopupUrl,
-        }).then((res) => {
-          let data = JSON.parse(res.data.resultdata);
-          this.addTableData = {
-            headerId: "",
-            popTitle: text,
-            ...data,
-          };
-          this.addtableShow = true;
-          this.item = item;
-        });
-      } else if (item.WindowType == "8") {
-        // 编辑
-        if (this.tableDataArr.length) {
-          if (this.tableDataArr.length > 1) {
-            this.myPopText = "请勾选一条内容";
-            this.isMyPopShow = true;
-            return;
-          }
-          this.$request({
-            method: "get",
-            url: item.PopupUrl,
-          }).then((res) => {
-            let data = JSON.parse(res.data.resultdata);
-            this.addTableData = {
-              headerId: this.tableDataArr[0].Id,
-              popTitle: text,
-              ...data,
-            };
-            this.addtableShow = true;
-            this.item = item;
-          });
-        } else {
-          this.myPopText = "请勾选内容";
-          this.isMyPopShow = true;
-        }
-      } else if (item.WindowType == "7") {
-        if (this.tableDataArr.length) {
-          if (this.tableDataArr.length > 1 && item.IsMultipleChoice == 0) {
-            this.myPopText = "请勾选一条内容";
-            this.isMyPopShow = true;
-            return;
-          }
-          this.$request({
-            method: "get",
-            url: item.PopupUrl,
-          }).then((res) => {
-            let data = JSON.parse(res.data.resultdata);
-            console.log("data:", data);
-
-            this.formTableData.popTitle = data.Title;
-            this.formTableData.tableHeader = [...data.Fields];
-            console.log(this.tableDataArr);
-
-            this.formTableData.Ids = [];
-            this.tableDataArr.forEach((item1) => {
-              this.formTableData.Ids.push(item1.Id);
-            });
-            this.formTableData.Buttons = [...data.Buttons];
-            this.formTableData.DataUrl = data.DataUrl;
-            this.formTableData.DataUrlType = data.DataUrlType;
-
-            this.item = item;
-            this.addformtableShow = true;
-          });
-        } else {
-          this.myPopText = "请勾选内容";
-          this.isMyPopShow = true;
-        }
-      } else if (item.WindowType == "9") {
-        if (this.tableDataArr.length > 0) {
-          this.$request({
-            method: "get",
-            url: item.PopupUrl,
-          }).then((res) => {
-            let data = JSON.parse(res.data.resultdata);
-            console.log("data:", data);
-
-            this.formTableData.popTitle = data.Title;
-            this.formTableData.tableHeader = [...data.Fields];
-            console.log(this.tableDataArr);
-
-            this.formTableData.Ids = [];
-            this.tableDataArr.forEach((item1) => {
-              this.formTableData.Ids.push(item1.Id);
-            });
-            this.formTableData.Buttons = [...data.Buttons];
-            this.formTableData.DataUrl = data.DataUrl;
-            this.formTableData.DataUrlType = data.DataUrlType;
-
-            this.item = item;
-            this.addformtableShow = true;
-          });
-        } else {
-          this.myPopText = "请勾选内容";
-          this.isMyPopShow = true;
-        }
       }
-    },
-    showPop(text) {
-      this.myPopText = text;
-      this.isMyPopShow = true;
     },
     //排版内容
     PopDomFun(editUrl) {
       return new Promise((resolve, reject) => {
         // var url = `${this.$store.state.dailog.url1}${editUrl}`;
-        // this.$request({
+        // this.$axios({
         //   method: "get",
         //   url: url,
         // }).then((res) => {
@@ -671,6 +565,7 @@ export default {
 
     //编辑内容参数
     editVFun(data) {
+      console.log("this.tableDataArr[0]", this.tableDataArr[0]);
       var Params = data.Params;
       var paramData = [];
       this.value = [];
@@ -694,6 +589,7 @@ export default {
           }
         }
       }
+      console.log("value2", value2);
       return value2;
     },
     //刷新表单数据
@@ -716,10 +612,19 @@ export default {
         .then((res) => {
           this.loading1 = false;
           let data = JSON.parse(res.data.resultdata);
-          console.log("data8888", res);
+          data.map(_ => {
+            if (_.tunnel) {
+              _.tunnelID = _.tunnel;
+            }
+          })
+          console.log("data8888", data);
           this.tableData = data;
           this.stateFun();
-          this.allpage = this.tableData.length;
+          if (this.severCountPage) {
+            this.allpage = JSON.parse(res.data.resultdata).totalCount;
+          } else {
+            this.allpage = this.tableData.length;
+          }
           this.addShow = false;
         })
         .catch((error) => {
@@ -755,7 +660,7 @@ export default {
             }
           }
         })
-        .catch((error) => {});
+        .catch((error) => { });
     },
 
     //筛选表单
@@ -789,7 +694,11 @@ export default {
         }
       }
       this.SearchData = this.SearchData.filter((val) => val.logic != "date");
-      this.tableFun(this.tableUrl, this.SearchData);
+      if (this.severCountPage) {
+        this.tableFun(this.tableUrl, this.SearchData, 1);
+      } else {
+        this.tableFun(this.tableUrl, this.SearchData);
+      }
     },
     //批量添加
     addList(item) {
@@ -798,7 +707,6 @@ export default {
         this.popTitle = "批量添加";
         this.item = item;
         this.isAddList = true;
-        // var url = `COMmon/Common/RenderEditWindows?Page_ID=${this.id}&WindowType=1`;
         let editUrl = {
           Page_ID: this.id,
           WindowType: 1,
@@ -822,37 +730,87 @@ export default {
           this.textInfo = res.data.message;
         });
     },
+    showTips(tipsType, msg) {
+      this.tipsType = tipsType;
+      this.tipsShow = true;
+      this.textInfo = msg;
+    },
 
     //获取页码
     getCurrentPage(val) {
       this.currentPage = val;
-      // console.log(val)
+      if (this.severCountPage) {
+        this.tableFun(this.tableUrl, this.queryArr, val);
+      }
     },
-
     //导出
     formatJson(filterVal, jsonData) {
       return jsonData.map((v) => filterVal.map((j) => v[j]));
     },
     getexcel() {
-      let data1 = [];
-      if (this.tableDataArr.length > 0) {
-        data1 = this.tableDataArr;
+      if (this.severCountPage) {
+        this.tableUrl, this.queryArr, 1
+        let queryArr = {
+          pageIndex: 1,
+          pageSize: this.allpage,
+          condition: this.queryArr
+        }
+        getPageTableData(this.tableUrl, queryArr)
+          .then((res) => {
+            this.loading1 = false;
+            let data = JSON.parse(res.data.resultdata).items;
+            data.map(_ => {
+              if (_.tunnel) {
+                _.tunnelID = _.tunnel;
+              }
+            })
+
+            let data1 = [];
+            if (this.tableDataArr.length > 0) {
+              data1 = this.tableDataArr;
+            } else {
+              data1 = data;
+            }
+            let title1 = this.title.map((item) => {
+              return item.FieldName;
+            });
+            require.ensure([], () => {
+              const {
+                export_json_to_excel,
+              } = require("../../vendor/Export2Excel1.js");
+              const tHeader = title1;
+              const filterVal = this.name;
+              const list = data1;
+              const data = this.formatJson(filterVal, list);
+              export_json_to_excel(tHeader, data, "表单列表", true);
+            });
+          })
+          .catch((error) => {
+            this.loading1 = false;
+            // alert(error);
+          });
       } else {
-        data1 = this.tableData;
+        let data1 = [];
+        if (this.tableDataArr.length > 0) {
+          data1 = this.tableDataArr;
+        } else {
+          data1 = this.tableData;
+        }
+        let title1 = this.title.map((item) => {
+          return item.FieldName;
+        });
+        require.ensure([], () => {
+          const {
+            export_json_to_excel,
+          } = require("../../vendor/Export2Excel1.js");
+          const tHeader = title1;
+          const filterVal = this.name;
+          const list = data1;
+          const data = this.formatJson(filterVal, list);
+          export_json_to_excel(tHeader, data, "表单列表", true);
+        });
       }
-      let title1 = this.title.map((item) => {
-        return item.FieldName;
-      });
-      require.ensure([], () => {
-        const {
-          export_json_to_excel,
-        } = require("../../vendor/Export2Excel1.js");
-        const tHeader = title1;
-        const filterVal = this.name;
-        const list = data1;
-        const data = this.formatJson(filterVal, list);
-        export_json_to_excel(tHeader, data, "表单列表", true);
-      });
+
     },
 
     //导入
@@ -873,28 +831,31 @@ export default {
   .list-header {
     overflow: hidden;
   }
+
   .list-search {
     width: 70%;
     float: left;
   }
+
   .list-btn {
     float: right;
     width: 30%;
     text-align: right;
   }
+
   .list-table {
     margin-top: 10px;
-    position: relative;
-
-    .select-count {
-      position: absolute;
-      right: 0;
-      top: 0;
-      width: fit-content;
-    }
   }
+
   .list-paginate {
     padding-bottom: 10px;
+  }
+}
+</style>
+<style scoped lang="less">
+.list-page {
+  .mask-low {
+    z-index: 8;
   }
 }
 </style>

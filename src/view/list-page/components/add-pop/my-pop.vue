@@ -43,7 +43,7 @@ export default {
   background: #fff;
   border: 1px solid #eee;
   box-shadow: -7px 7px 50px 0px rgba(51, 51, 51, 0.5);
-  z-index: 110;
+  z-index: 10;
   .title {
     width: 100%;
     height: 40px;

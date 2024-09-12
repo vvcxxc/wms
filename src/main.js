@@ -24,7 +24,6 @@ import moment from 'moment'//导入文件
 import '@/libs/directives.js'
 import Blob from './vendor/Blob.js'
 import Export2Excel from './vendor/Export2Excel.js'
-import request from '@/utils/request'
 
 Vue.config.devtools = true;
 Vue.prototype.$moment = moment;//赋值使用
@@ -34,7 +33,6 @@ Vue.use(ElementUI, {
     size: 'small'
 });
 Vue.prototype.$axios = axios;
-Vue.prototype.$request = request;
 
 /**
  * @description 全局注册应用配置

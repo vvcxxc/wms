@@ -24,16 +24,18 @@ export default {
 					userName,
 					password
 				).then(res => {
-					// console.log(res)
+					console.log('555',res)
 					
-					const data = res.data
-					if(data.isLogin){
+					
+					if (res.data.type==1) {
+						const data= JSON.parse(res.data.resultdata)
 						sessionStorage.tagList = JSON.stringify([])
-						commit('setUserInfo',data.resultdata)
+						// commit('setUserInfo',data)
+						resolve(res)
+					}else{
+						reject(res.data.message)
 					}
-					
-					// commit('setToken', data.token)
-					resolve(res)
+					// commit('setToken', data.token)	
 				}).catch(err => {
 					reject(err)
 				})

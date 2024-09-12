@@ -1,68 +1,32 @@
 <template>
   <div class="box-search">
     <div class="box-select" style="margin-left: 0">
-      <el-select
-        popper-class="select-dropdown-class-li"
-        v-model="value"
-        @change="selectFun()"
-        placeholder="请选择"
-      >
-        <el-option
-          v-for="item in inputArr"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        >
+      <el-select popper-class="select-dropdown-class-li" v-model="value" @change="selectFun()" placeholder="请选择">
+        <el-option v-for="item in inputArr" :key="item.value" :label="item.label" :value="item.value">
         </el-option>
       </el-select>
     </div>
     <div v-show="seleShow" class="box-select">
-      <el-select
-        popper-class="select-dropdown-class-li"
-        v-model="value2"
-        placeholder="请选择"
-      >
-        <el-option
-          v-for="item in options"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        >
+      <el-select popper-class="select-dropdown-class-li" v-model="value2" placeholder="请选择">
+        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
         </el-option>
       </el-select>
     </div>
     <div v-show="!seleShow" class="box-select dateStyle">
-      <el-date-picker
-        popper-class="data-picker-class-li"
-        @change="changeTime('state')"
-        v-model="statetime"
-        type="datetime"
-        placeholder="选择日期"
-      >
+      <el-date-picker popper-class="data-picker-class-li" @change="changeTime('state')" v-model="statetime"
+        type="datetime" placeholder="选择日期" value-format="yyyy-MM-dd HH:mm:ss">
       </el-date-picker>
     </div>
     <div v-show="!seleShow" class="box-select dateStyle">
-      <el-date-picker
-        popper-class="data-picker-class-li"
-        @change="changeTime('end')"
-        type="datetime"
-        v-model="endtime"
-        placeholder="选择日期"
-      >
+      <el-date-picker popper-class="data-picker-class-li" @change="changeTime('end')" type="datetime" v-model="endtime"
+        placeholder="选择日期" value-format="yyyy-MM-dd HH:mm:ss">
       </el-date-picker>
     </div>
     <div v-show="seleShow" class="box-select">
-      <el-input
-        type="text"
-        v-model="text"
-        @change="valueFun()"
-        placeholder="请输入"
-      ></el-input>
+      <el-input type="text" v-model="text" @change="valueFun()" placeholder="请输入"></el-input>
     </div>
     <div class="box-select">
-      <el-button class="btn-style1" @click="queryFun()"
-        ><img :src="chaxun" />查询</el-button
-      >
+      <el-button class="btn-style1" @click="queryFun()"><img :src="chaxun" />查询</el-button>
     </div>
     <div class="box-select">
       <span>*查询条件数量：</span>
@@ -70,34 +34,21 @@
     </div>
     <div class="box-select select-condition">
       <el-select :value="value3" placeholder="暂无查询条件">
-        <el-option
-          v-for="(item, index) in massageArr"
-          :key="index"
-          class="select-option"
-          :label="item.value"
-          :value="item.value"
-        >
+        <el-option v-for="(item, index) in massageArr" :key="index" class="select-option" :label="item.value"
+          :value="item.value">
           <span style="float: left">{{ item.value }}</span>
-          <span
-            @click="colseMassage(index)"
-            style="
+          <span @click="colseMassage(index)" style="
               float: right;
               color: #888888;
               font-size: 18px;
               margin-left: 5px;
-            "
-            ><i class="el-icon-error"></i
-          ></span>
+            "><i class="el-icon-error"></i></span>
         </el-option>
       </el-select>
     </div>
     <div class="box-select">
-      <el-button class="btn-style1" @click="closeQuery()"
-        ><img :src="qingkong" />清空</el-button
-      >
-      <el-button class="btn-style1" @click="renovate()"
-        ><img :src="shuaxin" />刷新</el-button
-      >
+      <el-button class="btn-style1" @click="closeQuery()"><img :src="qingkong" />清空</el-button>
+      <el-button class="btn-style1" @click="renovate()"><img :src="shuaxin" />刷新</el-button>
       <!-- <el-button class="btn-style3">导出</el-button> -->
     </div>
     <!-- {{ searchdata }} -->
@@ -166,7 +117,7 @@ export default {
     },
   },
 
-  mounted() {},
+  mounted() { },
   methods: {
     init() {
       this.value = "";
@@ -205,14 +156,14 @@ export default {
       } else {
         this.seleShow = false;
         this.type = "datetime";
-        this.endtime = moment().format();
-        this.oldendtime = moment().format();
-        this.statetime = moment().subtract(3, "days").format();
-        this.oldstatetime = moment().add(-1, "h").format();
+        this.endtime = moment().format("YYYY-MM-DD HH:mm:ss");
+        this.oldendtime = moment().format("YYYY-MM-DD HH:mm:ss");
+        this.statetime = moment().add(-1, "h").format("YYYY-MM-DD HH:mm:ss");
+        this.oldstatetime = moment().add(-1, "h").format("YYYY-MM-DD HH:mm:ss");
+        console.log('this.statetime', this.statetime);
       }
       // 值
       this.value = this.inputArr[0].value;
-      this.queryFun()
     },
     //删除选择类型
     colseMassage(index) {
@@ -271,8 +222,8 @@ export default {
           } else {
             this.type = "datetime";
             this.seleShow = false;
-            this.endtime = moment().format();
-            this.statetime = moment().subtract(3, "days").format();
+            this.endtime = moment().format("YYYY-MM-DD HH:mm:ss");
+            this.statetime = moment().add(-1, "h").format("YYYY-MM-DD HH:mm:ss");
           }
         }
       }
@@ -319,24 +270,26 @@ export default {
             }
           }
           if (num == -1) {
-            this.massageArr.push(value);
+            let temp = this.massageArr.filter(_ => _.name != value.name);
+            temp.push(value);
+            this.massageArr = temp;
             let logic =
               this.value2 == "大于"
                 ? ">"
                 : this.value2 == "小于"
-                ? "<"
-                : this.value2 == "等于"
-                ? "="
-                : this.value2 == "包含"
-                ? "%"
-                : "";
+                  ? "<"
+                  : this.value2 == "等于"
+                    ? "="
+                    : this.value2 == "包含"
+                      ? "%"
+                      : "";
             this.axiosdataAll(logic, this.text);
           }
         }
       }
       if (this.type == "datetime") {
-        let staTime = moment(this.statetime).format("YY-MM-DD HH:mm:ss");
-        let endTime = moment(this.endtime).format("YY-MM-DD HH:mm:ss");
+        let staTime = moment(this.statetime).format("YYYY-MM-DD HH:mm:ss");
+        let endTime = moment(this.endtime).format("YYYY-MM-DD HH:mm:ss");
         let text = this.value + staTime + " | " + endTime;
         let time = staTime + "|" + endTime;
         let value = {
@@ -353,7 +306,9 @@ export default {
             }
           }
           if (num == -1) {
-            this.massageArr.push(value);
+            let temp = this.massageArr.filter(_ => _.name != value.name);
+            temp.push(value);
+            this.massageArr = temp;
             let logic = "date";
             this.axiosdataAll(logic, time);
           }
@@ -364,7 +319,6 @@ export default {
       } else {
         this.value3 = "";
       }
-
       this.$parent.searchDataFun(this.axiosdata);
     },
     //查询数据集合
@@ -376,7 +330,9 @@ export default {
             logic: logic,
             value: value,
           };
-          this.axiosdata.push(value2);
+          let temp = this.axiosdata.filter(_ => _.name != value2.name);
+          temp.push(value2);
+          this.axiosdata = temp;
         }
       }
     },
@@ -413,4 +369,5 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+
 </style>
