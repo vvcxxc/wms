@@ -55,8 +55,7 @@ export default {
             // 1 为折线 2为柱状 3为饼图  4为正负柱状
             this.id = this.$route.query.name
 
-            // var url = `${this.$store.state.dailog.url1}/Common/Base_Chart/GetPageChart?page_ID=${this.id}`
-            var url = `${this.$store.state.dailog.url1}/api/wms/chart/config?groupId=${this.id}`
+            var url = `${this.$store.state.dailog.url1}/Common/Base_Chart/GetPageChart?page_ID=${this.id}`
              this.$axios({              //初始化数据
                     method: 'get',
                     url: url,

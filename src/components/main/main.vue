@@ -241,12 +241,7 @@ export default {
     },
     //获取导航菜单长度并居中
     getMenuLen(list) {
-      let myWidth = 0;
-      list.forEach((val) => {
-        myWidth = myWidth + 14 * val.name.length + 60;
-      });
-      this.$refs.scrollBody1.style.width = myWidth + "px"; //获取导航栏长度
-      // this.$refs.scrollBody1.style.width = "fit-content"; //获取导航栏长度
+      this.$refs.scrollBody1.style.width = 120 * list.length + "px"; //获取导航栏长度
       // console.log(this.$refs.scrollBody1.offsetWidth)
       // console.log(this.$refs.scrollOuter1.offsetWidth)
       let scrollBodyLen = this.$refs.scrollBody1.offsetWidth;

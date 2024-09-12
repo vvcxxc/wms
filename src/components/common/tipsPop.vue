@@ -135,7 +135,7 @@ export default {
                     url:url1,
                     data:this.value
                 }).then(res => {
-                    if(res.data.type==1){
+                    if(res.data.isLogin){
                         this.$parent.cancelFun()
                         this.$parent.UptableFun() //刷新表单数据
                     }else{

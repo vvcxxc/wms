@@ -91,45 +91,45 @@ export default {
     this.init();
   },
   methods: {
-    // getDeviceInfo() {
-    //   GetiOpenWindowsInfo().then(
-    //     (res) => {
-    //       // console.log(res.data);
-    //       if (res.data.type === 2 || res.data.type === 3) {
-    //         setTimeout(() => {
-    //           this.getDeviceInfo();
-    //         }, 3000);
-    //         return;
-    //       }
-    //       this.dialog.show = true;
-    //       this.dialog.title = res.data.resultdata.windowtitle;
-    //       this.dialog.text = res.data.resultdata.windowText;
-    //       this.dialog.submitUrl = res.data.resultdata.submitUrl;
-    //       this.dialog.paramss = res.data.resultdata.paramss.map((item) => {
-    //         if (item.paramType === "selection") {
-    //           let arr = [];
-    //           for (let keys in item.paramSelectionData) {
-    //             arr.push(item.paramSelectionData[keys]);
-    //           }
-    //           return { ...item, paramSelectionData: arr };
-    //         } else {
-    //           return item;
-    //         }
-    //       });
-    //     },
-    //     (err) => {
-    //       setTimeout(() => {
-    //         this.getDeviceInfo();
-    //       }, 3000);
-    //       return err;
-    //     }
-    //   );
-    // },
+    getDeviceInfo() {
+      GetiOpenWindowsInfo().then(
+        (res) => {
+          console.log(res.data);
+          if (res.data.type === 2 || res.data.type === 3) {
+            setTimeout(() => {
+              this.getDeviceInfo();
+            }, 3000);
+            return;
+          }
+          this.dialog.show = true;
+          this.dialog.title = res.data.resultdata.windowtitle;
+          this.dialog.text = res.data.resultdata.windowText;
+          this.dialog.submitUrl = res.data.resultdata.submitUrl;
+          this.dialog.paramss = res.data.resultdata.paramss.map((item) => {
+            if (item.paramType === "selection") {
+              let arr = [];
+              for (let keys in item.paramSelectionData) {
+                arr.push(item.paramSelectionData[keys]);
+              }
+              return { ...item, paramSelectionData: arr };
+            } else {
+              return item;
+            }
+          });
+        },
+        (err) => {
+          setTimeout(() => {
+            this.getDeviceInfo();
+          }, 3000);
+          return err;
+        }
+      );
+    },
     dialogCancel() {
       this.dialog.show = false;
-      // setTimeout(() => {
-      //   this.getDeviceInfo();
-      // }, 3000);
+      setTimeout(() => {
+        this.getDeviceInfo();
+      }, 3000);
     },
     dialogConfirm() {
       if (this.dialog.text) {
@@ -160,7 +160,7 @@ export default {
         });
     },
     init() {
-      // this.getDeviceInfo();
+      this.getDeviceInfo();
     },
   },
 };

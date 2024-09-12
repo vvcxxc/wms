@@ -9,8 +9,7 @@
   <div class="user_box1" v-loading="loading" ref="userBox1">
     <div class="user_head" ref="userHeader">
       <div class="user_head_box left">
-        <el-select popper-class="select-dropdown-class-li" clearable @change="departFun()" v-model="DepartmentV"
-          placeholder="请选择">
+        <el-select popper-class="select-dropdown-class-li" clearable @change="departFun()" v-model="DepartmentV" placeholder="请选择">
           <el-option v-for="item in DepartmentArr" :key="item.value" :label="item.label" :value="item.value">
           </el-option>
         </el-select>
@@ -24,8 +23,8 @@
       <div class="user_head_box left">
         <el-input v-model="encodeOruserName" placeholder="请输入内容"></el-input>
       </div>
-      <el-button @click="queryFun()" class="btn-style1"><img :src="chaxun" />查询</el-button>
-      <el-button @click="refresh()" class="btn-style1"><img :src="shuaxin" />刷新</el-button>
+      <el-button @click="queryFun()" class="btn-style1"><img :src="chaxun"/>查询</el-button>
+      <el-button @click="refresh()" class="btn-style1"><img :src="shuaxin"/>刷新</el-button>
       <div class="right">
         <el-button @click="getexcel()" class="btn-style3">导出</el-button>
         <el-button @click="selfReset()" class="btn-style4">重置个人密码</el-button>
@@ -35,8 +34,7 @@
     </div>
 
     <div class="user_conter">
-      <el-table :data="tableData" stripe :height="tableHeight" highlight-current-row v-loading="loading2" border
-        @current-change="handleCurrentChange" style="width: 100%; height: 100%">
+      <el-table :data="tableData" stripe :height="tableHeight" highlight-current-row v-loading="loading2" border @current-change="handleCurrentChange" style="width: 100%; height: 100%">
         <el-table-column prop="RealName" label="姓名" :show-overflow-tooltip="true" width="150">
         </el-table-column>
         <el-table-column prop="EnCode" label="账号" :show-overflow-tooltip="true" width="200">
@@ -68,10 +66,9 @@
 
     <!-- 弹窗组件 -->
     <tit-pop :data="resetArr" :text="deleteText" :type="tiseType" ref="tispop" v-if="isTisPop"></tit-pop>
-    <user-poptip :data="userData" :DepartmentArr="DepartmentArr" :PostAllArr="PostAllArr" :type="popType"
-      v-if="isUserPop"></user-poptip>
+    <user-poptip :data="userData" :DepartmentArr="DepartmentArr" :PostAllArr="PostAllArr" :type="popType" v-if="isUserPop"></user-poptip>
     <!-- 遮罩层 -->
-    <div v-if="isTisPop || isUserPop" class="mask-box-li"></div>
+    <div v-if=" isTisPop || isUserPop " class="mask-box-li"></div>
   </div>
 </template>
 <script>
@@ -97,8 +94,8 @@ export default {
   },
   data() {
     return {
-      shuaxin: shuaxin,
-      chaxun: chaxun,
+      shuaxin:shuaxin,
+      chaxun:chaxun,
       isTisPop: false,
       isUserPop: false,
       resetArr: [],
@@ -118,9 +115,9 @@ export default {
       DepartmentId: "",
       loading2: false,
       loading: false,
-      tableHeight: 700,
-      screenWidth: null,
-      screenHeight: null
+      tableHeight:700,
+       screenWidth:null,
+      screenHeight:null
     };
   },
   created() {
@@ -129,34 +126,34 @@ export default {
   mounted() {
     this.stopF5Refresh();
     this.screenWidth = document.body.clientWidth;
-    this.screenHeight = document.body.clientHeight;
-    window.onresize = () => {
-      return (() => {
-        this.screenWidth = document.body.clientWidth;
-        this.screenHeight = document.body.clientHeight;
-
-      })();
-    }
+      this.screenHeight = document.body.clientHeight;
+      window.onresize = () => {
+        return (() => {
+          this.screenWidth = document.body.clientWidth;
+          this.screenHeight = document.body.clientHeight;
+          
+        })();
+      }
   },
   watch: {
-    screenHeight(n, o) {
+     screenHeight(n,o){
       this.getHeight()
 
     },
-    screenWidth(n, o) {
+     screenWidth(n,o){
       this.getHeight()
 
     },
   },
   methods: {
     //获取高度
-    getHeight() {
-      this.$nextTick(() => {
+    getHeight(){
+       this.$nextTick(()=>{
         //  console.log(333)
-        // console.log(this.$parent.$refs.listPage.offsetHeight)
-        this.tableHeight = this.$refs.userBox1.offsetHeight - this.$refs.userHeader.offsetHeight - 50;
+            // console.log(this.$parent.$refs.listPage.offsetHeight)
+          this.tableHeight = this.$refs.userBox1.offsetHeight - this.$refs.userHeader.offsetHeight - 50;
 
-      })
+          })
     },
     init() {
       //初始化列表信息
@@ -192,8 +189,8 @@ export default {
             this.loading = false;
           });
       });
-      this.$nextTick(() => {
-        this.tableHeight = this.$refs.userBox1.offsetHeight - 100
+      this.$nextTick(()=>{
+        this.tableHeight = this.$refs.userBox1.offsetHeight-100
       })
     },
     //阻止F5事件并页面刷新
@@ -253,7 +250,7 @@ export default {
             }
             resolve("成功了");
           })
-          .catch((error) => { });
+          .catch((error) => {});
       });
     },
     //默认查询全部
@@ -269,7 +266,7 @@ export default {
             }
           }
         })
-        .catch((error) => { });
+        .catch((error) => {});
     },
     //部门岗位数据
     dataFun3(data, text) {
@@ -279,7 +276,7 @@ export default {
         }
       }
     },
-    refresh() {
+    refresh(){
       this.init()
     },
     //查询
@@ -455,8 +452,6 @@ export default {
 };
 </script>
 <style lang="less">
-
 </style>
 <style lang="less" scoped>
-
 </style>

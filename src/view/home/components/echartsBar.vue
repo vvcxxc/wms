@@ -7,84 +7,70 @@
 -->
 <template>
   <div>
+
     <div ref="main3" class="echart"></div>
   </div>
 </template>
 <script>
-import { getEchartInfo } from "@/api/home.js";
+import { getEchartInfo } from '@/api/home.js'
 export default {
   data() {
     return {
-      title: "",
+      title: '',
       xdata: [],
       series: [],
       legendData: [],
-      myChart: "",
-    };
+      myChart: ''
+    }
   },
-  props: ["data", "dateBtnList"],
+  props: ['data'],
   created() {
-    this.init();
+    this.init()
   },
   mounted() {
     this.$nextTick(function () {
       if (this.$refs.main3) {
-        window.addEventListener("resize", () => {
+        window.addEventListener('resize', () => {
           // console.log(222)
-          this.myChart.resize();
+          this.myChart.resize()
           // this.drawLine();
-        });
+        })
         this.drawLine();
       }
-    });
-  },
-  watch: {
-    dateBtnList: {
-      deep: true,
-      handler(val) {
-        let item = val.find((_ => _.select));
-        if (item) {
-          let url = item.url;
-          this.init(url);
-        }
-      },
-    },
+    })
+
   },
   methods: {
-    init(_url) {
+    init() {
       // var url = this.data.data_url
-      let url = _url ? _url : this.data.data_url;
-      this.series = []
-      this.legendData = []
+       let url = this.data.data_url
       //  console.log(url)
-      getEchartInfo(url)
-        .then((res) => {
-          // console.log(res)
-          if (!res.data.resultdata) return;
-          let data = JSON.parse(res.data.resultdata);
-          this.xdata = data.xdata;
-          this.title = data.chartname;
-          for (let i = 0; i < data.histogramEntities.length; i++) {
-            this.legendData.push(data.histogramEntities[i].name);
-            var value = {
-              name: data.histogramEntities[i].name,
-              type: "bar",
-              label: {
-                show: true,
-                position: "inside",
-                formatter: "{c}" + data.histogramEntities[i].unit,
-              },
-              data: data.histogramEntities[i].data,
-            };
-
-            this.series.push(value);
+      getEchartInfo(url).then(res=>{
+        // console.log(res)
+        if (!res.data.resultdata) return
+        let data = JSON.parse(res.data.resultdata)
+        this.xdata = data.xdata
+        this.title = data.chartname
+           for (let i = 0; i < data.histogramEntities.length; i++) {
+          this.legendData.push(data.histogramEntities[i].name)
+          var value = {
+            name: data.histogramEntities[i].name,
+            type: 'bar',
+            label: {
+              show: true,
+              position: 'inside',
+              formatter: '{c}'+data.histogramEntities[i].unit
+            },
+            data: data.histogramEntities[i].data,
           }
-          this.drawLine();
-          console.log(data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+
+          this.series.push(value)
+        }
+        this.drawLine()
+        console.log(data)
+      }).catch(err=>{
+        console.log(err)
+      })
       // this.title = "七日报警数"
       // this.xdata = ['1日', '2日', '3日', '4日','5日','6日','7日']
       // // this.legendData = ['出库数量','入库数量','当前库存量']
@@ -103,7 +89,8 @@ export default {
       //   data: [120, 150, 170, 180],
       //   stack:'库存'
       // },
-
+      
+     
       // ]
       // for (let i = 0; i < list.length; i++) {
       //   this.legendData.push(list[i].name)
@@ -156,8 +143,8 @@ export default {
     },
     //渲染图
     drawLine() {
-      this.myChart = this.$echarts.init(this.$refs.main3);
-      this.myChart.resize();
+      this.myChart = this.$echarts.init(this.$refs.main3)
+      this.myChart.resize()
       //折线图
       var option3 = {
         title: {
@@ -175,30 +162,22 @@ export default {
                 height: 16,
                 width: 16,
                 backgroundColor: {
-                  image: require("@/assets/img1/65.png"),
-                },
+                  image: require('@/assets/img1/65.png')
+                }
               },
-            },
+            }
           },
         },
         tooltip: {
-          trigger: "axis",
-          axisPointer: {
-            // 坐标轴指示器，坐标轴触发有效
-            type: "shadow", // 默认为直线，可选为：'line' | 'shadow'
-          },
+          trigger: 'axis',
+          axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+            type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+          }
         },
-        color: [
-          "#FCB977",
-          "#3399FF",
-          "#50AFFC",
-          "#797FF9",
-          "#61CAD7",
-          "#82A0C0",
-        ],
+        color: ['#FCB977','#3399FF','#50AFFC', '#797FF9', '#61CAD7', '#82A0C0'],
         legend: {
           data: this.legendData,
-          right: 0, //右邊距
+          right:0, //右邊距
           top: 0,
           // bottom: -22,
           // left: "center",
@@ -208,62 +187,63 @@ export default {
           itemHeight: 18,
         },
         grid: {
-          left: "10%",
-          right: "10%",
-          bottom: "5%",
-          top: "15%",
+          left: '10%',
+          right: '10%',
+          bottom: '5%',
+          top: '15%',
           // containLabel: true
         },
         xAxis: [
           {
-            type: "value",
-            axisLine: {
-              //x轴样式
+            type: 'value',
+            axisLine: {//x轴样式
               show: false,
               lineStyle: {
                 color: "#DFDFDF",
                 width: 1,
-                type: "solid",
-              },
+                type: "solid"
+              }
             },
             axisLabel: {
               show: false,
               textStyle: {
                 color: "#333333",
-              },
+              }
             },
-          },
+          }
         ],
         yAxis: [
           {
-            type: "category",
+            type: 'category',
             axisTick: {
-              show: false,
+              show: false
             },
             data: this.xdata,
             axisLabel: {
               show: true,
               textStyle: {
                 color: "#333333",
-              },
+              }
             },
-            axisLine: {
-              //x轴样式
+            axisLine: {//x轴样式
               show: true,
               lineStyle: {
                 color: "#DFDFDF",
                 width: 1,
-                type: "solid",
-              },
+                type: "solid"
+              }
             },
-          },
+            
+          }
         ],
         series: this.series,
       };
-      this.myChart.setOption(option3);
-    },
-  },
-};
+      this.myChart.setOption(option3)
+
+    }
+
+  }
+}
 </script>
 <style lang="less" scoped>
 .echart {

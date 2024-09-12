@@ -111,8 +111,8 @@ export default {
             }
             this.btnPowerArr = this.$store.state.dailog.AutorizedBtnList
             console.log('btnPowerArr:'+this.btnPowerArr)
-            // var url = `${this.$store.state.dailog.url1}/COMmon/Base_Page/GetPageInfo?page_ID=${this.id}`
-            var url = `${this.$store.state.dailog.url1}/api/wms/page?id=${this.id}`
+         
+            var url = `${this.$store.state.dailog.url1}/COMmon/Base_Page/GetPageInfo?page_ID=${this.id}`
             this.allpage = 0
             this.tableData = []
               this.$axios({              //初始化数据
@@ -263,8 +263,7 @@ export default {
         
         //状态文本
         stateFun(){
-        // var url = `${this.$store.state.dailog.url1}WMSBusinessManage/Base_Quote/GetListJson?Page_ID=${this.id}`
-        var url = `${this.$store.state.dailog.url1}api/wms/option?id=${this.id}`
+        var url = `${this.$store.state.dailog.url1}WMSBusinessManage/Base_Quote/GetListJson?Page_ID=${this.id}`
               this.$axios({
                         method: 'Get',
                         url: url,
@@ -380,7 +379,7 @@ export default {
                  this.popTitle = text
                   this.item = item
                  this.addShow = true
-                 var url = `/api/wms/page/render-field?id=${this.id}&windowType=1`
+                 var url = `/COMmon/Common/RenderEditWindows?Page_ID=${this.id}&WindowType=1`
                 this.PopDomFun(url).then(val =>{
                     this.$refs.addpop.addSelecFun(this.addData)
                 })

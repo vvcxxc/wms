@@ -21,7 +21,7 @@
         proxy: {
             '/api': {
               // http://192.168.1.116:9009
-                target: 'http://192.168.1.37/', // 后台接口域名
+                target: 'http://124.71.68.130:180', // 后台接口域名
                 ws: true, //如果要代理 websockets，配置这个参数
                 secure: false, // 如果是https接口，需要配置这个参数
                 changeOrigin: true, //是否跨域

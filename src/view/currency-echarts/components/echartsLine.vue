@@ -70,12 +70,6 @@ export default {
           name: data.histogramEntities[i].name,
           type: this.type,
           data: data.histogramEntities[i].data,
-          tooltip: {
-            formatter: function (data) {
-              console.log(data);
-              return `${data.name}<br />${data.marker}${data.seriesName}: ${data.value}`;
-            },
-          },
           // markLine: {
 
           //   data: [
@@ -116,7 +110,7 @@ export default {
           },
         },
         tooltip: {
-          trigger: this.type == "bar" ? "item" : "axis",
+          trigger: "axis",
         },
         toolbox: {
           show: true,

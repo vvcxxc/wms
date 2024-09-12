@@ -1,12 +1,29 @@
 <template>
   <div>
     <!-- <el-button class="btn-style3 btn" @click="test(test1)">批量新增</el-button> -->
-    <!-- <el-button class="btn-style3 btn" @click="getExctel">导出</el-button> -->
-    <div style="display: inline-block" v-show="item.Btn_Type != '3'" v-for="(item, index) in btnData" :key="index">
-      <el-button @click="btnClick(item)" v-if="item.Btn_Type != '6'" class="btn"
-        :class="{ [item.color]: true, myBtn: item.Btn_Text == '生成出库任务' }">{{ item.Btn_Text }}</el-button>
-      <el-upload accept=".xls,.xlsx" :name="fileName" :action="elexUrl" v-if="item.Btn_Type == '6'"
-        :show-file-list="false" :on-success="fileSuccess" :on-error="fileError">
+    <el-button class="btn-style3 btn" @click="getExctel">导出</el-button>
+    <div
+      style="display: inline-block"
+      v-show="item.Btn_Type != '3'"
+      v-for="(item, index) in btnData"
+      :key="index"
+    >
+      <el-button
+        @click="btnClick(item)"
+        v-if="item.Btn_Type != '6'"
+        class="btn"
+        :class="{ [item.color]: true, myBtn: item.Btn_Text == '生成出库任务' }"
+        >{{ item.Btn_Text }}</el-button
+      >
+      <el-upload
+        accept=".xls,.xlsx"
+        :name="fileName"
+        :action="elexUrl"
+        v-if="item.Btn_Type == '6'"
+        :show-file-list="false"
+        :on-success="fileSuccess"
+        :on-error="fileError"
+      >
         <el-button @click="btnClick(item)" class="btn" :class="item.color">{{
           item.Btn_Text
         }}</el-button>
@@ -18,7 +35,7 @@
 <script>
 import "./all-button.less";
 export default {
-  props: ["btnData", "btnPowerData", "$route"],
+  props: ["btnData", "btnPowerData"],
   watch: {
     btnData(n, o) {
       this.btnData.forEach((item) => {
@@ -28,16 +45,12 @@ export default {
           item.Btn_Type == "0" ||
           item.Btn_Type == "3" ||
           item.Btn_Type == "7" ||
-          item.Btn_Type == "5" ||
           item.Btn_Type == "6"
         ) {
           item.color = "btn-style3";
-        } else if (
-          item.Btn_Type == "2" ||
-          item.Btn_Type == "4" ||
-
-          item.Btn_Type == "8"
-        ) {
+        } else if (item.Btn_Type == "2") {
+          item.color = "btn-style5";
+        } else if (item.Btn_Type == "4" || item.Btn_Type == "5") {
           // this.$parent.upImgPop(item)
           item.color = "btn-style5";
         }
@@ -66,7 +79,6 @@ export default {
           }
         }
       }
-      console.log("$route", this.$route, item)
       //0 为删除冻结类-类型3-1  1为弹窗类-类型3-2   2 为跳转类-类型5  3为导出-类型3-1  4/5为图片 //6为导入-类型3-1
       if (item.Btn_Type == "0") {
         let text = item.Btn_Text;
@@ -78,17 +90,13 @@ export default {
         this.$parent.jumpFun(item);
       } else if (item.Btn_Type == "3") {
         this.$parent.getexcel();
-      } else if (item.Btn_Type == "4") {
+      } else if (item.Btn_Type == "4" || item.Btn_Type == "5") {
         this.$parent.upImgPop(item);
-      } else if (item.Btn_Type == "5") {
-        this.getExctel();
       } else if (item.Btn_Type == "7") {
         this.$parent.addList(item);
       } else if (item.Btn_Type == "6") {
         // this.$parent.importExcelData(item)
         this.importExcelData(item);
-      } else if (item.Btn_Type == "8") {
-        this.$parent.myRequest(item);
       }
     },
     getExctel() {
@@ -101,25 +109,17 @@ export default {
     importExcelData(item) {
       let Page_ID = item.Page_ID;
       let dev = this.$config.baseUrl.dev;
-      this.elexUrl = `${window.location.origin}${dev}/wms/excel?id=${Page_ID}`;
+      this.elexUrl = `${window.location.origin}${dev}/Common/Common/ImportExcel?Page_ID=${Page_ID}`;
     },
 
     fileSuccess(response, file, fileList) {
-      console.log(response)
+      // console.log(response);
       let message = response.message;
-      if (response.type == 1) {
-        this.$message({
-          message: message,
-          type: "success",
-          duration: 2000,
-        });
-      } else {
-        this.$message({
-          message: message,
-          type: "error",
-          duration: 2000,
-        });
-      }
+      this.$message({
+        message: message,
+        type: response.type == 3 ? "error" : "success",
+        duration: 2000,
+      });
     },
     fileError(err, file, fileList) {
       this.$message({
@@ -136,13 +136,11 @@ export default {
   margin-bottom: 10px;
   margin-left: 10px;
 }
-
 .myBtn {
   width: fit-content !important;
   min-width: 80px !important;
   padding: 7px 10px !important;
 }
-
 .el-upload--text {
   width: 100%;
   height: 100%;

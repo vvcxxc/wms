@@ -125,10 +125,6 @@ export const routers = [
         component: resolve => require(['../components/page/shanhe.vue'], resolve)
     },
     {
-        path: '/kanban4',
-        component: resolve => require(['../components/page/kanban4.vue'], resolve)
-    },
-    {
         path: '*',
         redirect: '/404'
     },
@@ -196,30 +192,6 @@ export const routers = [
                 // component:alert,
                 component: resolve => require(['../viewss/alert/alert.vue'], resolve),
                 meta: { title: '报警页面' }
-            },
-            {
-                path: '/AlarmAnalysis1',
-                // component:alert,
-                component: resolve => require(['@/view/alarm-analysis/alarm-analysis.vue'], resolve),
-                meta: { title: '报警分析' }
-            },
-            {
-                path: '/Distribute1',
-                // component:alert,
-                component: resolve => require(['@/view/alarm-distribute/alarm-distribute.vue'], resolve),
-                meta: { title: '报警分布统计' }
-            },
-            {
-                path: '/CurrentAlarm1',
-                // component:alert,
-                component: resolve => require(['@/view/current-alarm/current-alarm'], resolve),
-                meta: { title: '实时报警' }
-            },
-            {
-                path: '/HistoryAlarm1',
-                // component:alert,
-                component: resolve => require(['@/view/history-alarm/history-alarm'], resolve),
-                meta: { title: '历史报警' }
             },
         ]
 

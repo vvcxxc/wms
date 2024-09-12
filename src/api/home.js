@@ -3,8 +3,7 @@ import axios from '@/libs/api.request'
 //获取首页图表接口
 export const getPageChart = (id) => {
   return axios.request({
-    // url: 'Common/Base_Chart/GetPageChart?page_ID=' + id,
-    url: 'api/wms/chart/config?groupId=' + id,
+    url: 'Common/Base_Chart/GetPageChart?page_ID=' + id,
     method: 'get'
   })
 }
@@ -12,8 +11,7 @@ export const getPageChart = (id) => {
 //获取表格页面数据
 export const getPageInfo = (id) => {
   return axios.request({
-    // url: 'COMmon/Base_Page/GetPageInfo?page_ID=' + id,
-    url: 'api/wms/page?id=' + id,
+    url: 'COMmon/Base_Page/GetPageInfo?page_ID=' + id,
     method: 'get'
   })
 }
@@ -30,8 +28,7 @@ export const getPageTableData = (url, queryArr) => {
 //获取列表状态文本
 export const getTableCondition = (id) => {
   return axios.request({
-    // url: 'WMSBusinessManage/Base_Quote/GetListJson?Page_ID=' + id,
-    url: 'api/wms/option?id=' + id,
+    url: 'WMSBusinessManage/Base_Quote/GetListJson?Page_ID=' + id,
     method: 'get'
   })
 }
@@ -39,7 +36,7 @@ export const getTableCondition = (id) => {
 //获取编辑或添加,排版内容
 export const tableSettingContent = (id, windowType) => {
   return axios.request({
-    url: '/api/wms/page/render-field?id=' + id + '&windowType=' + windowType,
+    url: '/COMmon/Common/RenderEditWindows?Page_ID=' + id + '&WindowType=' + windowType,
     method: 'get'
   })
 }
@@ -64,7 +61,7 @@ export const saveCommonData = (url, data) => {
 //获取地图数据
 export const getMap = () => {
   return axios.request({
-    url: 'api/wms/map',
+    url: 'WMSBusinessManage/WH_ContainerInfo/GetListJson',
     method: 'post'
   })
 }
@@ -114,7 +111,6 @@ export const getUserList = (DeptmentId, PostId) => {
 export const getPageData = (PostId) => {
   return axios.request({
     url: `AuthorizeManage/Base_Authorize/GetPageData?useObj=${PostId}`,
-    // url: `/api/wms/page/menu?useObj=${PostId}`,
     method: 'post',
   })
 }
@@ -156,8 +152,7 @@ export const importExcel = (filename, Page_ID) => {
 //库位地图配置
 export const getContainerMapInfo = () => {
   return axios.request({
-    // url: `WMSBusinessManage/WH_ContainerInfo/GetContainerMapInfo`,
-    url: `api/wms/map/config`,
+    url: `WMSBusinessManage/WH_ContainerInfo/GetContainerMapInfo`,
     method: 'post',
   })
 }
@@ -207,301 +202,5 @@ export const GetChangeColorList = (id) => {
   return axios.request({
     url: `Query/GetChangeColorList?page_ID=${id}`,
     method: 'get',
-  })
-}
-
-//创建仓库
-export const CreateAsync = (data) => {
-  return axios.request({
-    url: 'WmsWarehouse/WmsWarehouse/CreateAsync',
-    method: 'post',
-    data: data
-  })
-}
-
-//编辑仓库
-export const UpdateAsync = (data) => {
-  return axios.request({
-    url: 'WmsWarehouse/WmsWarehouse/UpdateAsync',
-    method: 'post',
-    data: data
-  })
-}
-
-//删除仓库
-export const DeleteAsync = (data) => {
-  return axios.request({
-    url: 'WmsWarehouse/WmsWarehouse/DeleteAsync',
-    method: 'post',
-    data: data
-  })
-}
-
-//创建库位
-export const CreateLocationAsync = (data) => {
-  return axios.request({
-    url: 'WmsLocation/WmsLocation/CreateLocationAsync',
-    method: 'post',
-    data: data
-  })
-}
-
-//编辑库位
-export const UpdateLocationAsync = (data) => {
-  return axios.request({
-    url: 'WmsLocation/WmsLocation/UpdateLocationAsync',
-    method: 'post',
-    data: data
-  })
-}
-
-//删除库位
-export const DeleteLocationAsync = (data) => {
-  return axios.request({
-    url: 'WmsLocation/WmsLocation/DeleteLocationAsync',
-    method: 'post',
-    data: data
-  })
-}
-
-//获取排
-export const GetRowOptionsAsync = () => {
-  return axios.request({
-    url: '/WmsLocation/WmsLocation/GetRowOptionsAsync',
-    method: 'get',
-  })
-}
-
-//获取列
-export const GetColumnOptionsAsync = (row) => {
-  return axios.request({
-    url: `/WmsLocation/WmsLocation/GetColumnOptionsAsync?rowIndex=${row}`,
-    method: 'get',
-  })
-}
-
-//获取层
-export const GetTierOptionsAsync = (row, col) => {
-  return axios.request({
-    url: `/WmsLocation/WmsLocation/GetTierOptionsAsync?rowIndex=${row}&columnIndex=${col}`,
-    method: 'get',
-  })
-}
-
-//
-export const GetSelectTion = (type) => {
-  return axios.request({
-    url: `/api/wms/option/items?id=${type}`,
-    method: 'get',
-  })
-}
-//检查夹具码
-export const CheckEquipmentCode = (code) => {
-  return axios.request({
-    url: `/api/wms/product/equipment-no-${code}`,
-    method: 'get',
-  })
-}
-
-
-//新建入库
-export const CreateInbound = (data) => {
-  return axios.request({
-    url: `/api/wms/task-queue/create-inbound`,
-    method: 'post',
-    data: data
-  })
-}
-
-//修改入库
-export const UpdateInbound = (data) => {
-  return axios.request({
-    url: `/api/wms/task-queue/update-inbound?id=${data.id}`,
-    method: 'post',
-    data: data
-  })
-}
-
-//新建出库
-export const CreateOutbound = (data) => {
-  return axios.request({
-    url: `/api/wms/task-queue/create-outbound`,
-    method: 'post',
-    data: data
-  })
-}
-
-//修改出库
-export const UpdateOutbound = (data) => {
-  return axios.request({
-    url: `/api/wms/task-queue/update-outbound?id=${data.id}`,
-    method: 'post',
-    data: data
-  })
-}
-
-//部门列表
-export const organizationUnitAll = () => {
-  return axios.request({
-    url: `/api/wms/organization-unit/all`,
-    method: 'GET',
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
-  })
-}
-
-//角色列表
-export const identityRolesAll = () => {
-  return axios.request({
-    url: `/api/identity/roles/all`,
-    method: 'GET',
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
-  })
-}
-
-//add部门
-export const organizationUnitPost = (data) => {
-  return axios.request({
-    url: `/api/wms/organization-unit`,
-    method: 'post',
-    data: data,
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
-  })
-}
-
-export const organizationUnitDel = (id) => {
-  return axios.request({
-    url: `/api/wms/organization-unit/${id}`,
-    method: 'DELETE',
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
-  })
-}
-
-//edit部门
-export const organizationUnitPut = (data) => {
-  return axios.request({
-    url: `/api/wms/organization-unit/${data.id}`,
-    method: 'PUT',
-    data: data,
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
-  })
-}
-
-//add角色
-export const identityRolesPost = (data) => {
-  return axios.request({
-    url: `/api/identity/roles`,
-    method: 'post',
-    data: data,
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
-  })
-}
-
-export const identityRolesDelete = (id) => {
-  return axios.request({
-    url: `/api/identity/roles/${id}`,
-    method: 'DELETE',
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
-  })
-}
-
-//edit角色
-export const identityRolesPut = (data) => {
-  return axios.request({
-    url: `/api/identity/roles/${data.id}`,
-    method: 'PUT',
-    data: data,
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
-  })
-}
-
-//用户列表
-export const wmsUserList = () => {
-  return axios.request({
-    url: `/api/wms/user?Sorting=&SkipCount=0&MaxResultCount=9999`,
-    method: 'GET',
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
-  })
-}
-
-export const wmsUserItem = (id) => {
-  return axios.request({
-    url: `/api/wms/user/${id}`,
-    method: 'GET',
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
-  })
-}
-
-//add列表
-export const addWmsUser = (data) => {
-  return axios.request({
-    url: `/api/wms/user`,
-    method: 'post',
-    data: data,
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
-  })
-}
-
-export const delWmsUser = (id) => {
-  return axios.request({
-    url: `/api/wms/user/${id}`,
-    method: 'DELETE',
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
-  })
-}
-
-
-//edit列表
-export const editWmsUser = (data) => {
-  return axios.request({
-    url: `/api/wms/user/${data.id}`,
-    method: 'put',
-    data: data,
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
-  })
-}
-
-export const searchPermissions = (providerName, providerKey) => {
-  return axios.request({
-    url: `/api/permission-management/permissions/tree?providerName=${providerName}&providerKey=${providerKey}`,
-    method: 'GET',
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
-  })
-}
-export const editPermissions = (providerName, providerKey, data) => {
-  return axios.request({
-    url: `/api/permission-management/permissions?providerName=${providerName}&providerKey=${providerKey}`,
-    method: 'PUT',
-    data: data,
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
   })
 }

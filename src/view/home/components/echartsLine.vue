@@ -25,7 +25,7 @@ export default {
       myChart: ''
     }
   },
-  props: ['data', "dateBtnList"],
+  props: ['data'],
   created() {
     // console.log(333)
     this.init()
@@ -40,35 +40,16 @@ export default {
       }
     })
   },
-  watch: {
-    dateBtnList: {
-      deep: true,
-      handler(val) {
-        let item = val.find((_ => _.select));
-        if (item) {
-          let url = item.url;
-          this.init(url);
-        }
-      },
-    },
-  },
   methods: {
-    init(_url) {
+    init() {
       // 1 为折线 2为柱状
       if (this.data.chart_type == '1') {
         this.type = 'line'
       } else {
         this.type = 'bar'
       }
-
       // this.title="库位情况分析"
-      let url;
-      //伟本特化，只有中间的不同，出此下策
-      if (this.data.data_url == '/api/wms/report/inventory') {
-        url = _url || this.dateBtnList[0].url
-      } else {
-        url = this.data.data_url
-      }
+      let url = this.data.data_url
       this.series = []
       this.legendData = []
       getEchartInfo(url).then(res => {
@@ -89,7 +70,7 @@ export default {
             type: this.type,
             data: data.histogramEntities[i].data,
             // markLine: {
-
+            
             //   data: [
             //     { type: 'average', name: '平均值' }
             //   ]
@@ -185,8 +166,8 @@ export default {
           top: '30px',
           bottom: null,
           left: null,
-          padding: [20, 10],
-          itemWidth: 18,
+           padding: [20, 10],
+           itemWidth: 18,
           itemHeight: 18,
         },
         grid: {

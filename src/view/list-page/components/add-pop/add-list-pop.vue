@@ -405,7 +405,7 @@ export default {
     },
     saveFun(value2) {
       saveCommonData(this.axioData.SumbitUrl, value2).then(res => {
-        if (res.data.type==1) {
+        if (res.data.isLogin) {
           this.$parent.UptableFun() //表单刷新
         } else {
           this.$message({

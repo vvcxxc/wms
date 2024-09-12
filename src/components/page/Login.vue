@@ -13,14 +13,24 @@
       <div class="login_input username">
         <div class="name">账号：</div>
         <div class="line"></div>
-        <el-input class="input" @keyup.enter.native="submitForm" placeholder="请输入账号名" v-model="username" clearable>
-        </el-input>
+        <el-input
+          class="input"
+          @keyup.enter.native="submitForm"
+          placeholder="请输入账号名"
+          v-model="username"
+          clearable
+        ></el-input>
       </div>
       <div class="login_input password">
         <div class="name">密码：</div>
         <div class="line"></div>
-        <el-input class="input" @keyup.enter.native="submitForm" placeholder="请输入密码" v-model="password" show-password>
-        </el-input>
+        <el-input
+          class="input"
+          @keyup.enter.native="submitForm"
+          placeholder="请输入密码"
+          v-model="password"
+          show-password
+        ></el-input>
       </div>
       <div @click="submitForm" class="login_btn">登录</div>
     </div>
@@ -48,7 +58,6 @@ export default {
       var password = md5.digest("hex"); //password 加密完的密码
     },
     submitForm() {
-      console.log('11111111111');
       if (this.username == "") {
         this.$message({
           showClose: true,
@@ -64,35 +73,23 @@ export default {
       } else {
         this.loading = true;
 
-        // var url = `${this.$store.state.dailog.url1}Login/CheckLog2?usercode=${this.username}&&password=${this.password}`;
-        const data = {
-          userNameOrEmailAddress: this.userName,
-          password: this.password,
-          rememberMe: true
-        }
+        var url = `${this.$store.state.dailog.url1}Login/CheckLog2?usercode=${this.username}&&password=${this.password}`;
         this.$axios({
           method: "post",
-          url: 'api/account/login',
-          data,
-          headers: {
-            'Accept-Language': 'zh-Hans'
-          }
-
+          url: url,
         })
           .then((res) => {
             console.log(res);
             this.loading = false;
             var time = new Date().getTime();
-            const data = JSON.parse(res.data.resultdata)
-            console.log('res.', res);
-            if (res.data.type == 1) {
+            if (res.data.isLogin) {
               localStorage.setItem("ms_username", this.username);
-              // localStorage.setItem("ms_userid", res.data.resultdata.UserId);
+              localStorage.setItem("ms_userid", res.data.resultdata.UserId);
               this.$router.push("/");
             } else {
               this.$message({
                 showClose: true,
-                message: data.description,
+                message: res.data.message,
                 type: "error",
               });
             }
@@ -111,17 +108,16 @@ export default {
 };
 </script>
 <style lang="less">
+
 .login-wrap {
   .el-input--small .el-input__inner {
     height: 60px;
     border: none;
   }
-
   .el-loading-mask {
     background-color: rgba(255, 255, 255, 0.3);
   }
 }
-
 .login-wrap .el-input--small .el-input__inner {
   box-shadow: 0 0 0 1000px inset #fff;
   font-size: 16px;
@@ -138,7 +134,6 @@ export default {
   // min-width: 1280px;
   background-image: url("../../assets/img/形状 4.png");
   background-size: cover;
-
   .login_conter {
     width: 80%;
     height: 70%;
@@ -148,13 +143,11 @@ export default {
     bottom: 0;
     right: 0;
     margin: auto;
-
     img {
       width: 100%;
       height: 100%;
       margin: auto;
     }
-
     .login_text {
       position: absolute;
       top: 19%;
@@ -172,12 +165,10 @@ export default {
       border: 1px solid rgba(138, 168, 247, 1);
       border-radius: 2px;
     }
-
     .password {
       left: 58.5%;
       top: 50%;
       overflow: hidden;
-
       .name {
         float: left;
         width: 17%;
@@ -189,14 +180,12 @@ export default {
         font-weight: bold;
         color: rgba(51, 51, 51, 1);
       }
-
       .input {
         float: left;
         width: 83%;
         height: 60px;
         margin-top: 10px;
       }
-
       .line {
         position: absolute;
         top: 19px;
@@ -206,12 +195,10 @@ export default {
         background: rgba(137, 168, 247, 1);
       }
     }
-
     .username {
       left: 58.5%;
       top: 36%;
       overflow: hidden;
-
       .name {
         float: left;
         width: 17%;
@@ -223,7 +210,6 @@ export default {
         font-weight: bold;
         color: rgba(51, 51, 51, 1);
       }
-
       .input {
         float: left;
         width: 83%;
@@ -231,7 +217,6 @@ export default {
         line-height: 60px;
         margin-top: 10px;
       }
-
       .line {
         position: absolute;
         top: 19px;
@@ -241,7 +226,6 @@ export default {
         background: rgba(137, 168, 247, 1);
       }
     }
-
     .login_btn {
       position: absolute;
       top: 69%;
@@ -260,7 +244,6 @@ export default {
       cursor: pointer;
       user-select: none;
     }
-
     .login_btn:hover {
       background: #27345a;
     }

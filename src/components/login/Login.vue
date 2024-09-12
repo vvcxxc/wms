@@ -128,7 +128,7 @@ export default {
             this.loading = false;
             var time = new Date().getTime();
             // console.log(this.$store.state.user.userInfo);
-            if (res.data.type==1) {
+            if (res.data.isLogin) {
               localStorage.setItem("ms_username", this.username);
               localStorage.setItem("ms_userid", res.data.resultdata.UserId);
 

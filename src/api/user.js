@@ -2,29 +2,21 @@ import axios from '@/libs/api.request'
 
 //登录接口
 export const login = (userName, password) => {
-  const data = {
-    userNameOrEmailAddress: userName,
-    password,
-    rememberMe:true
-  }
-  
+  // const data = {
+  //   userName,
+  //   password
+  // }
   return axios.request({
-    // url: 'Login/CheckLog2?usercode=' + userName + '&&password=' + password,
-    url: 'api/account/login',
-    data,
+    url: 'Login/CheckLog2?usercode=' + userName + '&&password=' + password,
     emulateJSON: true,
-    method: 'post',
-    headers: {
-      'Accept-Language': 'zh-Hans'
-    }
+    method: 'post'
   })
 }
 
 //获取菜单接口
 export const getMenuList = () => {
   return axios.request({
-    // url: 'AuthorizeManage/Base_Authorize/GetPageData',
-    url: `api/wms/page/menu`,
+    url: 'AuthorizeManage/Base_Authorize/GetPageData',
     method: 'get'
   })
 }
@@ -32,8 +24,8 @@ export const getMenuList = () => {
 //退出登录
 export const logout = () => {
   return axios.request({
-    url: 'api/account/logout',
-    method: 'get'
+    url: 'Login/OutLogin',
+    method: 'post'
   })
 }
 
@@ -115,8 +107,7 @@ export const delPost = (data) => {
 //获取首页内容
 export const getSystemInfo = () => {
   return axios.request({
-    // url: `/Common/Common/GetSystemInfo`,
-    url: `/api/wms/page/configuration`,
+    url: `/Common/Common/GetSystemInfo`,
     method: 'post',
   })
 }

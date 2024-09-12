@@ -12,16 +12,35 @@
     {{tableHeight}} -->
     <div class="sort-list">
       排序筛选：
-      <el-tag class="sort-tag" v-for="(item, index) in tit1" :key="index" closable type="info"
-        @close="closeSort(item, index)">
+      <el-tag
+        class="sort-tag"
+        v-for="(item, index) in tit1"
+        :key="index"
+        closable
+        type="info"
+        @close="closeSort(item, index)"
+      >
         {{ item.label }}
       </el-tag>
     </div>
-    <el-table :show-summary="disShowSummary" :summary-method="summaryMethod" :data="tableData"
-      style="margin-bottom: 20px" :height="tableHeight" border default-expand-all highlight-current-row
-      :tree-props="{ children: 'Children', hasChildren: 'hasChildren' }" row-key="vuekey" :row-style="rowClass"
-      :row-class-name="tableRowClassName" ref="handSelectTest_multipleTable" @row-click="handleRowClick"
-      @selection-change="handleSelectionChange" @sort-change="sortChange">
+    <el-table
+      :show-summary="disShowSummary"
+      :summary-method="summaryMethod"
+      :data="tableData"
+      style="margin-bottom: 20px"
+      :height="tableHeight"
+      border
+      default-expand-all
+      highlight-current-row
+      :tree-props="{ children: 'Children', hasChildren: 'hasChildren' }"
+      row-key="vuekey"
+      :row-style="rowClass"
+      :row-class-name="tableRowClassName"
+      ref="handSelectTest_multipleTable"
+      @row-click="handleRowClick"
+      @selection-change="handleSelectionChange"
+      @sort-change="sortChange"
+    >
       <el-table-column v-if="vuekeyNum" width="50" type="expand">
       </el-table-column>
       <el-table-column type="selection" width="55" align="center">
@@ -29,8 +48,14 @@
       <!-- 动态内容 -->
       <template v-for="(item, index) in name">
         <!-- <el-table-column type="expand" :key="index" v-if="index == 0"> </el-table-column> -->
-        <el-table-column :render-header="labelHead" :key="'table' + index" :prop="name[index]"
-          :label="title[index].FieldName" sortable="custom" :show-overflow-tooltip="true">
+        <el-table-column
+          :render-header="labelHead"
+          :key="'table' + index"
+          :prop="name[index]"
+          :label="title[index].FieldName"
+          sortable="custom"
+          :show-overflow-tooltip="true"
+        >
         </el-table-column>
       </template>
     </el-table>
@@ -54,7 +79,7 @@ export default {
       vuekeyNum: 0,
     };
   },
-  props: ["data", "name", "title", "currentPage", "tableWatchFlag", "severCountPage"],
+  props: ["data", "name", "title", "currentPage", "tableWatchFlag"],
   watch: {
     data(n, o) {
       // this.tit1 = []
@@ -97,6 +122,7 @@ export default {
   methods: {
     //列表展开和收起
     forArr(arr, isExpand) {
+      // console.log(this.$refs.handSelectTest_multipleTable)
       arr.forEach((i) => {
         this.$refs.handSelectTest_multipleTable.toggleRowExpansion(i, isExpand);
         if (i.Children) {
@@ -107,6 +133,7 @@ export default {
     //获取高度
     getHeight() {
       this.$nextTick(() => {
+        // console.log(this.$parent.$refs.listPage.offsetHeight)
         this.tableHeight =
           this.$parent.$refs.listPage.offsetHeight -
           this.$parent.$refs.listHeader.offsetHeight -
@@ -132,8 +159,12 @@ export default {
         if (this.data.length == 0) {
           this.tableData = [];
         } else {
+          // this.tableData = this.data.slice(0, 50);
+          // this.tableData =  this.data
+          //  console.log('Color',this.tableData)
           this.vuekeyNum = 0;
           this.data.forEach((item) => {
+            // console.log(item)
             if (item.vuekey) {
               this.vuekeyNum++;
             }
@@ -147,12 +178,18 @@ export default {
         }
       });
       this.getHeight();
+      // this.$nextTick(() => {
+      //   // this.tableHeight = this.$parent.$refs.listPage.offsetHeight - this.$parent.$refs.listHeader.offsetHeight - 80;
+      //   // console.log(this.$parent.$refs.listPage.offsetHeight)
+      //   // console.log(this.$parent.$refs.listHeader.offsetHeight)
+      // });
     },
     closeSort(item, index) {
       this.tit1.splice(index, 1);
       this.sortChange1();
     },
     summaryMethod({ columns, data }) {
+      // console.log(this.title)
       const sums = [];
       columns.forEach((column, index) => {
         if (index === 0) {
@@ -179,12 +216,14 @@ export default {
     },
     sortChange({ column, prop, order }) {
       var num = 0;
+      console.log(this.tit1);
       for (var i = 0; i < this.tit1.length; i++) {
         if (prop == this.tit1[i].prop) {
           this.tit1[i].order = order;
           num++;
           if (order == null) {
             this.tit1.splice(i, 1);
+            console.log(this.tit1);
             i = i - 1;
           }
         }
@@ -228,6 +267,7 @@ export default {
     },
     //表格样式
     tableRowClassName({ row, rowIndex }) {
+      // console.log("row==>", row);
 
       // let data = row.row;
       let children = row.Children;
@@ -257,10 +297,6 @@ export default {
 
     //分页数据
     dataFun(index, num) {
-      if (this.severCountPage) {
-        this.tableData = this.data;
-        return
-      }
       if (index == 1) {
         if (this.data.length != 0) {
           this.tableData = this.data.slice(0, num);
@@ -281,10 +317,6 @@ export default {
     },
     //分页数据
     dataFun2(num) {
-      if (this.severCountPage) {
-        this.tableData = this.data;
-        return
-      }
       if (this.data.length != 0) {
         this.pageNum = num;
         this.tableData = this.data.slice(0, num);
@@ -341,11 +373,9 @@ export default {
 .row-expand-unhas .el-table__expand-column {
   pointer-events: none;
 }
-
 .row-expand-unhas .el-table__expand-column .el-icon {
   visibility: hidden;
 }
-
 .el-table__expanded-cell[class*="cell"] {
   padding: 0;
 }
