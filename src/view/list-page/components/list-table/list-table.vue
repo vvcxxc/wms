@@ -82,7 +82,7 @@ export default {
   props: ["data", "name", "title", "currentPage", "tableWatchFlag"],
   watch: {
     data(n, o) {
-      // this.tit1 = []
+      // this.tit1 = [];
       this.init();
     },
     tableWatchFlag() {

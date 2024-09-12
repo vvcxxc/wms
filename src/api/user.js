@@ -119,11 +119,3 @@ export const getSystemBoxsInfo = (url) => {
     method: 'post',
   })
 }
-
-// 全局弹窗接口
-export const GetiOpenWindowsInfo = () => {
-  return axios.request({
-    url: `/Common/Common/GetiOpenWindowsInfo`,
-    method: 'post',
-  })
-}

@@ -159,14 +159,14 @@
                     @contextmenu.prevent.stop="rightClick(i, $event)"
                     :style="{
                       width: trendsStyle.eleWidth,
-                      visibility: i.isFlag ? 'visible' : 'hidden',
+                      background: i.Color,
                     }"
                   >
                     <el-tooltip
                       class="item"
                       effect="dark"
                       :open-delay="400"
-                      :content="i.ContainerID"
+                      :content="i.TrayNum"
                       placement="top-start"
                       popper-class="tooltip-popper"
                     >
@@ -178,9 +178,7 @@
 
                         <p>
                           {{
-                            i.ContainerID.slice(
-                              i.ContainerID.split("-")[0].length + 1
-                            )
+                            i.TrayNum
                           }}
                         </p>
 
@@ -239,15 +237,23 @@
               v-for="item in rightTop"
               :key="item.fieldvalue"
             >
-              <div class="text-type" :style="{ background: item.color }"></div>
+              <div style="display: inline-block; text-align: right; width: 50%">
+                <div
+                  class="text-type"
+                  :style="{ background: item.color }"
+                ></div>
+              </div>
               <!-- <span>大托盘</span> -->
-              <span>{{ item.fieldtext }}</span>
+              <span
+                style="display: inline-block; text-align: left; width: 50%"
+                >{{ item.fieldtext }}</span
+              >
             </div>
 
-            <div class="top-text">
+            <!-- <div class="top-text">
               <div class="text-type color31"></div>
               <span>空货位</span>
-            </div>
+            </div> -->
           </div>
         </div>
         <div class="map-right-bottom">
@@ -308,12 +314,7 @@
       :deleteShow="deleteShow"
       v-if="tipsPopShow"
     ></tipsPop>
-    <details-pop
-      :data="itemdata"
-      @handleDetails="handleDetails"
-      v-if="detailsPopShow"
-    />
-    <div v-if="tipsPopShow || detailsPopShow" class="mask_box"></div>
+    <div v-if="tipsPopShow" class="mask_box"></div>
   </div>
 </template>
 <script>
@@ -325,22 +326,18 @@ import chaxun from "@/assets/img1/chaxun.png";
 import axios from "@/libs/api.request";
 import VueDragResize from "vue-drag-resize";
 import tipsPop from "./tipsPop";
-import DetailsPop from "./details-pop.vue";
 export default {
   components: {
     VueDragResize,
     tipsPop,
-    DetailsPop,
   },
   data() {
     return {
       itemdata: "",
       tipsText: "",
-      deleteShow: true,
       tipsPopShow: false,
-      detailsPopShow: false,
       showmenucover: false,
-      ButtonText: "",
+      deleteShow: false,
       SubmitUrl: "",
       chaxun: chaxun,
       loading: false,
@@ -372,6 +369,7 @@ export default {
       rightTop: {},
       TrayInfo: {},
       piePage: 0, //获取层数
+      ButtonText: "",
       trendsStyle: {
         lWidth: "",
         eleWidth: "",
@@ -409,42 +407,23 @@ export default {
   },
   methods: {
     initStyle() {
-      if (window.screen.width == 1024) {
-        if (this.columnsList.length <= 21) {
-          this.trendsStyle.lWidth = this.columnsList.length * 38 + 30 + "px";
-          this.trendsStyle.eleWidth = "38px";
-          this.trendsStyle.eleHeight = "38px";
-        } else {
-          this.trendsStyle.lWidth = 21 * 38 + 30 + "px";
-          this.trendsStyle.eleWidth =
-            (21 * 38) / this.columnsList.length + "px";
-          // this.trendsStyle.eleHeight = "25px";
-        }
+      if (this.columnsList.length <= 24) {
+        this.trendsStyle.lWidth = this.columnsList.length * 75 + 30 + "px";
+        this.trendsStyle.eleWidth = "75px";
+        this.trendsStyle.eleHeight = "75px";
       } else {
-        if (this.columnsList.length <= 24) {
-          this.trendsStyle.lWidth = this.columnsList.length * 75 + 30 + "px";
-          this.trendsStyle.eleWidth = "75px";
-          this.trendsStyle.eleHeight = "75px";
-        } else {
-          this.trendsStyle.lWidth = 24 * 75 + 30 + "px";
-          this.trendsStyle.eleWidth =
-            (24 * 75) / this.columnsList.length + "px";
-          // this.trendsStyle.eleHeight = "25px";
-        }
+        this.trendsStyle.lWidth = 24 * 75 + 30 + "px";
+        this.trendsStyle.eleWidth = (24 * 75) / this.columnsList.length + "px";
+        // this.trendsStyle.eleHeight = "25px";
       }
     },
     changetype(data) {
+      this.tipsPopShow = true;
       this.SubmitUrl = data.SubmitUrl;
       this.showmenucover = false;
+      this.deleteShow = true;
       this.ButtonText = data.ButtonText;
-      console.log(data);
-      if (data.ButtonText == "出库" && !data.Type) {
-        this.detailsPopShow = true;
-      } else {
-        this.tipsPopShow = true;
-        this.deleteShow = true;
-        this.tipsText = `是否确定将【${this.itemdata.barcode}】进行【${data.ButtonText}】`;
-      }
+      this.tipsText = `是否确定将【${this.itemdata.ContainerID}】进行【${data.ButtonText}】`;
     },
     deleteBtn(num) {
       this.tipsPopShow = false;
@@ -468,9 +447,9 @@ export default {
             this.tipsPopShow = true;
             this.deleteShow = false;
             if (res.data.isLogin) {
-              this.tipsText = `【${this.ButtonText}】成功！`;
+              this.tipsText = `${this.ButtonText}成功！`;
             } else {
-              this.tipsText = `${res.data.message}`;
+              this.tipsText = `${this.ButtonText}失败！${res.data.message}`;
             }
             this.loading = false;
             this.showmenucover = false;
@@ -480,6 +459,7 @@ export default {
             this.allFloorList = [];
             this.allDepthList = [];
             this.loading = true;
+            // this.getContainerMapInfoFun();
             getMap()
               .then((res) => {
                 this.loading = false;
@@ -532,73 +512,6 @@ export default {
         //     this.loading = false;
         //     console.log(error);
         //   });
-      }
-    },
-    handleDetails(flag, val) {
-      this.detailsPopShow = false;
-      if (flag) {
-        axios
-          .request({
-            url: this.SubmitUrl,
-            method: "post",
-            data: val,
-          })
-          .then((res) => {
-            this.tipsPopShow = true;
-            this.deleteShow = false;
-            if (res.data.isLogin) {
-              this.tipsText = `【${this.ButtonText}】成功！`;
-            } else {
-              this.tipsText = `${res.data.message}`;
-            }
-            this.loading = false;
-            this.showmenucover = false;
-            // this.init();
-            this.allRowList = [];
-            this.allColumnsList = [];
-            this.allFloorList = [];
-            this.allDepthList = [];
-            this.loading = true;
-            getMap()
-              .then((res) => {
-                this.loading = false;
-                if (res.data.resultdata) {
-                  // console.log()
-                  this.mapData = JSON.parse(res.data.resultdata);
-                  for (let i = 0; i < this.mapData.length; i++) {
-                    this.allFloorList.push(this.mapData[i].Plie);
-                    this.allRowList.push(this.mapData[i].RowNum);
-                    this.allColumnsList.push(this.mapData[i].Line);
-                    this.allDepthList.push(this.mapData[i].Depth);
-                  }
-                  this.allFloorList = this.getMapTitle(this.allFloorList); //获取层数
-                  this.allRowList = this.getMapTitle(this.allRowList); //获取排数
-                  this.allColumnsList = this.getMapTitle(this.allColumnsList); //获取列数
-                  this.allDepthList = this.getMapTitle(this.allDepthList); //获取深度数
-                  // this.floorValue =
-                  //   this.allFloorList[this.allFloorList.length - 1];
-                  // this.rowValue = this.allRowList[0];
-                  // this.columnsValue = this.allColumnsList[0];
-                  // this.depthValue = this.allDepthList[0];
-                  // this.totalNum = this.allColumnsList.length;
-
-                  // this.piePage = Math.max(...this.allFloorList);
-                  // this.overLooking(this.piePage);
-                  // this.handleCurrentChange(1);
-                  // this.showView(this.isActive);
-                  if (!this.isActive) {
-                    this.sideLooking(this.rowValue);
-                  } else {
-                    this.overLooking(this.floorValue);
-                  }
-                  this.handleCurrentChange(1);
-                }
-              })
-              .catch((error) => {
-                this.loading = false;
-                console.log(error);
-              });
-          });
       }
     },
     rightmenucover() {
@@ -693,13 +606,13 @@ export default {
             this.allRowList = this.getMapTitle(this.allRowList); //获取排数
             this.allColumnsList = this.getMapTitle(this.allColumnsList); //获取列数
             this.allDepthList = this.getMapTitle(this.allDepthList); //获取深度数
-            this.floorValue = this.allFloorList[0]; // this.allFloorList.length - 1
+            this.floorValue = this.allFloorList[this.allFloorList.length - 1];
             this.rowValue = this.allRowList[0];
             this.columnsValue = this.allColumnsList[0];
             this.depthValue = this.allDepthList[0];
             this.totalNum = this.allColumnsList.length;
 
-            this.piePage = Math.min(...this.allFloorList);
+            this.piePage = Math.max(...this.allFloorList);
             this.overLooking(this.piePage);
             this.handleCurrentChange(1);
           }
@@ -735,7 +648,6 @@ export default {
           if (res.data.resultdata) {
             // console.log()
             this.mapData = JSON.parse(res.data.resultdata);
-            console.log(this.rowValue, this.floorValue);
             for (let i = 0; i < this.mapData.length; i++) {
               this.allFloorList.push(this.mapData[i].Plie);
               this.allRowList.push(this.mapData[i].RowNum);
@@ -773,21 +685,20 @@ export default {
       let list = this.mapData;
       if (this.trayNum != "") {
         for (let i = 0; i < list.length; i++) {
-          if (this.trayNum == list[i].ContainerID) {
+          if (this.trayNum == list[i].TrayNum) {
             this.chackData = list[i];
             this.showData(list[i]);
             break;
           }
         }
+        this.rowValue = this.chackData.RowNum;
+        this.columnsValue = this.chackData.Line;
+        this.floorValue = this.chackData.Plie;
         if (this.chackData == "") {
           this.$message({
             message: "查找不到该托盘号",
             type: "warning",
           });
-        } else {
-          this.rowValue = this.chackData.RowNum;
-          this.columnsValue = this.chackData.Line;
-          this.floorValue = this.chackData.Plie;
         }
       } else {
         if (
@@ -944,18 +855,14 @@ export default {
         }
       }
       if (this.rowAlldata.length > 0) {
-        // this.rowAlldata = this.rowAlldata.reverse();
-        this.rowAlldata.forEach((item) => {
-          for (let i = 0; i < item.data.length; i++) {
-            if (i + 1 != item.data[i].ContainerID.split("-")[1]) {
-              item.data.splice(i, 0, { isFlag: false, ContainerID: "" });
-            } else {
-              item.data[i].isFlag = true;
-            }
-          }
-        });
+        this.columnsList.reverse();
+        this.rowAlldata = this.rowAlldata.reverse().map((item) => ({
+          ...item,
+          data: item.data.reverse(),
+        }));
       }
       this.initStyle();
+      console.log(this.rowAlldata);
     },
     //升序
     compare(property) {
@@ -986,7 +893,6 @@ export default {
             this.rightTop = AttrText;
             this.TrayInfo = TrayInfo;
             this.rightmenus = rightmenus;
-            console.log(this.rightmenus);
           }
         })
         .catch((err) => {

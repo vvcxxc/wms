@@ -71,9 +71,9 @@
               >
                 <el-option
                   v-for="i in item.data"
-                  :key="i.text"
-                  :label="i.text"
-                  :value="i.text"
+                  :key="i.Value"
+                  :label="i.Value"
+                  :value="i.Value"
                 >
                 </el-option>
               </el-select>
@@ -105,6 +105,7 @@
 
 <script>
 import "./add-pop.less";
+import axios from "@/libs/api.request";
 import { saveCommonData, dropownQuery, dropownListQuery } from "@/api/home.js";
 export default {
   data() {
@@ -117,6 +118,7 @@ export default {
       inputData: "",
       loading: false,
       saveFromBtn: false,
+      initFlag: true,
     };
   },
   props: [
@@ -150,39 +152,62 @@ export default {
       console.log(height);
       this.$refs.scPopBox1.style.marginTop = -height / 2 + "px";
     },
-    init() {
-      this.GroupSelect = [];
-      this.GroupSelectAll = [];
-      this.dataArr = this.data;
+    async init() {
+      if (this.initFlag) {
+        this.initFlag = false;
+        this.GroupSelect = [];
+        this.GroupSelectAll = [];
+        this.dataArr = [];
+        for (let i = 0; i < this.data.length; i++) {
+          if (this.data[i].fieldtype == "selection") {
+            await axios
+              .request({
+                url: this.data[i].Selection_Url,
+                method: "get",
+              })
+              .then((res) => {
+                this.dataArr.push({
+                  ...this.data[i],
+                  data: JSON.parse(res.data.resultdata),
+                });
+              });
+          } else {
+            this.dataArr.push({ ...this.data[i] });
+          }
+        }
 
-      // console.log(this.tableDataArr)
-      // console.log(this.data)
-      // this.dataArr = array.concat(this.data,this.data)
+        console.log("this.dataArr", this.dataArr);
 
-      // 1为添加
-      if (this.axioData.WindowType == "1") {
-        for (let i = 0; i < this.dataArr.length; i++) {
-          if (this.dataArr[i].isAdd == 0) {
-            this.dataArr.splice(i, 1);
-            i--;
+        // console.log(this.tableDataArr)
+        // console.log(this.data)
+        // this.dataArr = array.concat(this.data,this.data)
+
+        // 1为添加
+        if (this.axioData.WindowType == "1") {
+          for (let i = 0; i < this.dataArr.length; i++) {
+            if (this.dataArr[i].isAdd == 0) {
+              this.dataArr.splice(i, 1);
+              i--;
+            }
+          }
+          //编辑
+        } else if (this.axioData.WindowType == "2") {
+          for (let i = 0; i < this.dataArr.length; i++) {
+            if (this.dataArr[i].isUpdate == 0) {
+              this.dataArr.splice(i, 1);
+              i--;
+            }
+          }
+          //多项编辑
+        } else if (this.axioData.WindowType == "3") {
+          for (let i = 0; i < this.dataArr.length; i++) {
+            if (this.dataArr[i].isUpdate == 0) {
+              this.dataArr.splice(i, 1);
+              i--;
+            }
           }
         }
-        //编辑
-      } else if (this.axioData.WindowType == "2") {
-        for (let i = 0; i < this.dataArr.length; i++) {
-          if (this.dataArr[i].isUpdate == 0) {
-            this.dataArr.splice(i, 1);
-            i--;
-          }
-        }
-        //多项编辑
-      } else if (this.axioData.WindowType == "3") {
-        for (let i = 0; i < this.dataArr.length; i++) {
-          if (this.dataArr[i].isUpdate == 0) {
-            this.dataArr.splice(i, 1);
-            i--;
-          }
-        }
+        this.initFlag = true;
       }
     },
     querySearchAsync(queryString, callback) {
@@ -225,7 +250,7 @@ export default {
     },
     //下拉联动
     selectChange(item) {
-      if (item.childrenName.length) {
+      if (item.childrenName && item.childrenName.length) {
         for (let i = 0; i < this.GroupSelectAll.length; i++) {
           if (item.fieldID == this.GroupSelectAll[i].id) {
             let value = {
@@ -391,6 +416,7 @@ export default {
 
     //添加渲染下拉框
     addSelecFun(data) {
+        console.log("==============",data)
       //渲染
       for (let i = 0; i < this.dataArr.length; i++) {
         if (this.dataArr[i].fieldtype == "selection") {
@@ -399,7 +425,7 @@ export default {
               //联动
               this.GroupSelectFun(this.dataArr[i].fieldID).then((val) => {
                 this.dataArr[i].data = val.data;
-                this.dataArr[i].value = this.dataArr[i].data[0].text;
+                this.dataArr[i].value = this.dataArr[i].data[0].Value;
                 this.dataArr[i].childrenName = val.id;
                 this.dataArr = this.dataArr;
                 if (val.id.length == 0) {
@@ -581,6 +607,7 @@ export default {
       var valueArr = [];
       for (let i = 0; i < this.dataArr.length; i++) {
         var va = this.dataArr[i].value;
+        let val = "";
         // console.log(va)
         if (this.dataArr[i].fieldtype == "datetime") {
           va = this.$moment(this.dataArr[i].value).format(
@@ -597,6 +624,7 @@ export default {
               if (this.dataArr[i].data[j].text == this.dataArr[i].value) {
                 va = this.dataArr[i].data[j].id;
                 this.dataArr[i].value = va;
+                val = this.dataArr[i].data[j].text;
               }
             }
           }
@@ -604,6 +632,9 @@ export default {
         }
         nameArr.push(this.dataArr[i].fieldindex);
         valueArr.push(this.dataArr[i].value);
+        if (this.dataArr[i].fieldtype == "selection") {
+          this.dataArr[i].value = val;
+        }
         // console.log(valueArr)
       }
       if (valueArr.length != 0) {
@@ -638,18 +669,23 @@ export default {
           value2 = btnParams;
         } else {
           value2 = btnParams[0];
-          for (let key in value2) {
-            if (value2[key] == "null") {
-              value2[key] = "";
-            }
-          }
         }
         this.saveFun(value2);
       }
     },
     saveFun(value2) {
       this.saveFromBtn = true;
-      console.log(this.axioData.SumbitUrl);
+      if (Array.isArray(value2)) {
+        value2 = value2.map((item) => {
+          for (let k in item) {
+            if (k == "IsHold" || k == "State" || k == "TrayType") {
+              item[k] = item[k].split("-")[0];
+            }
+          }
+          return item;
+        });
+      }
+      console.log(this.axioData.SumbitUrl, value2);
       saveCommonData(this.axioData.SumbitUrl, value2)
         .then((res) => {
           this.saveFromBtn = false;

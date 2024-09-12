@@ -7,24 +7,24 @@
  */
 import Vue from 'vue';
 import Router from 'vue-router';
-import {routers} from './routers.js'
+import { routers } from './routers.js'
 import store from '@/store'
 
 Vue.use(Router);
-const router =  new Router({
+const router = new Router({
     //mode: 'history',
-    routes:routers
+    routes: routers
 })
 //使用钩子函数对路由进行权限跳转
 router.beforeEach((to, from, next) => {
     // console.log(to)
-    
+
     const role = localStorage.getItem('ms_username');
     if (!role && to.path !== '/login') {
-        if(to.path == '/kanban1' || to.path == '/kanban2' || to.path == '/kanban3' ||to.path == '/customTable' || to.path == '/shanhe'){
+        if (to.path == '/kanban1' || to.path == '/kanban2' || to.path == '/kanban3' || to.path == '/customTable' || to.path == '/shanhe') {
             next()
-        }else{
-            
+        } else {
+
             next('/login');
         }
     } else if (to.meta.permission) {
@@ -39,31 +39,31 @@ router.beforeEach((to, from, next) => {
             });
         } else {
             // console.log(3)
-            if(to.path =='/404' && localStorage.systemType == '1'){
+            if (to.path == '/404' && localStorage.systemType == '1') {
                 next('/4041')
-            }else if(to.path =='/404' && localStorage.systemType == '2' ){
+            } else if (to.path == '/404' && localStorage.systemType == '2') {
                 next();
-            }else{
-                if(localStorage.systemType == '1' && to.path == '/HomePage'){
+            } else {
+                if (localStorage.systemType == '1' && to.path == '/HomePage') {
                     //  console.log('jj')
                     // if(store.state.app.tagNavList.length>0){
                     //     let list = store.state.app.tagNavList
                     //     console.log(list)
                     // }
                     next('/HomePage1')
-                }else{
+                } else {
                     next()
                 }
                 // next()
-                
+
             }
-            
+
         }
     }
 })
 
 const originalPush = Router.prototype.push
 Router.prototype.push = function push(location) {
-   return originalPush.call(this, location).catch(err => err)
+    return originalPush.call(this, location).catch(err => err)
 }
 export default router;

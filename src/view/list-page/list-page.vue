@@ -53,20 +53,6 @@
       v-if="tipsShow"
     >
     </tips-pop>
-    <my-pop
-      v-if="isMyPopShow"
-      :text="myPopText"
-      :deleteShow="false"
-      @deleteBtn="deleteBtn"
-    >
-    </my-pop>
-    <details-pop
-      v-if="isDetailsShow"
-      :name="name"
-      :title="title"
-      :tableDataArr="tableDataArr"
-      @handleDetails="handleDetails"
-    ></details-pop>
     <add-list-pop
       ref="addListPop"
       :popTitle="popTitle"
@@ -80,14 +66,7 @@
     <up-img :data="imgdata" :imgType="imgType" v-if="upimgShow"></up-img>
     <!-- 遮罩层 -->
     <div
-      v-if="
-        addShow ||
-        tipsShow ||
-        upimgShow ||
-        isAddList ||
-        isMyPopShow ||
-        isDetailsShow
-      "
+      v-if="addShow || tipsShow || upimgShow || isAddList"
       class="mask-box-li"
     ></div>
   </div>
@@ -102,9 +81,6 @@ import TipsPop from "@/components/main/components/tips/tips-pop.vue";
 import AddPop from "./components/add-pop/add-pop.vue";
 import UpImg from "./components/up-img/up-img.vue";
 import { addTagNavList } from "@/libs/util.js";
-import MyPop from "./components/add-pop/my-pop.vue";
-import DetailsPop from "./components/add-pop/details-pop.vue";
-import axios from "@/libs/api.request";
 import {
   getPageInfo,
   getPageTableData,
@@ -126,8 +102,6 @@ export default {
     UpImg,
     AddListPop,
     // TipsPop,
-    MyPop,
-    DetailsPop,
   },
   data() {
     return {
@@ -160,9 +134,6 @@ export default {
       // tableTitleList:[]//表格表头数据
       currentPage: 1, //页数
       isAddList: false,
-      isMyPopShow: false,
-      myPopText: "请勾选内容",
-      isDetailsShow: false,
       tableWatchFlag: false,
     };
   },
@@ -307,24 +278,6 @@ export default {
       this.TitleText = text;
       this.item = item;
     },
-    deleteBtn() {
-      this.isMyPopShow = false;
-    },
-    handleDetails(flag, val) {
-      this.isDetailsShow = false;
-      if (flag) {
-        axios
-          .request({
-            url: this.item.SumbitUrl,
-            method: "post",
-            data: val,
-          })
-          .then((res) => {
-            this.myPopText = res.data.message;
-            this.isMyPopShow = true;
-          });
-      }
-    },
     //接收表格数据
     tabelFun(data) {
       this.tableDataArr = data;
@@ -335,15 +288,15 @@ export default {
     tableFun(url, queryArr) {
       this.loading1 = true;
       getPageTableData(url, queryArr)
-        .then((res) => {
+        .then(async (res) => {
           this.loading1 = false;
           if (this.title != 0) {
-            //  console.log('获取表格数据=》'+res.data.resultdata)
+            // console.log("获取表格数据=》" + res.data.resultdata);
             let data = JSON.parse(res.data.resultdata);
 
             // let data = JSON.parse(JSON.stringify(res.data.resultdata));
             this.tableData = data;
-            this.stateFun();
+            await this.stateFun();
             this.allpage = this.tableData.length;
           }
         })
@@ -354,7 +307,6 @@ export default {
     },
     //开启添加编辑
     activePop(text, item) {
-      console.log(item);
       //编辑类
       if (item.WindowType == "2" || item.WindowType == "3") {
         if (this.tableDataArr.length == 0) {
@@ -421,14 +373,6 @@ export default {
         this.PopDomFun(editUrl).then((val) => {
           this.$refs.addpop.addSelecFun(this.addData);
         });
-      } else if (item.WindowType == "0") {
-        if (this.tableDataArr.length) {
-          this.isDetailsShow = true;
-          this.item = item;
-        } else {
-          this.myPopText = "请勾选内容";
-          this.isMyPopShow = true;
-        }
       }
     },
     //排版内容
