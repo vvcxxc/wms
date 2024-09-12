@@ -300,7 +300,7 @@ export default {
       bus.$emit("renovate", "");
       var id = this.$route.query.id;
       let list = this.massageArr;
-      console.log(this.axiosdata);
+      console.log(this.axiosdata, this.type);
 
       if (this.type == "string" || this.type == "number") {
         let text = this.value + " " + this.value2 + "【" + this.text + "】";

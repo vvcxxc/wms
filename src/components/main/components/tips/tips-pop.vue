@@ -78,66 +78,62 @@ export default {
           }
 
           this.text = "是否确认" + this.title + "?";
-          this.value = this.tableDataArr.map((item) => {
-            if ("State" in item) {
-              return {
-                ...item,
-                State: item.State ? item.State.split("-")[0] : item.State,
-              };
+          var Params = this.data.Params;
+          var paramData = [];
+          this.value = [];
+          for (let i = 0; i < Params.length; i++) {
+            paramData.push(Params[i].ParamName);
+          }
+          console.log("paramData", paramData);
+          if (this.tableDataArr != "") {
+            var data = [];
+            for (let i = 0; i < this.tableDataArr.length; i++) {
+              let value2 = {};
+              for (let j = 0; j < paramData.length; j++) {
+                var lastName;
+                for (var item1 in this.tableDataArr[i]) {
+                  lastName = item1;
+                }
+                for (var item in this.tableDataArr[i]) {
+                  if (item == paramData[j]) {
+                    var o = {};
+                    var str = `o.${item}="${this.tableDataArr[i][item]}"`;
+                    eval(str);
+                    Object.assign(value2, o);
+                    break;
+                  } else {
+                    if (lastName == item) {
+                      var o1 = {};
+                      var str1 = "o1." + paramData[j] + "=''";
+                      eval(str1);
+                      Object.assign(value2, o1);
+                      break;
+                    }
+                  }
+                }
+              }
+              if (value2.State != undefined) {
+                value2.State = value2.State.split("-")[0];
+              }
+              this.value.push(value2);
+              console.log("ssscc", value2, this.value);
             }
-            return item;
-          });
-          console.log(this.value);
-          //   var Params = this.data.Params;
-          //   var paramData = [];
-          //   this.value = [];
-          //   for (let i = 0; i < Params.length; i++) {
-          //     paramData.push(Params[i].ParamName);
-          //   }
-          //   console.log("paramData", paramData);
-          //   if (this.tableDataArr != "") {
-          //     var data = [];
-          //     for (let i = 0; i < this.tableDataArr.length; i++) {
-          //       let value2 = {};
-          //       for (let j = 0; j < paramData.length; j++) {
-          //         var lastName;
-          //         for (var item1 in this.tableDataArr[i]) {
-          //           lastName = item1;
-          //         }
-          //         for (var item in this.tableDataArr[i]) {
-          //           if (item == paramData[j]) {
-          //             var o = {};
-          //             var str = `o.${item}="${this.tableDataArr[i][item]}"`;
-          //             eval(str);
-          //             Object.assign(value2, o);
-          //             break;
-          //           } else {
-          //             if (lastName == item) {
-          //               var o1 = {};
-          //               var str1 = "o1." + paramData[j] + "=''";
-          //               eval(str1);
-          //               Object.assign(value2, o1);
-          //               break;
-          //             }
-          //           }
-          //         }
-          //       }
-          //       this.value.push(value2);
-          //       console.log("ssscc", value2, this.value);
-          //     }
-          //   } else {
-          //     if (paramData.length != 0) {
-          //       var value2 = {};
-          //       for (let i = 0; i < paramData.length; i++) {
-          //         var o = {};
-          //         var str = "o." + paramData[i] + "=''";
-          //         eval(str);
-          //         Object.assign(value2, o);
-          //       }
-          //       this.value.push(value2);
-          //     }
-          //     console.log("ssscc", value2, this.value);
-          //   }
+          } else {
+            if (paramData.length != 0) {
+              var value2 = {};
+              for (let i = 0; i < paramData.length; i++) {
+                var o = {};
+                var str = "o." + paramData[i] + "=''";
+                eval(str);
+                Object.assign(value2, o);
+              }
+              if (value2.State != undefined) {
+                value2.State = value2.State.split("-")[0];
+              }
+              this.value.push(value2);
+            }
+            console.log("ssscc", value2, this.value);
+          }
         }
       } else if (this.type == "7") {
         this.text = this.textInfo;

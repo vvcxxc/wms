@@ -11,8 +11,9 @@
     <div>
       <el-row :gutter="24">
         <el-col :span="8" v-for="(item, index) in topList" :key="index">
-          <div class="top-box" @click="jumpPage(index + 1)">
-            <div class="box-info">
+          <!-- @click="jumpPage(index + 1)" -->
+          <div class="top-box">
+            <div class="box-info" v-if="!(item.title1 == '空托数量')">
               <span class="info-title1"> {{ item.title1 }}: </span>
               <span class="info-value1">
                 {{ item.value1 }}
@@ -35,18 +36,15 @@
                 v-if="!isNaN(parseInt((item.value2 / item.defultValue2) * 100))"
               ></el-progress>
               <div
+                v-if="!(item.title1 == '空托数量')"
                 class="pro-text"
                 :style="{
                   left:
                     item.value2 / item.defultValue2
                       ? (item.value2 / item.defultValue2) * 100 - 2 >= 0
-                        ? (item.value2 / item.defultValue2) * 100 >= 92
-                          ? 'initial'
-                          : (item.value2 / item.defultValue2) * 100 - 2 + '%'
+                        ? (item.value2 / item.defultValue2) * 100 - 2 + '%'
                         : 0
                       : 0,
-                  right:
-                    item.value2 / item.defultValue2 >= 0.92 ? 0 : 'initial',
                 }"
               >
                 {{
@@ -190,6 +188,7 @@ export default {
           }
         });
       }
+      console.log(this.topList);
     },
     getInfos(info) {
       return new Promise((resolve, reject) => {
@@ -216,21 +215,19 @@ export default {
           name: "399CFCAD-2E8D-42BB-B550-590992E44035",
         };
       } else if (index == 2) {
-        return;
-        // routerPath = "/ListPage1";
-        // index1 = "ListPage1/任务列表/2919F971-83F9-4D21-BDE4-68F44B316984";
-        // query = {
-        //   id: "任务列表",
-        //   name: "2919F971-83F9-4D21-BDE4-68F44B316984",
-        // };
+        routerPath = "/ListPage1";
+        index1 = "ListPage1/任务列表/2919F971-83F9-4D21-BDE4-68F44B316984";
+        query = {
+          id: "任务列表",
+          name: "2919F971-83F9-4D21-BDE4-68F44B316984",
+        };
       } else if (index == 3) {
-        return;
-        // routerPath = "/ListPage1";
-        // index1 = "ListPage1/报警列表/4D3F9245-DA20-43F7-8C20-29E473143EDB";
-        // query = {
-        //   id: "报警列表",
-        //   name: "4D3F9245-DA20-43F7-8C20-29E473143EDB",
-        // };
+        routerPath = "/ListPage1";
+        index1 = "ListPage1/报警列表/4D3F9245-DA20-43F7-8C20-29E473143EDB";
+        query = {
+          id: "报警列表",
+          name: "4D3F9245-DA20-43F7-8C20-29E473143EDB",
+        };
       }
       addTagNavList(index1, query);
       this.$router.push({

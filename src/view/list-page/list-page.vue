@@ -8,45 +8,68 @@
         </div>
         <!-- 按钮 -->
         <div class="list-btn">
-          <all-button :btnData="btnData" :btnPowerData="btnPowerArr"></all-button>
+          <all-button
+            :btnData="btnData"
+            :btnPowerData="btnPowerArr"
+          ></all-button>
         </div>
       </div>
-
       <div class="list-table" v-loading="loading1">
         <div class="select-count" v-if="haveWeightLabel">{{ `选中重量合计：${selectCountWeight}` }}</div>
-        <list-table ref="homePage" :data="tableData" :name="name" :title="title" :tableWatchFlag="tableWatchFlag"
-          :current-page="currentPage"></list-table>
+        <list-table
+          ref="homePage"
+          :data="tableData"
+          :name="name"
+          :title="title"
+          :tableWatchFlag="tableWatchFlag"
+          :current-page="currentPage"
+        ></list-table>
       </div>
     </div>
     <div class="list-paginate">
-      <paginate :allpage="allpage" ref="page" @get-current-page="getCurrentPage"></paginate>
+      <paginate
+        :allpage="allpage"
+        ref="page"
+        @get-current-page="getCurrentPage"
+      ></paginate>
     </div>
     <!-- 弹窗 -->
-    <add-pop ref="addpop" :popTitle="popTitle" :tableDataArr="tableDataArr" :axioData="item" :data="addData"
-      v-if="addShow" :tableList="tableData" :disLoading="loading2"></add-pop>
-    <tips-pop ref="tipsPop" :tableDataArr="tableDataArr" :title="TitleText" :data="item" :type="tipsType"
-      :textInfo="textInfo" v-if="tipsShow">
+    <add-pop
+      ref="addpop"
+      :popTitle="popTitle"
+      :tableDataArr="tableDataArr"
+      :axioData="item"
+      :data="addData"
+      v-if="addShow"
+      :tableList="tableData"
+      :disLoading="loading2"
+    ></add-pop>
+    <tips-pop
+      ref="tipsPop"
+      :tableDataArr="tableDataArr"
+      :title="TitleText"
+      :data="item"
+      :type="tipsType"
+      :textInfo="textInfo"
+      v-if="tipsShow"
+    >
     </tips-pop>
-    <my-pop v-if="isMyPopShow" :text="myPopText" :deleteShow="false" @deleteBtn="deleteBtn">
-    </my-pop>
-    <details-pop v-if="isDetailsShow" :name="name" :title="title" :tableDataArr="tableDataArr"
-      @handleDetails="handleDetails"></details-pop>
-    <detailed-pop v-if="isDetailedShow" :tableDataArr="tableDataArr" :item="item" @handleDetailed="handleDetailed" />
-    <alarm-deatils v-if="isAlarmShow" :tableDataArr="tableDataArr" :item="item" @handleAlarm="handleAlarm" />
-    <add-list-pop ref="addListPop" :popTitle="popTitle" :tableDataArr="tableDataArr" :axioData="item" :data="addData"
-      :tableList="tableData" :disLoading="loading2" v-if="isAddList"></add-list-pop>
+    <add-list-pop
+      ref="addListPop"
+      :popTitle="popTitle"
+      :tableDataArr="tableDataArr"
+      :axioData="item"
+      :data="addData"
+      :tableList="tableData"
+      :disLoading="loading2"
+      v-if="isAddList"
+    ></add-list-pop>
     <up-img :data="imgdata" :imgType="imgType" v-if="upimgShow"></up-img>
     <!-- 遮罩层 -->
-    <div v-if="
-  addShow ||
-  tipsShow ||
-  upimgShow ||
-  isAddList ||
-  isMyPopShow ||
-  isDetailsShow ||
-  isDetailedShow ||
-  isAlarmShow
-    " class="mask-box-li"></div>
+    <div
+      v-if="addShow || tipsShow || upimgShow || isAddList"
+      class="mask-box-li"
+    ></div>
   </div>
 </template>
 
@@ -59,11 +82,6 @@ import TipsPop from "@/components/main/components/tips/tips-pop.vue";
 import AddPop from "./components/add-pop/add-pop.vue";
 import UpImg from "./components/up-img/up-img.vue";
 import { addTagNavList } from "@/libs/util.js";
-import MyPop from "./components/add-pop/my-pop.vue";
-import DetailsPop from "./components/add-pop/details-pop.vue";
-import DetailedPop from "./components/add-pop/detailed-pop.vue";
-import AlarmDeatils from "./components/add-pop/alarm-details.vue";
-import axios from "@/libs/api.request";
 import {
   getPageInfo,
   getPageTableData,
@@ -85,10 +103,6 @@ export default {
     UpImg,
     AddListPop,
     // TipsPop,
-    MyPop,
-    DetailsPop,
-    DetailedPop,
-    AlarmDeatils,
   },
   data() {
     return {
@@ -121,12 +135,7 @@ export default {
       // tableTitleList:[]//表格表头数据
       currentPage: 1, //页数
       isAddList: false,
-      isMyPopShow: false,
-      myPopText: "请勾选内容",
-      isDetailsShow: false,
-      isDetailedShow: false,
       tableWatchFlag: false,
-      isAlarmShow: false,
     };
   },
   watch: {
@@ -137,7 +146,7 @@ export default {
   created() {
     this.init();
   },
-  mounted() { },
+  mounted() {},
   computed: {
     haveWeightLabel() {
       return this.title.find(_ => _.FieldIndex == "Weight" || _.FieldName == "重量")
@@ -167,7 +176,7 @@ export default {
         .then((res) => {
           this.loading = false;
           let data = JSON.parse(res.data.resultdata);
-          console.log("ff", data);
+          // console.log("ff" + data);
           if (data != null && data != "") {
             this.searchdata = data.filter_list; //查询条件
             this.btnData = data.Btn_list; //按钮列表
@@ -184,7 +193,6 @@ export default {
                 // this.tableTitleList.push(data)
               }
             }
-            console.log('mmm', this.title);
             var JumpType = this.$route.query.type;
             this.queryArr = [];
             if (JumpType == "2") {
@@ -279,30 +287,6 @@ export default {
       this.TitleText = text;
       this.item = item;
     },
-    deleteBtn() {
-      this.isMyPopShow = false;
-    },
-    handleDetails(flag, val) {
-      this.isDetailsShow = false;
-      if (flag) {
-        axios
-          .request({
-            url: this.item.SumbitUrl,
-            method: "post",
-            data: val,
-          })
-          .then((res) => {
-            this.myPopText = res.data.message;
-            this.isMyPopShow = true;
-          });
-      }
-    },
-    handleDetailed() {
-      this.isDetailedShow = false;
-    },
-    handleAlarm() {
-      this.isAlarmShow = false;
-    },
     //接收表格数据
     tabelFun(data) {
       this.tableDataArr = data;
@@ -313,15 +297,15 @@ export default {
     tableFun(url, queryArr) {
       this.loading1 = true;
       getPageTableData(url, queryArr)
-        .then((res) => {
+        .then(async (res) => {
           this.loading1 = false;
           if (this.title != 0) {
-            //  console.log('获取表格数据=》'+res.data.resultdata)
+            // console.log("获取表格数据=》" + res.data.resultdata);
             let data = JSON.parse(res.data.resultdata);
 
             // let data = JSON.parse(JSON.stringify(res.data.resultdata));
             this.tableData = data;
-            this.stateFun();
+            await this.stateFun();
             this.allpage = this.tableData.length;
           }
         })
@@ -332,7 +316,6 @@ export default {
     },
     //开启添加编辑
     activePop(text, item) {
-      console.log(item);
       //编辑类
       if (item.WindowType == "2" || item.WindowType == "3") {
         if (this.tableDataArr.length == 0) {
@@ -399,40 +382,6 @@ export default {
         this.PopDomFun(editUrl).then((val) => {
           this.$refs.addpop.addSelecFun(this.addData);
         });
-      } else if (item.WindowType == "0") {
-        if (this.tableDataArr.length) {
-          this.isDetailsShow = true;
-          this.item = item;
-        } else {
-          this.myPopText = "请勾选内容";
-          this.isMyPopShow = true;
-        }
-      } else if (item.WindowType == "4") {
-        if (this.tableDataArr.length) {
-          if (this.tableDataArr.length > 1) {
-            this.myPopText = "请勾选一条内容";
-            this.isMyPopShow = true;
-            return;
-          }
-          this.isDetailedShow = true;
-          this.item = item;
-        } else {
-          this.myPopText = "请勾选内容";
-          this.isMyPopShow = true;
-        }
-      } else if (item.WindowType == "5") {
-        if (this.tableDataArr.length) {
-          if (this.tableDataArr.length > 1) {
-            this.myPopText = "请勾选一条内容";
-            this.isMyPopShow = true;
-            return;
-          }
-          this.isAlarmShow = true;
-          this.item = item;
-        } else {
-          this.myPopText = "请勾选内容";
-          this.isMyPopShow = true;
-        }
       }
     },
     //排版内容
@@ -549,7 +498,7 @@ export default {
             }
           }
         })
-        .catch((error) => { });
+        .catch((error) => {});
     },
 
     //筛选表单
@@ -603,20 +552,6 @@ export default {
       }
     },
 
-    //直接请求
-    myRequest(item) {
-      axios
-        .request({
-          url: item.SumbitUrl,
-          method: "post",
-        })
-        .then((res) => {
-          this.tipsType = "7";
-          this.tipsShow = true;
-          this.textInfo = res.data.message;
-        });
-    },
-
     //获取页码
     getCurrentPage(val) {
       this.currentPage = val;
@@ -667,18 +602,15 @@ export default {
   .list-header {
     overflow: hidden;
   }
-
   .list-search {
     width: 70%;
     float: left;
   }
-
   .list-btn {
     float: right;
     width: 30%;
     text-align: right;
   }
-
   .list-table {
     margin-top: 10px;
     position: relative;
@@ -690,7 +622,6 @@ export default {
       width: fit-content;
     }
   }
-
   .list-paginate {
     padding-bottom: 10px;
   }

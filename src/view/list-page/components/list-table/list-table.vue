@@ -82,7 +82,7 @@ export default {
   props: ["data", "name", "title", "currentPage", "tableWatchFlag"],
   watch: {
     data(n, o) {
-      // this.tit1 = []
+      // this.tit1 = [];
       this.init();
     },
     tableWatchFlag() {
@@ -201,9 +201,9 @@ export default {
             sums[index] = values.reduce((prev, curr) => {
               const value = Number(curr);
               if (!isNaN(value)) {
-                return prev + curr;
+                return( Number(prev) + Number(curr)).toFixed(2);
               } else {
-                return prev;
+                return prev.toFixed(2);
               }
             }, 0);
           }

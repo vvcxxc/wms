@@ -51,10 +51,25 @@
           </el-option>
         </el-select>
       </div>
-     
+      <!-- <div class="map-title-sel">
+        <span class="map_text">深度：</span>
+        <el-select
+          popper-class="select-dropdown-class-li"
+          v-model="depthValue"
+          placeholder="请选择"
+        >
+          <el-option
+            v-for="item in allDepthList"
+            :key="item"
+            :label="item"
+            :value="item"
+          >
+          </el-option>
+        </el-select>
+      </div> -->
       <div class="map-title-sel">
         <!-- <span class="map_text">托盘号：</span> -->
-        <span class="map_text">计划号：</span>
+        <span class="map_text">托盘号：</span>
         <el-input
           class="title-input"
           v-model="trayNum"
@@ -96,8 +111,8 @@
             class="map-table"
             :style="
               'height:80%;transform: scale(' +
-              zoom +
-              ');transform-origin: top;transform-origin-x: left;'
+                zoom +
+                ');transform-origin: top;transform-origin-x: left;'
             "
             @mousewheel="tableMapFun"
           >
@@ -140,11 +155,10 @@
                     v-for="(i, index1) in item.data"
                     :key="index1"
                     @click="showData(i)"
-                    :class="{ color3: !i.IsFull, color1: i.IsFull }"
                     @contextmenu.prevent.stop="rightClick(i, $event)"
                     :style="{
                       width: trendsStyle.eleWidth,
-                      visibility: i.isFlag ? 'visible' : 'hidden',
+                      background: i.Color,
                     }"
                   >
                     <el-tooltip
@@ -159,14 +173,10 @@
                         <div class="border-size"></div>
                         <div class="border-box" v-show="i.isShow"></div>
 
-                        <!-- {{ i.ContainerID.split("-")[0] }} -->
+                        {{ i.ContainerID.split("-")[1] }}
 
                         <p>
-                          {{
-                            i.ContainerID.slice(
-                              i.ContainerID.split("-")[0].length + 1
-                            )
-                          }}
+                          {{ i.TrayNum }}
                         </p>
 
                         <div class="pic">
@@ -216,20 +226,31 @@
             <div class="top-text">
               <img :src="suoding" /><span>已锁定</span>
             </div>
+            <!-- <div class="top-text">
+              <img :src="jingyong" /><span>不可用</span>
+            </div> -->
             <div
               class="top-text"
               v-for="item in rightTop"
               :key="item.fieldvalue"
             >
-              <div class="text-type" :style="{ background: item.color }"></div>
+              <div style="display: inline-block; text-align: right; width: 50%">
+                <div
+                  class="text-type"
+                  :style="{ background: item.color }"
+                ></div>
+              </div>
               <!-- <span>大托盘</span> -->
-              <span>{{ item.fieldtext }}</span>
+              <span
+                style="display: inline-block; text-align: left; width: 50%"
+                >{{ item.fieldtext }}</span
+              >
             </div>
 
-            <div class="top-text">
+            <!-- <div class="top-text">
               <div class="text-type color31"></div>
               <span>空货位</span>
-            </div>
+            </div> -->
           </div>
         </div>
         <div class="map-right-bottom">
@@ -273,7 +294,12 @@
       v-if="showmenucover"
     >
       <ul>
-        <li v-for="item in rightmenus" @click="changetype(item)" :key="item.id">
+        <li
+          v-for="item in rightmenus"
+          @click="changetype(item)"
+          v-if="item.isShow"
+          :key="item.id"
+        >
           {{ item.ButtonText }}
         </li>
       </ul>
@@ -290,12 +316,14 @@
       :deleteShow="deleteShow"
       v-if="tipsPopShow"
     ></tipsPop>
-    <details-pop
-      :data="itemdata"
-      @handleDetails="handleDetails"
-      v-if="detailsPopShow"
+    <div v-if="tipsPopShow" class="mask_box"></div>
+    <inventoryPop
+      :visible="inventoryShow"
+      :formData="formData"
+      @close="close"
+      @confirm="confirm"
+      ref="inverTory"
     />
-    <div v-if="tipsPopShow || detailsPopShow" class="mask_box"></div>
   </div>
 </template>
 <script>
@@ -307,22 +335,20 @@ import chaxun from "@/assets/img1/chaxun.png";
 import axios from "@/libs/api.request";
 import VueDragResize from "vue-drag-resize";
 import tipsPop from "./tipsPop";
-import DetailsPop from "./details-pop.vue";
+import inventoryPop from "./inventoryPop.vue";
 export default {
   components: {
     VueDragResize,
     tipsPop,
-    DetailsPop,
+    inventoryPop,
   },
   data() {
     return {
       itemdata: "",
       tipsText: "",
-      deleteShow: true,
       tipsPopShow: false,
-      detailsPopShow: false,
       showmenucover: false,
-      ButtonText: "",
+      deleteShow: false,
       SubmitUrl: "",
       chaxun: chaxun,
       loading: false,
@@ -339,7 +365,8 @@ export default {
       columnsList: [], //页面列数
       floorValue: "", //层
       allFloorList: [], //总层数
-       allDepthList: [], //总深度数
+      depthValue: "", //深度
+      allDepthList: [], //总深度数
       trayNum: "", //托盘号
       mapData: "", //图库数据
       totalNum: 0,
@@ -353,15 +380,23 @@ export default {
       rightTop: {},
       TrayInfo: {},
       piePage: 0, //获取层数
+      ButtonText: "",
       trendsStyle: {
         lWidth: "",
         eleWidth: "",
         eleHeight: "",
       },
+      // 调整库存弹窗
+      inventoryShow: false,
+      formData: {
+        ContainerNum: "",
+        TrayType: "",
+        ContainerTypeID: "",
+      },
     };
   },
   directive: {
-    drag2: function (el) {
+    drag2: function(el) {
       // let dragBox = el; //获取当前元素
       el.onmousedown = (e) => {
         console.log(1);
@@ -390,42 +425,108 @@ export default {
   },
   methods: {
     initStyle() {
-      if (window.screen.width == 1024) {
-        if (this.columnsList.length <= 21) {
-          this.trendsStyle.lWidth = this.columnsList.length * 38 + 30 + "px";
-          this.trendsStyle.eleWidth = "38px";
-          this.trendsStyle.eleHeight = "38px";
-        } else {
-          this.trendsStyle.lWidth = 21 * 38 + 30 + "px";
-          this.trendsStyle.eleWidth =
-            (21 * 38) / this.columnsList.length + "px";
-          // this.trendsStyle.eleHeight = "25px";
-        }
+      if (this.columnsList.length <= 24) {
+        this.trendsStyle.lWidth = this.columnsList.length * 75 + 30 + "px";
+        this.trendsStyle.eleWidth = "75px";
+        this.trendsStyle.eleHeight = "75px";
       } else {
-        if (this.columnsList.length <= 24) {
-          this.trendsStyle.lWidth = this.columnsList.length * 75 + 30 + "px";
-          this.trendsStyle.eleWidth = "75px";
-          this.trendsStyle.eleHeight = "75px";
-        } else {
-          this.trendsStyle.lWidth = 24 * 75 + 30 + "px";
-          this.trendsStyle.eleWidth =
-            (24 * 75) / this.columnsList.length + "px";
-          // this.trendsStyle.eleHeight = "25px";
-        }
+        this.trendsStyle.lWidth = 24 * 75 + 30 + "px";
+        this.trendsStyle.eleWidth = (24 * 75) / this.columnsList.length + "px";
+        // this.trendsStyle.eleHeight = "25px";
       }
     },
     changetype(data) {
-      this.SubmitUrl = data.SubmitUrl;
-      this.showmenucover = false;
-      this.ButtonText = data.ButtonText;
-      console.log(data);
-      if (data.ButtonText == "出库" && !data.Type) {
-        this.detailsPopShow = true;
+      let $this = this;
+      if (data.id === "3") {
+        // 调整库存
+        axios
+          .request({
+            url: `/WMSBusinessManage/WH_ContainerInfo/GetTrayInfoByContainerID?ContainerTypeID=${this.formData.ContainerTypeID}`,
+            method: "post",
+          })
+          .then((res) => {
+            $this.formData.ContainerNum = res.data.ContainerNum;
+            $this.formData.TrayType = res.data.TrayType;
+            $this.formData.ContainerTypeID = res.data.ContainerTypeID;
+            res.data.details.forEach((item) => {
+              // $this.$refs.inverTory.tableData[item.TagID] = {
+              //     Oid: item.Oid,
+              //     WorkOrderNumber: item.WorkOrderNumber,
+              //     Sign: item.Sign,
+              //     RollNum: item.RollNum,
+              //     SalesOrderNumber: item.SalesOrderNumber,
+              //     SalesOrderLine: item.SalesOrderLine,
+              //     CreateTime: item.CreateTime,
+              //     Weight: item.Weight,
+              //     Length: item.Length,
+              //     Quantity: item.Quantity,
+              //     CostCenter: item.CostCenter,
+              //     kutai: item.kutai,
+              //     disabled: false,
+              // }
+              $this.$set($this.$refs.inverTory.tableData, item.TagID, {
+                Oid: item.Oid,
+                WorkOrderNumber: item.WorkOrderNumber,
+                Sign: item.Sign,
+                RollNum: item.RollNum,
+                SalesOrderNumber: item.SalesOrderNumber,
+                SalesOrderLine: item.SalesOrderLine,
+                CreateTime: item.CreateTime,
+                Weight: item.Weight,
+                Length: item.Length,
+                Quantity: item.Quantity,
+                CostCenter: item.CostCenter,
+                kutai: item.kutai,
+                disabled: false,
+              });
+            });
+            $this.inventoryShow = true;
+            $this.showmenucover = false;
+            $this.$nextTick(() => {
+              // 调整库存弹窗
+              $this.$refs.inverTory.$refs.popTable.doLayout();
+            });
+          });
       } else {
         this.tipsPopShow = true;
+        this.SubmitUrl = data.SubmitUrl;
+        this.showmenucover = false;
         this.deleteShow = true;
-        this.tipsText = `是否确定将【${this.itemdata.barcode}】进行【${data.ButtonText}】`;
+        this.ButtonText = data.ButtonText;
+        this.tipsText = `是否确定将【${this.itemdata.ContainerID}】进行【${data.ButtonText}】`;
       }
+    },
+    close() {
+      this.inventoryShow = false;
+      this.formData = {
+        ContainerNum: "",
+        TrayType: "",
+        ContainerTypeID: "",
+      };
+    },
+    confirm(formData, tableData) {
+      let $this = this;
+      let postData = {
+        ContainerNum: formData.ContainerNum,
+        TrayType: formData.TrayType,
+        ContainerTypeID: formData.ContainerTypeID,
+        details: tableData,
+      };
+      axios
+        .request({
+          url: "/WMSBusinessManage/WH_ContainerInfo/SaveTrayInfo",
+          method: "post",
+          data: postData,
+        })
+        .then((res) => {
+          if (res.data.isLogin) {
+            $this.inventoryShow = false;
+            $this.init();
+            $this.$message.success("调整成功！");
+          } else {
+            $this.$message.error(res.data.message);
+          }
+        });
     },
     deleteBtn(num) {
       this.tipsPopShow = false;
@@ -449,9 +550,9 @@ export default {
             this.tipsPopShow = true;
             this.deleteShow = false;
             if (res.data.isLogin) {
-              this.tipsText = `【${this.ButtonText}】成功！`;
+              this.tipsText = `${this.ButtonText}成功！`;
             } else {
-              this.tipsText = `${res.data.message}`;
+              this.tipsText = `${this.ButtonText}失败！${res.data.message}`;
             }
             this.loading = false;
             this.showmenucover = false;
@@ -461,6 +562,7 @@ export default {
             this.allFloorList = [];
             this.allDepthList = [];
             this.loading = true;
+            // this.getContainerMapInfoFun();
             getMap()
               .then((res) => {
                 this.loading = false;
@@ -481,7 +583,8 @@ export default {
                   //   this.allFloorList[this.allFloorList.length - 1];
                   // this.rowValue = this.allRowList[0];
                   // this.columnsValue = this.allColumnsList[0];
-                   // this.totalNum = this.allColumnsList.length;
+                  // this.depthValue = this.allDepthList[0];
+                  // this.totalNum = this.allColumnsList.length;
 
                   // this.piePage = Math.max(...this.allFloorList);
                   // this.overLooking(this.piePage);
@@ -512,72 +615,6 @@ export default {
         //     this.loading = false;
         //     console.log(error);
         //   });
-      }
-    },
-    handleDetails(flag, val) {
-      this.detailsPopShow = false;
-      if (flag) {
-        axios
-          .request({
-            url: this.SubmitUrl,
-            method: "post",
-            data: val,
-          })
-          .then((res) => {
-            this.tipsPopShow = true;
-            this.deleteShow = false;
-            if (res.data.isLogin) {
-              this.tipsText = `【${this.ButtonText}】成功！`;
-            } else {
-              this.tipsText = `${res.data.message}`;
-            }
-            this.loading = false;
-            this.showmenucover = false;
-            // this.init();
-            this.allRowList = [];
-            this.allColumnsList = [];
-            this.allFloorList = [];
-            this.allDepthList = [];
-            this.loading = true;
-            getMap()
-              .then((res) => {
-                this.loading = false;
-                if (res.data.resultdata) {
-                  // console.log()
-                  this.mapData = JSON.parse(res.data.resultdata);
-                  for (let i = 0; i < this.mapData.length; i++) {
-                    this.allFloorList.push(this.mapData[i].Plie);
-                    this.allRowList.push(this.mapData[i].RowNum);
-                    this.allColumnsList.push(this.mapData[i].Line);
-                    this.allDepthList.push(this.mapData[i].Depth);
-                  }
-                  this.allFloorList = this.getMapTitle(this.allFloorList); //获取层数
-                  this.allRowList = this.getMapTitle(this.allRowList); //获取排数
-                  this.allColumnsList = this.getMapTitle(this.allColumnsList); //获取列数
-                  this.allDepthList = this.getMapTitle(this.allDepthList); //获取深度数
-                  // this.floorValue =
-                  //   this.allFloorList[this.allFloorList.length - 1];
-                  // this.rowValue = this.allRowList[0];
-                  // this.columnsValue = this.allColumnsList[0];
-                   // this.totalNum = this.allColumnsList.length;
-
-                  // this.piePage = Math.max(...this.allFloorList);
-                  // this.overLooking(this.piePage);
-                  // this.handleCurrentChange(1);
-                  // this.showView(this.isActive);
-                  if (!this.isActive) {
-                    this.sideLooking(this.rowValue);
-                  } else {
-                    this.overLooking(this.floorValue);
-                  }
-                  this.handleCurrentChange(1);
-                }
-              })
-              .catch((error) => {
-                this.loading = false;
-                console.log(error);
-              });
-          });
       }
     },
     rightmenucover() {
@@ -634,10 +671,16 @@ export default {
       // } else {
       //   this.rightmenus = ["锁定", "手动出库"];
       // }
+      this.formData.ContainerTypeID = item.ContainerTypeID;
+      if (item.IsNotEL === 1) {
+        this.rightmenus[2].isShow = true;
+      } else {
+        // this.rightmenus[2].isShow = false;
+        this.rightmenus[2].isShow = true;
+      }
       const scrollY =
         document.documentElement.clientHeight || document.body.clientHeight;
       const y = scrollY - e.clientY;
-
       this.showmenucover = true;
       let height = 0;
       await this.$nextTick(() => {
@@ -672,12 +715,13 @@ export default {
             this.allRowList = this.getMapTitle(this.allRowList); //获取排数
             this.allColumnsList = this.getMapTitle(this.allColumnsList); //获取列数
             this.allDepthList = this.getMapTitle(this.allDepthList); //获取深度数
-            this.floorValue = this.allFloorList[0]; // this.allFloorList.length - 1
+            this.floorValue = this.allFloorList[this.allFloorList.length - 1];
             this.rowValue = this.allRowList[0];
             this.columnsValue = this.allColumnsList[0];
-             this.totalNum = this.allColumnsList.length;
+            this.depthValue = this.allDepthList[0];
+            this.totalNum = this.allColumnsList.length;
 
-            this.piePage = Math.min(...this.allFloorList);
+            this.piePage = Math.max(...this.allFloorList);
             this.overLooking(this.piePage);
             this.handleCurrentChange(1);
           }
@@ -713,7 +757,6 @@ export default {
           if (res.data.resultdata) {
             // console.log()
             this.mapData = JSON.parse(res.data.resultdata);
-            console.log(this.rowValue, this.floorValue);
             for (let i = 0; i < this.mapData.length; i++) {
               this.allFloorList.push(this.mapData[i].Plie);
               this.allRowList.push(this.mapData[i].RowNum);
@@ -727,7 +770,8 @@ export default {
             // this.floorValue = this.allFloorList[this.allFloorList.length - 1];
             // this.rowValue = this.allRowList[0];
             // this.columnsValue = this.allColumnsList[0];
-             // this.totalNum = this.allColumnsList.length;
+            // this.depthValue = this.allDepthList[0];
+            // this.totalNum = this.allColumnsList.length;
 
             // this.piePage = Math.max(...this.allFloorList);
             // // this.overLooking(this.piePage);
@@ -756,27 +800,28 @@ export default {
             break;
           }
         }
+        this.rowValue = this.chackData.RowNum;
+        this.columnsValue = this.chackData.Line;
+        this.floorValue = this.chackData.Plie;
         if (this.chackData == "") {
           this.$message({
             message: "查找不到该托盘号",
             type: "warning",
           });
-        } else {
-          this.rowValue = this.chackData.RowNum;
-          this.columnsValue = this.chackData.Line;
-          this.floorValue = this.chackData.Plie;
         }
       } else {
         if (
           this.rowValue &&
           this.columnsValue &&
-          this.floorValue  
+          this.floorValue &&
+          this.depthValue
         ) {
           for (let i = 0; i < list.length; i++) {
             if (
               this.rowValue == list[i].RowNum &&
               this.columnsValue == list[i].Line &&
-              this.floorValue == list[i].Plie  
+              this.floorValue == list[i].Plie &&
+              this.depthValue == list[i].Depth
             ) {
               this.chackData = list[i];
               break;
@@ -813,7 +858,7 @@ export default {
     getMapTitle(list) {
       list = new Set(list);
       list = [...list];
-      list = list.sort(function (a, b) {
+      list = list.sort(function(a, b) {
         return a - b;
       });
       return list;
@@ -832,6 +877,7 @@ export default {
     },
     // 右侧显示数据
     showData(item) {
+      console.log(item);
       this.chackData = item;
       var list = this.rowAlldata;
       for (var i = 0; i < list.length; i++) {
@@ -919,23 +965,18 @@ export default {
         }
       }
       if (this.rowAlldata.length > 0) {
-        this.rowAlldata = this.rowAlldata.reverse();
-        this.rowAlldata.forEach((item) => {
-          for (let i = 0; i < item.data.length; i++) {
-            if (i + 1 != item.data[i].ContainerID.split("-")[1]) {
-              item.data.splice(i, 0, { isFlag: false, ContainerID: "" });
-            } else {
-              item.data[i].isFlag = true;
-            }
-          }
-        });
+        // this.columnsList.reverse();
+        this.rowAlldata = this.rowAlldata.reverse().map((item) => ({
+          ...item,
+          // data: item.data.reverse(),
+        }));
       }
-      console.log(this.rowAlldata);
       this.initStyle();
+      console.log(this.rowAlldata);
     },
     //升序
     compare(property) {
-      return function (a, b) {
+      return function(a, b) {
         var value1 = a[property];
         var value2 = b[property];
         return value1 - value2;
@@ -958,11 +999,19 @@ export default {
             let AttrText = data.AttrText;
             // delete(AttrText.ISLocked)
             let TrayInfo = data.TrayInfo;
-            let rightmenus = data.MapButtons;
+            // let rightmenus = data.MapButtons;
+            let rightmenus = data.MapButtons.map((item) => ({
+              ...item,
+              isShow: true,
+            }));
+            // rightmenus.push({
+            //   id: '3',
+            //   ButtonText: '调整库存',
+            //   isShow: true,
+            // })
             this.rightTop = AttrText;
             this.TrayInfo = TrayInfo;
             this.rightmenus = rightmenus;
-            // console.log(this.rightmenus);
           }
         })
         .catch((err) => {
